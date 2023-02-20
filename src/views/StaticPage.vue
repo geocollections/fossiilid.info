@@ -11,18 +11,24 @@
 export default {
   name: 'static-page',
    computed: {
-       content : function() {
-           if (this.$store.state.page[this.$route.params.id].length > 0)
-            return this.$store.state.page[this.$route.params.id][0]
+       content () {
+         const page = this.$store.state.page[this.$route.params.id]
+         if (page && page.length > 0) return page[0]
        },
        currentContent () {
            return this.$store.state.lang === 'et'
-               ? this.content.content_et
-               : this.content.content_en
+               ? this.content && this.content.content_et
+               : this.content && this.content.content_en
        },
        meta () {
-           return [this.content.menu_title_et, this.content.title_et].join(", ")
+           return [this.content && this.content.menu_title_et, this.content && this.content.title_et].join(", ")
        }
+  },
+
+  created() {
+    if (!this.content) {
+      this.$router.push('/')
+    }
   },
 
   asyncData ({ store, route : {params: { id }}}) {
@@ -31,7 +37,7 @@ export default {
 
   metaInfo () {
     return {
-        title : this.content.menu_title_et,
+        title : (this.content && this.content.menu_title_et) || 'Fossiilid',
         meta:  [{ vmid: 'keywords', name: 'keywords', content: this.meta}]
     }
   }
