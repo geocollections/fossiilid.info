@@ -6,9 +6,7 @@ const SWPrecachePlugin = require('sw-precache-webpack-plugin')
 const VueSSRClientPlugin = require('vue-server-renderer/client-plugin')
 
 const config = merge(base, {
-    entry: {
-        app: './src/entry-client.js'
-    },
+    entry: ['regenerator-runtime/runtime.js', './src/entry-client.js'],
     plugins: [
         // strip dev-only code in Vue source
         new webpack.DefinePlugin({
