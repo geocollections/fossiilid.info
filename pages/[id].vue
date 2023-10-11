@@ -1028,6 +1028,7 @@ export default defineNuxtComponent({
         returnVal = `${queryJoiner}in_estonia${separator}1`;
       return returnVal;
     };
+    console.log(taxon);
     const [
       ranksRes,
       taxonCommonNamesRes,
@@ -1095,7 +1096,7 @@ export default defineNuxtComponent({
         typeSpecimenRes,
         distributionSamplesRes,
         distributionConopRes,
-      ] = Promise.all([
+      ] = await Promise.all([
         $fetch(`/taxon_synonym/?taxon=${id}&order_by=year&format=json`, {
           baseURL: "https://api.geocollections.info",
         }),
