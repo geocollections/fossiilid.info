@@ -149,7 +149,9 @@
                   </b-form-checkbox>
                 </b-col>
                 <b-col md="12" v-if="errorMessege !== null">
-                  <b-alert show variant="warning">{{ errorMessege }}</b-alert>
+                  <b-alert :model-value="true" variant="warning">
+                    {{ errorMessege }}
+                  </b-alert>
                 </b-col>
                 <b-col sm="8" class="pt-2">
                   <vue-slider
@@ -215,7 +217,7 @@
       </b-row>
       <b-row class="pt-3">
         <b-col md="12" v-if="initialMessege && !isLoadingResults">
-          <b-alert show variant="info" v-if="!!initialMessege">
+          <b-alert :model-value="true" variant="info" v-if="!!initialMessege">
             {{ $t("advancedsearch.msg_add_criteria") }}
           </b-alert>
         </b-col>
@@ -377,7 +379,7 @@ export default {
           this.getQueryParameters(geomParams) +
           "fq=%7B%21collapse%20field=locality%7D&"
         }q=rank:[14%20TO%2017]&fl=taxon&rows=1&format=json`,
-        { baseURL: "https://api.geocollections.info" },
+        { baseURL: "https://api.geocollections.info" }
       )
         .then((response) => {
           if (document.getElementById(speciesID) !== null) {
@@ -410,7 +412,7 @@ export default {
           this.getQueryParameters(geomParams) +
           "fq=%7B%21collapse%20field=taxon%7D&"
         }q=rank:[14%20TO%2017]&fl=taxon&rows=1&format=json`,
-        { baseURL: "https://api.geocollections.info" },
+        { baseURL: "https://api.geocollections.info" }
       )
         .then((response) => {
           if (document.getElementById(occurrenceID) !== null) {
@@ -577,7 +579,7 @@ export default {
           subdomains: "abcd",
           mapid: "",
           token: "",
-        },
+        }
       );
       //     L.tileLayer('https://api.tiles.mapbox.com/v4/mapbox.light/{z}/{x}/{y}.png?access_token=pk.eyJ1Ijoia3V1dG9iaW5lIiwiYSI6ImNpZWlxdXAzcjAwM2Nzd204enJvN2NieXYifQ.tp6-mmPsr95hfIWu3ASz2w',
       //     {
@@ -746,7 +748,7 @@ export default {
         MAP_VAR.map.invalidateSize,
         MAP_VAR.map,
         !1,
-        MAP_VAR.map._container,
+        MAP_VAR.map._container
       );
 
       // MAP_VAR.map.on('baselayerchange', onBaseLayerChange);
@@ -757,83 +759,83 @@ export default {
     drawI18N: function () {
       L.Control.Fullscreen.title = this.$t("advancedsearch.draw_actions_title");
       L.drawLocal.draw.toolbar.actions.title = this.$t(
-        "advancedsearch.draw_actions_title",
+        "advancedsearch.draw_actions_title"
       );
       L.drawLocal.draw.toolbar.actions.text = this.$t(
-        "advancedsearch.draw_actions_text",
+        "advancedsearch.draw_actions_text"
       );
       L.drawLocal.draw.toolbar.finish.title = this.$t(
-        "advancedsearch.draw_finish_title",
+        "advancedsearch.draw_finish_title"
       );
       L.drawLocal.draw.toolbar.finish.text = this.$t(
-        "advancedsearch.draw_finish_text",
+        "advancedsearch.draw_finish_text"
       );
       L.drawLocal.draw.toolbar.undo.title = this.$t(
-        "advancedsearch.draw_undo_title",
+        "advancedsearch.draw_undo_title"
       );
       L.drawLocal.draw.toolbar.undo.text = this.$t(
-        "advancedsearch.draw_undo_text",
+        "advancedsearch.draw_undo_text"
       );
       L.drawLocal.draw.toolbar.buttons.polygon = this.$t(
-        "advancedsearch.draw_buttons_polygon",
+        "advancedsearch.draw_buttons_polygon"
       );
       L.drawLocal.draw.toolbar.buttons.rectangle = this.$t(
-        "advancedsearch.draw_buttons_rectangle",
+        "advancedsearch.draw_buttons_rectangle"
       );
       L.drawLocal.draw.toolbar.buttons.circle = this.$t(
-        "advancedsearch.draw_buttons_circle",
+        "advancedsearch.draw_buttons_circle"
       );
       L.drawLocal.draw.handlers.polygon.tooltip.start = this.$t(
-        "advancedsearch.draw_polygon_tooltip_start",
+        "advancedsearch.draw_polygon_tooltip_start"
       );
       L.drawLocal.draw.handlers.polygon.tooltip.cont = this.$t(
-        "advancedsearch.draw_polygon_tooltip_cont",
+        "advancedsearch.draw_polygon_tooltip_cont"
       );
       L.drawLocal.draw.handlers.polygon.tooltip.end = this.$t(
-        "advancedsearch.draw_polygon_tooltip_end",
+        "advancedsearch.draw_polygon_tooltip_end"
       );
       L.drawLocal.draw.handlers.rectangle.tooltip.start = this.$t(
-        "advancedsearch.draw_rectangle_tooltip_start",
+        "advancedsearch.draw_rectangle_tooltip_start"
       );
       L.drawLocal.draw.handlers.simpleshape.tooltip.end = this.$t(
-        "advancedsearch.draw_simpleshape_tooltip_end",
+        "advancedsearch.draw_simpleshape_tooltip_end"
       );
       L.drawLocal.draw.handlers.circle.tooltip.start = this.$t(
-        "advancedsearch.draw_circle_tooltip_start",
+        "advancedsearch.draw_circle_tooltip_start"
       );
       L.drawLocal.draw.handlers.circle.radius = this.$t(
-        "advancedsearch.draw_circle_radius",
+        "advancedsearch.draw_circle_radius"
       );
       L.drawLocal.edit.toolbar.buttons.edit = this.$t(
-        "advancedsearch.draw_edit_toolbar_buttons_edit",
+        "advancedsearch.draw_edit_toolbar_buttons_edit"
       );
       L.drawLocal.edit.toolbar.actions.save.text = this.$t(
-        "advancedsearch.draw_edit_toolbar_actions_save_text",
+        "advancedsearch.draw_edit_toolbar_actions_save_text"
       );
       L.drawLocal.edit.toolbar.actions.save.title = this.$t(
-        "advancedsearch.draw_edit_toolbar_actions_save_title",
+        "advancedsearch.draw_edit_toolbar_actions_save_title"
       );
       L.drawLocal.edit.toolbar.actions.cancel.title = this.$t(
-        "advancedsearch.draw_edit_toolbar_actions_cancel_title",
+        "advancedsearch.draw_edit_toolbar_actions_cancel_title"
       );
       L.drawLocal.edit.toolbar.actions.cancel.text = this.$t(
-        "advancedsearch.draw_edit_toolbar_actions_cancel_text",
+        "advancedsearch.draw_edit_toolbar_actions_cancel_text"
       );
       L.drawLocal.edit.handlers.edit.tooltip.text = this.$t(
-        "advancedsearch.draw_edit_handlers_edit_tooltip_text",
+        "advancedsearch.draw_edit_handlers_edit_tooltip_text"
       );
       L.drawLocal.edit.handlers.edit.tooltip.subtext = this.$t(
-        "advancedsearch.draw_edit_handlers_edit_tooltip_subtext",
+        "advancedsearch.draw_edit_handlers_edit_tooltip_subtext"
       );
       // L.drawLocal.edit.toolbar.buttons.remove.remove = this.$t('advancedsearch.draw_edit_toolbar_buttons_remove_remove');
       L.drawLocal.edit.toolbar.actions.clearAll.text = this.$t(
-        "advancedsearch.draw_edit_toolbar_actions_clearAll_text",
+        "advancedsearch.draw_edit_toolbar_actions_clearAll_text"
       );
       L.drawLocal.edit.toolbar.actions.clearAll.title = this.$t(
-        "advancedsearch.draw_edit_toolbar_actions_clearAll_title",
+        "advancedsearch.draw_edit_toolbar_actions_clearAll_title"
       );
       L.drawLocal.edit.handlers.remove.tooltip.text = this.$t(
-        "advancedsearch.draw_edit_handlers_remove_tooltip_text",
+        "advancedsearch.draw_edit_handlers_remove_tooltip_text"
       );
     },
 
@@ -855,14 +857,14 @@ export default {
         let query = this.getAutocompleteQueryParameters(
           value,
           isHigher,
-          isStrat,
+          isStrat
         );
         if (query.length === 0) return;
         isLoading = true;
         if (isHigher === true) {
           $fetch(
             `solr/taxon/?fq=${query}&sort=taxon asc&rows=30&fl=taxon,taxon_id,hierarchy_string&format=json`,
-            { baseURL: "https://api.geocollections.info" },
+            { baseURL: "https://api.geocollections.info" }
           ).then((response) => {
             isLoading = false;
             this.searchResults = response.results;
@@ -870,7 +872,7 @@ export default {
         } else {
           $fetch(
             `solr/stratigraphy/?fq=${query}&sort=stratigraphy asc&rows=30&fl=stratigraphy,stratigraphy_en,id,hierarchy_string&fq=type:1&format=json`,
-            { baseURL: "https://api.geocollections.info" },
+            { baseURL: "https://api.geocollections.info" }
           ).then((response) => {
             isLoading = false;
             this.searchResults = response.results;
@@ -881,7 +883,7 @@ export default {
     getAutocompleteQueryParameters(
       fieldValue,
       isHigher = false,
-      isStrat = false,
+      isStrat = false
     ) {
       let lowerFirstCh = fieldValue.charAt(0).toLowerCase();
       let upperFirstCh = fieldValue.charAt(0).toUpperCase();
@@ -982,7 +984,7 @@ export default {
             ? searchParameters.advancedSearch.madDataPaginateBy
             : searchParameters.advancedSearch.paginateBy
         }&start=${start}&${fl}&format=json`,
-        { baseURL: "https://api.geocollections.info" },
+        { baseURL: "https://api.geocollections.info" }
       );
     },
     applySearch() {
@@ -996,7 +998,7 @@ export default {
         (response) => {
           this.mapDataResult = response.results;
           this.showLocalitiesOnMap();
-        },
+        }
       );
       this.fetchAdvancedTaxonSearch(query, this.searchParameters, false).then(
         (response) => {
@@ -1004,7 +1006,7 @@ export default {
           this.numberOfResutls = response.count;
           this.resultsHandling();
           this.showLocalitiesOnMap();
-        },
+        }
       );
     },
     showLocalities() {
@@ -1087,7 +1089,7 @@ export default {
             this_.drawAreaNearMe();
             this_.map.setView(
               [this_.searchParams.latlng.lat, this_.searchParams.latlng.lng],
-              12 - this_.searchParams.radius * 0.15,
+              12 - this_.searchParams.radius * 0.15
             );
 
             // this_.applySearch();
@@ -1096,7 +1098,7 @@ export default {
             if (error.code == error.PERMISSION_DENIED)
               this_.errorMessege =
                 "Geolocation is not supported by this browser.";
-          },
+          }
         );
       }
     },
@@ -1113,7 +1115,7 @@ export default {
       this.circle = new L.Circle(
         this.searchParams.latlng,
         this.searchParams.radius * 1000,
-        this.drawControls.options.draw.circle.shapeOptions,
+        this.drawControls.options.draw.circle.shapeOptions
       );
       L.Draw.SimpleShape.prototype._fireCreatedEvent.call(this, this.circle);
     },
@@ -1156,7 +1158,7 @@ export default {
         this.drawAreaNearMe();
         this.map.setView(
           [this.searchParams.latlng.lat, this.searchParams.latlng.lng],
-          12 - this.searchParams.radius * 0.15,
+          12 - this.searchParams.radius * 0.15
         );
       },
       deep: true,

@@ -24,6 +24,11 @@ section {
   padding-top: 3rem;
   /*min-height: 45rem;*/
 }
+
+a {
+  text-decoration: none;
+}
+
 .figcaption {
   font-size: 0.8em;
   color: #000;

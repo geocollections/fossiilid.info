@@ -19,15 +19,14 @@
             class="rounded-circle btn btn-primary fixed-bottom p-0 m-md-2"
             variant="primary"
           >
-            <span
+            <i
               style="
                 color: white !important;
                 font-weight: bolder !important;
-                font-size: 2em !important;
+                font-size: 1.5em !important;
               "
-            >
-              &uarr;
-            </span>
+              class="fas fa-arrow-up"
+            ></i>
           </button>
         </span>
       </div>
@@ -61,7 +60,7 @@
                 <h1
                   style="display: inline; font-weight: bold"
                   :class="
-                    isHigherTaxon(taxon.rank__rank_en) ? '' : 'font-italic'
+                    isHigherTaxon(taxon.rank__rank_en) ? '' : 'fst-italic'
                   "
                 >
                   {{ taxon.taxon }}
@@ -130,7 +129,7 @@
                   {{ $t("header.f_belongs_to") }}:
                   <a
                     :class="
-                      isHigherTaxon(parent.rank__rank_en) ? '' : 'font-italic'
+                      isHigherTaxon(taxon.rank__rank_en) ? '' : 'fst-italic'
                     "
                     :href="'/' + parent.id"
                   >
@@ -717,7 +716,7 @@
               <b-alert
                 style="width: 100%; font-size: 0.8rem"
                 class="mb-0"
-                show
+                :model-value="true"
                 variant="info"
                 v-if="isNumberOfLocalitiesOnMapOver1000"
               >
@@ -733,7 +732,10 @@
                 {{ $t("header.fossils_classification") }}
               </div>
               <div class="card-body" style="font-size: 0.8em">
-                <taxonomical-tree :lists="lists"></taxonomical-tree>
+                <taxonomical-tree
+                  :lists="lists"
+                  :hierarchy-data="hierarchyData"
+                ></taxonomical-tree>
               </div>
             </div>
           </div>
@@ -836,15 +838,6 @@ import filter from "lodash/filter";
 import orderBy from "lodash/orderBy";
 import uniqBy from "lodash/uniqBy";
 import map from "lodash/map";
-import {
-  fetchParentTaxon,
-  fetchSisterTaxa,
-  fetchSpecies,
-  fetchHierarchy,
-  fetchImages,
-  fetchSelectedImages,
-  cntSpecimenCollection,
-} from "../api";
 import { useRootStore } from "../stores/root";
 import { mapState, mapWritableState } from "pinia";
 import TabGallery from "~/components/tabs/TabGallery.vue";
@@ -860,6 +853,17 @@ export default defineNuxtComponent({
   computed: {
     ...mapWritableState(useRootStore, ["errorMessage", "activeTab"]),
     ...mapState(useRootStore, ["lang", "mode", "searchParameters"]),
+    hierarchyData() {
+      return {
+        sortedSisters: this.sortedSisters,
+        parent: this.parent,
+        taxon: this.taxon,
+        hierarchy: this.hierarchy,
+        sortedSiblings: this.sortedSiblings,
+        sortedSistersWithoutCurrentTaxon: this.sortedSistersWithoutCurrentTaxon,
+        taxon: this.taxon,
+      };
+    },
     taxon() {
       return this.taxon;
     },
@@ -956,7 +960,7 @@ export default defineNuxtComponent({
     sortedSistersWithoutCurrentTaxon: function () {
       return this.excludeCurrentTaxon(
         this.sortedSisters,
-        this.$route.params.id,
+        this.$route.params.id
       );
     },
 
@@ -986,7 +990,7 @@ export default defineNuxtComponent({
       return !!(
         this.map_ &&
         ["Species", "Subspecies", "Genus", "Supergenus", "Subgenus"].indexOf(
-          this.taxon.rank__rank_en,
+          this.taxon.rank__rank_en
         ) >= 0 &&
         // && ['Species','Subspecies','Genus','Supergenus','Subgenus'].includes(this.taxon.rank__rank_en)
         this.isDefinedAndNotNull(this.taxon.taxon)
@@ -1012,10 +1016,18 @@ export default defineNuxtComponent({
     const mode = rootStore.mode;
     const taxonRes = await $fetch(
       `/taxon/?id=${id}&fields=id,taxon,parent,parent__taxon,rank__rank,rank__rank_en,fossil_group__id,is_fossil_group,fossil_group__taxon,hierarchy_string,author_year,date_added,date_changed,stratigraphy_base__stratigraphy,stratigraphy_base_id,stratigraphy_top_id,stratigraphy_base__age_base,stratigraphy_top__age_top,stratigraphy_top__stratigraphy,taxon_id_tol,taxon_id_eol,taxon_id_nrm,taxon_id_plutof,taxon_id_pbdb&format=json`,
-      { baseURL: "https://api.geocollections.info" },
+      { baseURL: "https://api.geocollections.info" }
     );
     const taxon = (taxonRes.results && taxonRes.results[0]) || false;
     let speciesMapMode = mode === "in_global" ? `` : ` AND ${mode}:1`;
+    const applyMode = (mode, separator = "=", queryJoiner = "&") => {
+      let returnVal = "";
+      if (mode === "in_baltoscandia")
+        returnVal = `${queryJoiner}in_baltoscandia${separator}1`;
+      else if (mode === "in_estonia")
+        returnVal = `${queryJoiner}in_estonia${separator}1`;
+      return returnVal;
+    };
     const [
       ranksRes,
       taxonCommonNamesRes,
@@ -1033,39 +1045,41 @@ export default defineNuxtComponent({
       }),
       $fetch(
         `/taxon_common_name/?taxon=${id}&is_preferred=1&fields=language,name,is_preferred&format=json`,
-        { baseURL: "https://api.geocollections.info" },
+        { baseURL: "https://api.geocollections.info" }
       ),
       $fetch(
         `/taxon_page/?taxon=${id}&language=${$i18n.locale.value}&fields=content,author_txt,date_txt,link_wikipedia,title&format=json`,
-        { baseURL: "https://api.geocollections.info" },
+        { baseURL: "https://api.geocollections.info" }
       ),
       $fetch(
         `/taxon_occurrence/?taxon__taxon__icontains=${taxon.taxon}&fields=reference,reference__reference,locality__locality,locality__locality_en,depth_interval,depth,stratigraphy_base__stratigraphy,stratigraphy_base__stratigraphy_en&format=json`,
-        { baseURL: "https://api.geocollections.info" },
+        { baseURL: "https://api.geocollections.info" }
       ),
       $fetch(
         `/taxon_occurrence/?taxon__hierarchy_string__istartswith=${taxon.hierarchy_string}&reference!=null&order_by=-reference__year&fields=reference,reference__reference,reference__author,reference__year,reference__title,reference__journal__journal_name,reference__book,reference__volume,reference__number,reference__pages,reference__doi&distinct=true&format=json`,
-        { baseURL: "https://api.geocollections.info" },
+        { baseURL: "https://api.geocollections.info" }
       ),
       $fetch(
         `/specimen_identification/?taxon__hierarchy_string__istartswith=${taxon.hierarchy_string}&reference!=null&order_by=-reference__year&fields=reference,reference__reference,reference__author,reference__year,reference__title,reference__journal__journal_name,reference__book,reference__volume,reference__number,reference__pages,reference__doi&distinct=true&format=json`,
-        { baseURL: "https://api.geocollections.info" },
+        { baseURL: "https://api.geocollections.info" }
       ),
       $fetch(
-        `/taxon/?parent=${id}&${mode}=1&fields=id,taxon,parent__taxon,parent_id,rank__rank_en,rank__rank&format=json`,
-        { baseURL: "https://api.geocollections.info" },
+        `/taxon/?parent=${id}${applyMode(
+          mode
+        )}&fields=id,taxon,parent__taxon,parent_id,rank__rank_en,rank__rank&format=json`,
+        { baseURL: "https://api.geocollections.info" }
       ),
       $fetch(
         `/taxon_description/?taxon=${id}&fields=reference,reference__reference,description&order_by=-reference__year&format=json`,
-        { baseURL: "https://api.geocollections.info" },
+        { baseURL: "https://api.geocollections.info" }
       ),
       $fetch(
         `/solr/taxon_search/?q=taxon_hierarchy:${taxon.hierarchy_string}*${speciesMapMode}&fq=%7B%21collapse%20field--locality%7D&fq=rank:[14%20TO%2017]&sort=fossil_group asc,taxon asc&rows=1000&start=0&fl=src,locality,locality_en,locality_id,latlong&format=json`,
-        { baseURL: "https://api.geocollections.info" },
+        { baseURL: "https://api.geocollections.info" }
       ),
       $fetch(
         `/taxon_opinion/?taxon=${id}&order_by=-reference__year&format=json`,
-        { baseURL: "https://api.geocollections.info" },
+        { baseURL: "https://api.geocollections.info" }
       ),
     ]);
 
@@ -1090,10 +1104,10 @@ export default defineNuxtComponent({
         }),
         $fetch(
           `/taxon/?sql=get_species_distribution_sample&keyword=${taxon.taxon}&format=json`,
-          { baseURL: "https://api.geocollections.info" },
+          { baseURL: "https://api.geocollections.info" }
         ),
         $fetch(
-          `/taxon/?sql=get_species_distribution_conop&keyword=${taxon.taxon}&format=json`,
+          `/taxon/?sql=get_species_distribution_conop&keyword=${taxon.taxon}&format=json`
         ),
       ]);
       rankFields.typeSpecimen = typeSpecimenRes.results || false;
@@ -1172,6 +1186,103 @@ export default defineNuxtComponent({
         },
       };
     },
+    async refreshData() {
+      const taxon = this.taxon;
+      const id = this.$route.params.id;
+      let speciesMapMode =
+        this.mode === "in_global" ? `` : ` AND ${this.mode}:1`;
+      const mode = this.mode;
+      const [
+        taxonCommonNamesRes,
+        taxonPagesRes,
+        taxonOccurrenceRes,
+        referencesRes,
+        references2Res,
+        childrenRes,
+        descriptionsRes,
+        speciesMapRes,
+        opinionsRes,
+      ] = await Promise.all([
+        $fetch(
+          `/taxon_common_name/?taxon=${id}&is_preferred=1&fields=language,name,is_preferred&format=json`,
+          { baseURL: "https://api.geocollections.info" }
+        ),
+        $fetch(
+          `/taxon_page/?taxon=${id}&language=${this.$i18n.locale}&fields=content,author_txt,date_txt,link_wikipedia,title&format=json`,
+          { baseURL: "https://api.geocollections.info" }
+        ),
+        $fetch(
+          `/taxon_occurrence/?taxon__taxon__icontains=${taxon.taxon}&fields=reference,reference__reference,locality__locality,locality__locality_en,depth_interval,depth,stratigraphy_base__stratigraphy,stratigraphy_base__stratigraphy_en&format=json`,
+          { baseURL: "https://api.geocollections.info" }
+        ),
+        $fetch(
+          `/taxon_occurrence/?taxon__hierarchy_string__istartswith=${taxon.hierarchy_string}&reference!=null&order_by=-reference__year&fields=reference,reference__reference,reference__author,reference__year,reference__title,reference__journal__journal_name,reference__book,reference__volume,reference__number,reference__pages,reference__doi&distinct=true&format=json`,
+          { baseURL: "https://api.geocollections.info" }
+        ),
+        $fetch(
+          `/specimen_identification/?taxon__hierarchy_string__istartswith=${taxon.hierarchy_string}&reference!=null&order_by=-reference__year&fields=reference,reference__reference,reference__author,reference__year,reference__title,reference__journal__journal_name,reference__book,reference__volume,reference__number,reference__pages,reference__doi&distinct=true&format=json`,
+          { baseURL: "https://api.geocollections.info" }
+        ),
+        $fetch(
+          `/taxon/?parent=${id}${this.applyMode(
+            mode
+          )}&fields=id,taxon,parent__taxon,parent_id,rank__rank_en,rank__rank&format=json`,
+          { baseURL: "https://api.geocollections.info" }
+        ),
+        $fetch(
+          `/taxon_description/?taxon=${id}&fields=reference,reference__reference,description&order_by=-reference__year&format=json`,
+          { baseURL: "https://api.geocollections.info" }
+        ),
+        $fetch(
+          `/solr/taxon_search/?q=taxon_hierarchy:${taxon.hierarchy_string}*${speciesMapMode}&fq=%7B%21collapse%20field--locality%7D&fq=rank:[14%20TO%2017]&sort=fossil_group asc,taxon asc&rows=1000&start=0&fl=src,locality,locality_en,locality_id,latlong&format=json`,
+          { baseURL: "https://api.geocollections.info" }
+        ),
+        $fetch(
+          `/taxon_opinion/?taxon=${id}&order_by=-reference__year&format=json`,
+          { baseURL: "https://api.geocollections.info" }
+        ),
+      ]);
+      this.commonNames =
+        (taxonCommonNamesRes.results && taxonCommonNamesRes.results[0]) ||
+        false;
+      this.taxonPage =
+        (taxonPagesRes.results && taxonPagesRes.results[0]) || false;
+      this.taxonOccurence = taxonOccurrenceRes.results || false;
+      this.references = referencesRes.results || false;
+      this.references2 = references2Res.results || false;
+      this.children = childrenRes.results || false;
+      this.description = descriptionsRes.results || false;
+      this.map = speciesMapRes.results || false;
+      this.cntLocalities = speciesMapRes.count || false;
+      this.opinions = opinionsRes.results || false;
+
+      if (["Species", "Subspecies"].indexOf(taxon.rank__rank_en) >= 0) {
+        const [
+          synonymRes,
+          typeSpecimenRes,
+          distributionSamplesRes,
+          distributionConopRes,
+        ] = Promise.all([
+          $fetch(`/taxon_synonym/?taxon=${id}&order_by=year&format=json`, {
+            baseURL: "https://api.geocollections.info",
+          }),
+          $fetch(`/taxon_type_specimen/?taxon=${id}&format=json`, {
+            baseURL: "https://api.geocollections.info",
+          }),
+          $fetch(
+            `/taxon/?sql=get_species_distribution_sample&keyword=${taxon.taxon}&format=json`,
+            { baseURL: "https://api.geocollections.info" }
+          ),
+          $fetch(
+            `/taxon/?sql=get_species_distribution_conop&keyword=${taxon.taxon}&format=json`
+          ),
+        ]);
+        this.typeSpecimen = typeSpecimenRes.results || false;
+        this.synonims = synonymRes.results || false;
+        this.distributionSamples = distributionSamplesRes.results || false;
+        this.distributionConop = distributionConopRes.results || false;
+      }
+    },
     applyMode(mode, separator = "=", queryJoiner = "&") {
       let returnVal = "";
       if (mode === "in_baltoscandia")
@@ -1184,15 +1295,15 @@ export default defineNuxtComponent({
       if (this.isDefinedAndNotNull(this.taxon.parent)) {
         const parentRes = await $fetch(
           `/taxon/?id=${this.taxon.parent}&fields=id,taxon,rank__rank_en&format=json`,
-          { baseURL: "https://api.geocollections.info" },
+          { baseURL: "https://api.geocollections.info" }
         );
         this.parent = parentRes.results ? parentRes.results[0] : {};
 
         const sisterTaxaRes = await $fetch(
           `/taxon/?parent_id=${this.taxon.parent}${this.applyMode(
-            this.mode,
+            this.mode
           )}&fields=id,taxon,parent__taxon,parent_id,rank__rank_en,rank__rank&format=json`,
-          { baseURL: "https://api.geocollections.info" },
+          { baseURL: "https://api.geocollections.info" }
         );
         this.sister_taxa = sisterTaxaRes.results;
         this.isSisterTaxaLoaded = true;
@@ -1204,9 +1315,9 @@ export default defineNuxtComponent({
 
       const hierarchyRes = await $fetch(
         `/taxon/?id__in=${this.formatHierarchyString(
-          this.taxon.hierarchy_string,
+          this.taxon.hierarchy_string
         )}&fields=id,taxon,rank__rank,rank__rank_en&format=json`,
-        { baseURL: "https://api.geocollections.info" },
+        { baseURL: "https://api.geocollections.info" }
       );
       this.hierarchy = hierarchyRes.results;
       this.isHierarchyLoaded = true;
@@ -1215,16 +1326,15 @@ export default defineNuxtComponent({
 
       const cntSpecimenCollectionRes = await $fetch(
         `/solr/specimen/?q=hierarchy_string:(${this.taxon.hierarchy_string}*)&rows=1&format=json`,
-        { baseURL: "https://api.geocollections.info" },
+        { baseURL: "https://api.geocollections.info" }
       );
-      console.log(cntSpecimenCollectionRes.count);
       this.specimenCollectionCnt = cntSpecimenCollectionRes.count;
     },
     handleImageResponse(searchParameters, response) {
       searchParameters.allowPaging = this.isAllowedMorePaging(
         searchParameters.page,
         response,
-        searchParameters.paginateBy,
+        searchParameters.paginateBy
       );
       if (searchParameters.allowPaging) searchParameters.page += 1;
       this.images = this.composeImageRequest(response.results);
@@ -1236,19 +1346,19 @@ export default defineNuxtComponent({
       const selectedImagesRes = await $fetch(
         `/taxon/?sql=get_taxon_selected_images&keyword=${this.taxon.id}&page=${this.searchParameters.selectedImages.page}&paginate_by=${this.searchParameters.selectedImages.paginateBy}&format=json`,
 
-        { baseURL: "https://api.geocollections.info" },
+        { baseURL: "https://api.geocollections.info" }
       );
       if (selectedImagesRes.results.length === 0) {
         const imagesRes = await $fetch(
           `/taxon/?sql=get_taxon_images&keyword=${this.taxon.hierarchy_string}&page=${this.searchParameters.images.page}&paginate_by=${this.searchParameters.images.paginateBy}&format=json`,
-          { baseURL: "https://api.geocollections.info" },
+          { baseURL: "https://api.geocollections.info" }
         );
         this.handleImageResponse(this.searchParameters.images, imagesRes);
         this.searchParameters.selectedImages.allowPaging = false;
       } else {
         this.handleImageResponse(
           this.searchParameters.selectedImages,
-          selectedImagesRes,
+          selectedImagesRes
         );
       }
     },
@@ -1313,7 +1423,7 @@ export default defineNuxtComponent({
       // return !['Species','Subspecies','Genus','Supergenus','Subgenus'].includes(rank)
       return !(
         ["Species", "Subspecies", "Genus", "Supergenus", "Subgenus"].indexOf(
-          rank,
+          rank
         ) >= 0
       );
     },
@@ -1332,7 +1442,7 @@ export default defineNuxtComponent({
         params.parent_url + "/" + params.object,
         "",
         "width=" + params.width + ",height=" + params.height,
-        scrollbars,
+        scrollbars
       );
     },
     excludeCurrentTaxon: function (list, itemID) {
@@ -1496,11 +1606,11 @@ export default defineNuxtComponent({
         `/taxon/?hierarchy_string__istartswith=${
           this.taxon.hierarchy_string
         }&rank__rank_en=species${this.applyMode(
-          this.mode,
+          this.mode
         )}&order_by=taxon&fields=taxon,author_year,id,stratigraphy_base__stratigraphy_en,stratigraphy_base__stratigraphy,stratigraphy_top__stratigraphy_en,stratigraphy_top__stratigraphy&page=${
           this.searchParameters.species.page
         }&paginate_by=${this.searchParameters.species.paginateBy}&format=json`,
-        { baseURL: "https://api.geocollections.info" },
+        { baseURL: "https://api.geocollections.info" }
       );
       this.allSpecies = speciesRes.results;
       this.numberOfSpecimen = speciesRes.count;
@@ -1515,14 +1625,16 @@ export default defineNuxtComponent({
 
   watch: {
     "searchParameters.species": {
-      handler: function () {
-        this.searchSpecies();
+      async handler() {
+        await this.searchSpecies();
+        await this.refreshData();
       },
       deep: true,
     },
     mode: {
-      handler: function () {
-        this.searchSpecies();
+      async handler() {
+        await this.searchSpecies();
+        await this.refreshData();
       },
       deep: true,
     },

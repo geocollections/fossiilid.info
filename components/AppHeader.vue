@@ -70,21 +70,21 @@
                 <button
                   class="dropdown-item"
                   @click="changeMode('in_estonia')"
-                  :class="mode === 'in_estonia' ? 'font-weight-bold' : ''"
+                  :class="mode === 'in_estonia' ? 'fw-bold' : ''"
                 >
                   {{ $t("header.in_estonia_mode") }}
                 </button>
                 <button
                   class="dropdown-item"
                   @click="changeMode('in_baltoscandia')"
-                  :class="mode === 'in_baltoscandia' ? 'font-weight-bold' : ''"
+                  :class="mode === 'in_baltoscandia' ? 'fw-bold' : ''"
                 >
                   {{ $t("header.in_baltoscandia_mode") }}
                 </button>
                 <button
                   class="dropdown-item"
                   @click="changeMode('in_global')"
-                  :class="mode === 'in_global' ? 'font-weight-bold' : ''"
+                  :class="mode === 'in_global' ? 'fw-bold' : ''"
                 >
                   {{ $t("header.global_mode") }}
                 </button>
@@ -105,7 +105,7 @@
                   <button
                     class="dropdown-item p-2"
                     @click="changeLang('et')"
-                    :class="$i18n.locale === 'et' ? 'font-weight-bold' : ''"
+                    :class="$i18n.locale === 'et' ? 'fw-bold' : ''"
                   >
                     EST &nbsp;
                     <span
@@ -116,7 +116,7 @@
                 <li>
                   <button
                     @click="changeLang('en')"
-                    :class="$i18n.locale === 'en' ? 'font-weight-bold' : ''"
+                    :class="$i18n.locale === 'en' ? 'fw-bold' : ''"
                     class="dropdown-item p-2"
                   >
                     ENG &nbsp;
@@ -128,7 +128,7 @@
                 <li>
                   <button
                     @click="changeLang('fi')"
-                    :class="$i18n.locale === 'fi' ? 'font-weight-bold' : ''"
+                    :class="$i18n.locale === 'fi' ? 'fw-bold' : ''"
                     class="dropdown-item p-2"
                   >
                     FIN &nbsp;
@@ -140,7 +140,7 @@
                 <li>
                   <button
                     @click="changeLang('se')"
-                    :class="$i18n.locale === 'se' ? 'font-weight-bold' : ''"
+                    :class="$i18n.locale === 'se' ? 'fw-bold' : ''"
                     class="dropdown-item p-2"
                   >
                     SWE &nbsp;
@@ -197,8 +197,7 @@
 import VueMultiselect from "vue-multiselect";
 import LangButtons from "../components/LangButtons.vue";
 
-import { fetchSimpleTaxonSearch } from "../api";
-import { mapWritableState, mapState } from "pinia";
+import { mapWritableState } from "pinia";
 import { useRootStore } from "../stores/root.js";
 export default {
   name: "app-header",
@@ -209,7 +208,6 @@ export default {
 
   data() {
     return {
-      isMounted: false,
       scroll: false,
       searchResults: [],
       isLoading: false,
@@ -241,13 +239,7 @@ export default {
       else return "header.global_mode";
     },
   },
-  mounted: function () {
-    this.isMounted = true;
-  },
   beforeMount() {
-    window.addEventListener("scroll", this.handleScroll);
-  },
-  beforeDestroy() {
     window.addEventListener("scroll", this.handleScroll);
   },
   methods: {
@@ -255,7 +247,9 @@ export default {
       if (value.length < 3) this.searchResults = [];
       if (value.length > 2) {
         this.isLoading = true;
-        fetchSimpleTaxonSearch(value).then((response) => {
+        $fetch(`taxon/?sql=simple_taxon_search&keyword=${value}&format=json`, {
+          baseURL: "https://api.geocollections.info",
+        }).then((response) => {
           this.isLoading = false;
           this.searchResults = response.results;
         });

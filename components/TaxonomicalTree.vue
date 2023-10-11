@@ -13,7 +13,7 @@
             ></td>
             <td v-else></td>
             <td
-              :class="$parent.isHigherTaxon(item.rank_en) ? '' : 'font-italic'"
+              :class="$parent.isHigherTaxon(item.rank_en) ? '' : 'fst-italic'"
             >
               <span v-for="i in convertToNumber(item.i)">&ensp;</span>
               <a :href="'/' + item.id" v-if="item.id !== taxon.id">
@@ -42,9 +42,13 @@ import { mapState } from "pinia";
 import _ from "lodash";
 
 export default {
-  name: "taxonomical-tree",
+  name: "TaxonomicalTree",
   props: {
     lists: {
+      type: Object,
+      required: true,
+    },
+    hierarchyData: {
       type: Object,
       required: true,
     },
@@ -61,15 +65,10 @@ export default {
   },
 
   watch: {
-    mode: {
-      handler: function (mode) {
-        if (mode) {
-          // re-render component
-          //Temporary hack since this.$nextTick still cannot ensure all the sub components rendered.
-          setTimeout(this.waitUntilParentComponentDataComputed, 100);
-        }
+    hierarchyData: {
+      handler() {
+        this.waitUntilParentComponentDataComputed();
       },
-      deep: true,
     },
   },
   computed: {
@@ -90,14 +89,15 @@ export default {
     },
     composeData: function () {
       this.taxonomicTree = { nodes: [] };
-      this.sortedSisters = this.$parent.sortedSisters;
-      this.parent = this.$parent.parent;
-      this.taxon = this.$parent.taxon;
-      this.hierarchy = this.$parent.hierarchy;
-      this.sortedSiblings = this.$parent.sortedSiblings;
-      this.ranks = this.getHigherRanks(this.taxon.rank__rank_en);
+      this.sortedSisters = this.hierarchyData.sortedSisters;
+      this.parent = this.hierarchyData.parent;
+      this.taxon = this.hierarchyData.taxon;
+      this.hierarchy = this.hierarchyData.hierarchy;
+      this.sortedSiblings = this.hierarchyData.sortedSiblings;
+      this.taxon = this.hierarchyData.taxon;
+      this.ranks = this.getHigherRanks(this.hierarchyData.taxon.rank__rank_en);
       this.sortedSistersWithoutCurrentTaxon =
-        this.$parent.sortedSistersWithoutCurrentTaxon;
+        this.hierarchyData.sortedSistersWithoutCurrentTaxon;
     },
     addHierarchy: function (filteredList, sisterIds) {
       for (let idx in filteredList) {
@@ -132,9 +132,9 @@ export default {
     },
     //reorder hierarchy according to hierarchy string
     reorderHierarchy: function () {
-      if (this.$parent.taxon.hierarchy_string === undefined) return;
+      if (this.taxon.hierarchy_string === undefined) return;
       let newArr = [];
-      let hierarchyIds = this.$parent.taxon.hierarchy_string.split("-");
+      let hierarchyIds = this.taxon.hierarchy_string.split("-");
       for (let i in hierarchyIds) {
         for (let idx in this.hierarchy) {
           if (
@@ -197,7 +197,7 @@ export default {
         _.filter(this.lists.ranks, function (o) {
           return rank_.sort > o.sort;
         }),
-        "rank_en",
+        "rank_en"
       );
     },
     isHigherRank(rank) {
