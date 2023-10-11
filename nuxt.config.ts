@@ -30,6 +30,9 @@ export default defineNuxtConfig({
           src: "https://unpkg.com/leaflet-groupedlayercontrol@0.6.1/dist/leaflet.groupedlayercontrol.min.js",
         },
         {
+          src: "https://unpkg.com/@fancyapps/fancybox@3.4.2/dist/jquery.fancybox.min.js",
+        },
+        {
           src: "https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js",
         },
       ],
@@ -61,6 +64,10 @@ export default defineNuxtConfig({
         {
           rel: "stylesheet",
           href: "https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800",
+        },
+        {
+          rel: "stylesheet",
+          href: "https://unpkg.com/@fancyapps/fancybox@3.4.2/dist/jquery.fancybox.min.css",
         },
       ],
     },
