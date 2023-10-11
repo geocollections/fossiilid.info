@@ -6,7 +6,7 @@
       <a
         :href="
           'http://' +
-          $store.state.lang +
+          $i18n.locale +
           '.wikipedia.org/wiki/' +
           $parent.taxonPage.link_wikipedia
         "

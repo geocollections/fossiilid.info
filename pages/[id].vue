@@ -107,10 +107,12 @@
                   Taxon ID:
                   <strong>{{ taxon.id }}</strong>
                   <span v-if="taxon.date_added">
-                    | {{ taxon.date_added | moment("YYYY-MM-DD") }}
+                    |
+                    {{ dateAdded }}
                   </span>
                   <span v-if="taxon.date_changed">
-                    / {{ taxon.date_changed | moment("YYYY-MM-DD") }}
+                    /
+                    {{ dateChanged }}
                   </span>
                 </div>
 
@@ -141,14 +143,13 @@
                   style="font-size: 0.9rem !important"
                 >
                   1 {{ $t("header.f_other_names") }}:
-                  <span
-                    v-if="isDefinedAndNotNull(item.other_taxon)"
-                    v-for="(item, idx) in opinions"
-                  >
-                    <a :href="item.other_taxon">
-                      {{ item.other_taxon__taxon }}
-                    </a>
-                    <span v-if="idx != opinions.length - 1">,</span>
+                  <span v-for="(item, idx) in opinions" :key="idx">
+                    <span v-if="isDefinedAndNotNull(item.other_taxon)">
+                      <a :href="item.other_taxon">
+                        {{ item.other_taxon__taxon }}
+                      </a>
+                      <span v-if="idx != opinions.length - 1">,</span>
+                    </span>
                   </span>
                 </div>
 
@@ -243,16 +244,6 @@
                     </a>
                   </strong>
                 </div>
-                <see-also
-                  v-if="
-                    (taxonPage && taxonPage.link_wikipedia != null) ||
-                    taxon.taxon_id_tol != null ||
-                    taxon.taxon_id_eol != null ||
-                    taxon.taxon_id_nrm != null ||
-                    taxon.taxon_id_plutof != null ||
-                    taxon.taxon_id_pbdb != null
-                  "
-                ></see-also>
               </div>
             </div>
           </div>
@@ -263,6 +254,18 @@
               ref="lingallery"
               :height="200"
               :items="images.slice(0, 10)"
+            />
+          </div>
+          <div class="m-1">
+            <SeeAlso
+              v-if="
+                (taxonPage && taxonPage.link_wikipedia != null) ||
+                taxon.taxon_id_tol != null ||
+                taxon.taxon_id_eol != null ||
+                taxon.taxon_id_nrm != null ||
+                taxon.taxon_id_plutof != null ||
+                taxon.taxon_id_pbdb != null
+              "
             />
           </div>
           <div class="row m-1" v-if="taxonPage && taxonPage.content">
@@ -844,15 +847,23 @@ import TabGallery from "~/components/tabs/TabGallery.vue";
 import TabSpecimens from "~/components/tabs/TabSpecimens.vue";
 import Foldable from "~/components/Foldable.vue";
 import Lingallery from "~/components/Lingallery.vue";
+import SeeAlso from "~/components/SeeAlso.vue";
+import dayjs from "dayjs";
 
 export default defineNuxtComponent({
-  components: { TabGallery, TabSpecimens, Foldable, Lingallery },
+  components: { TabGallery, TabSpecimens, Foldable, Lingallery, SeeAlso },
   data() {
     return this.initialData();
   },
   computed: {
     ...mapWritableState(useRootStore, ["errorMessage", "activeTab"]),
     ...mapState(useRootStore, ["lang", "mode", "searchParameters"]),
+    dateAdded() {
+      return dayjs(this.taxon.date_added).format("YYYY-MM-DD");
+    },
+    dateChanged() {
+      return dayjs(this.taxon.date_changed).format("YYYY-MM-DD");
+    },
     hierarchyData() {
       return {
         sortedSisters: this.sortedSisters,
