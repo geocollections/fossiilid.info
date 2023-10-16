@@ -8,9 +8,9 @@
     <div
       id="fossilgroups_box"
       style="max-width: 1280px !important; text-align: center"
-      v-if="content"
+      v-if="frontPage"
     >
-      <div class="fossilgroup_box" v-for="item in content">
+      <div class="fossilgroup_box" v-for="item in frontPage.results">
         <a :href="'/' + item.taxon" :title="item.taxon__taxon">
           <img
             :src="
@@ -27,49 +27,36 @@
   </section>
 </template>
 
-<script>
-import { mapState } from "pinia";
-import { useRootStore } from "../stores/root.js";
-export default defineNuxtComponent({
-  computed: {
-    ...mapState(useRootStore, ["errorMessage"]),
-    content() {
-      if (this.$i18n.locale === "et") return this.frontPage.et;
-      else if (this.$i18n.locale === "en") return this.frontPage.en;
-      else if (this.$i18n.locale === "fi") return this.frontPage.fi;
-      else if (this.$i18n.locale === "se") return this.frontPage.se;
-      return this.$i18n.locale === "et" ? this.frontPage.et : this.frontPage.en;
-    },
-  },
+<script setup lang="ts">
+import { useRootStore } from "~/stores/root";
 
-  watch: {
-    "$i18n.locale": {
-      async handler(newVal, oldVal) {
-        const res = await $fetch(
-          this.$i18n.locale === "se"
-            ? `/taxon_page/?language=sv&on_frontpage=1&order_by=frontpage_order&fields=frontpage,taxon,taxon__taxon&format=json`
-            : `/taxon_page/?language=${this.$i18n.locale}&on_frontpage=1&order_by=frontpage_order&fields=frontpage,taxon,taxon__taxon&format=json`,
-          { baseURL: "https://api.geocollections.info" },
-        );
-        this.frontPage[this.$i18n.locale] = res.results;
-      },
+const { errorMessage } = useRootStore();
+const { locale } = useI18n();
+
+type ApiListResponse<T> = {
+  count: number;
+  results: T[];
+};
+type TaxonPage = {
+  frontpage: string;
+  taxon: number;
+  taxon__taxon: string;
+};
+
+const { data: frontPage } = useApiFetch<ApiListResponse<TaxonPage>>(
+  "/taxon_page",
+  {
+    query: {
+      on_frontpage: 1,
+      language: locale.value === "se" ? "sv" : locale,
+      fields: "frontpage,taxon,taxon__taxon",
+      order_by: "frontpage_order",
+      format: "json",
     },
-  },
-  async asyncData({ $i18n }) {
-    const res = await $fetch(
-      $i18n.locale.value === "se"
-        ? `/taxon_page/?language=sv&on_frontpage=1&order_by=frontpage_order&fields=frontpage,taxon,taxon__taxon&format=json`
-        : `/taxon_page/?language=${$i18n.locale.value}&on_frontpage=1&order_by=frontpage_order&fields=frontpage,taxon,taxon__taxon&format=json`,
-      { baseURL: "https://api.geocollections.info" },
-    );
-    return {
-      frontPage: {
-        [$i18n.locale.value]: res.results,
-      },
-    };
-  },
-});
+  }
+);
 </script>
+
 <style>
 .css-loader {
   border: 10px solid #f3f3f3;
