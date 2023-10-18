@@ -21,7 +21,6 @@
                   <vue-multiselect
                     class="align-middle"
                     v-model="state.searchForm.higherTaxa"
-                    deselect-label="Can't remove this value"
                     select-label=""
                     track-by="id"
                     label="taxon"
@@ -40,13 +39,6 @@
                       <strong>{{ option.taxon }}</strong>
                     </template>
                     <template #noResult><b>NoRes</b></template>
-                    <template #clear="props">
-                      <div
-                        class="multiselect__clear"
-                        v-if="true"
-                        @mousedown.prevent.stop="clearAll(props.search)"
-                      ></div>
-                    </template>
                   </vue-multiselect>
                 </b-col>
               </b-row>
@@ -97,7 +89,6 @@
                   <vue-multiselect
                     class="align-middle"
                     v-model="state.searchForm.stratigraphy"
-                    deselect-label="Can't remove this value"
                     select-label=""
                     :custom-label="displayStratigraphyResults"
                     track-by="id"
@@ -120,13 +111,6 @@
                       </strong>
                     </template>
                     <template #noResult><b>NoRes</b></template>
-                    <template #clear="props">
-                      <div
-                        class="multiselect__clear"
-                        v-if="true"
-                        @mousedown.prevent.stop="clearAll(props.search)"
-                      ></div>
-                    </template>
                   </vue-multiselect>
                 </b-col>
               </b-row>
@@ -210,7 +194,11 @@
         <b-col md="6" class="me-auto" style="padding-left: 0.1rem !important">
           <div class="card rounded-0" style="width: 100%; height: 100%">
             <div class="card-body no-padding">
-              <div id="map" style="height: 380px; cursor: default"></div>
+              <div
+                id="map"
+                ref="map"
+                style="height: 380px; cursor: default"
+              ></div>
             </div>
           </div>
         </b-col>
@@ -329,44 +317,71 @@
 <script setup lang="ts">
 import VueMultiselect from "vue-multiselect";
 import VueSlider from "~/components/vue2-slider.vue";
-import { useRootStore } from "~/stores/root";
-const { searchParameters } = useRootStore();
+// @ts-ignore
+import Wkt from "wicket/wicket";
+import { FeatureGroup } from "leaflet";
+import { LeafletMouseEvent } from "leaflet";
+import { CircleMarker } from "leaflet";
+import { TileLayer } from "leaflet";
+import { Circle } from "leaflet";
+import { Polygon } from "leaflet";
+import { Rectangle } from "leaflet";
+import { LatLngExpression } from "leaflet";
+import { Map } from "leaflet";
 const { t, locale } = useI18n();
-const { $apiFetch } = useNuxtApp();
+const { $apiFetch, $L } = useNuxtApp();
+
+type TaxonOption = {
+  id: number;
+  taxon?: string;
+  hierarchy_string?: string;
+};
 
 const taxonSearchState = reactive({
-  options: [],
+  options: [] as TaxonOption[],
   isLoading: false,
-  value: null,
 });
-async function searchTaxonOptions(value) {
+
+async function searchTaxonOptions(value: string) {
   if (value.length < 1) return;
   taxonSearchState.isLoading = true;
-  const taxonOptionsRes = await $apiFetch(`/solr/taxon`, {
-    query: {
-      fq: [
-        `taxon:${buildAutocompleteFilterSolrSearchValue(value)}`,
-        "rank:[1 TO 13]",
-      ],
-      rows: "30",
-      fl: "id,taxon,hierarchy_string",
-      format: "json",
-    },
-  });
+  const taxonOptionsRes = await $apiFetch<{ results: TaxonOption[] }>(
+    `/solr/taxon`,
+    {
+      query: {
+        fq: [
+          `taxon:${buildAutocompleteFilterSolrSearchValue(value)}`,
+          "rank:[1 TO 13]",
+        ],
+        rows: "30",
+        fl: "id,taxon,hierarchy_string",
+        format: "json",
+      },
+    }
+  );
   taxonSearchState.options = taxonOptionsRes.results;
   taxonSearchState.isLoading = false;
 }
 
+type StratigraphyOption = {
+  id: number;
+  stratigraphy?: string;
+  stratigraphy_en?: string;
+  hierarchy_string?: string;
+};
+
 const stratigraphySearchState = reactive({
-  options: [],
+  options: [] as StratigraphyOption[],
   isLoading: false,
   value: null,
 });
 
-async function searchStratigraphyOptions(value) {
+async function searchStratigraphyOptions(value: string) {
   if (value.length < 1) return;
   stratigraphySearchState.isLoading = true;
-  const stratigraphyOptionsRes = await $apiFetch(`/solr/stratigraphy`, {
+  const stratigraphyOptionsRes = await $apiFetch<{
+    results: StratigraphyOption[];
+  }>(`/solr/stratigraphy`, {
     query: {
       fq: [
         `stratigraphy:${buildAutocompleteFilterSolrSearchValue(
@@ -383,7 +398,7 @@ async function searchStratigraphyOptions(value) {
   stratigraphySearchState.isLoading = false;
 }
 
-function buildAutocompleteFilterSolrSearchValue(value) {
+function buildAutocompleteFilterSolrSearchValue(value: string) {
   let lowerFirstCh = value.charAt(0).toLowerCase();
   let upperFirstCh = value.charAt(0).toUpperCase();
   let str = value.substring(1).toLowerCase();
@@ -431,7 +446,7 @@ function buildSearchFilterQuery() {
 }
 function getFilterQueryForWKT(polygon: string) {
   let coordsPairs = polygon.split(","),
-    reversedPairs = [];
+    reversedPairs = [] as string[];
 
   // second and fourth pairs' places are changed because solr getting error
   let firstLatCoord = coordsPairs[0].replace("POLYGON((", "").split(" ")[0];
@@ -449,7 +464,7 @@ function getFilterQueryForWKT(polygon: string) {
   return `{!field f--latlong}isWithin(${changedWkt})`;
 }
 
-function getFilterQueryForCircle(circle) {
+function getFilterQueryForCircle(circle: Circle) {
   var latlng = circle.getLatLng();
   var radius = Math.round((circle.getRadius() / 1000) * 10) / 10; // convert to km (from m) and round to 1 decmial place
   return `{!geofilt sfield=latlong}&d=${radius}&pt=${latlng.lat},${latlng.lng}`;
@@ -460,6 +475,25 @@ const paginationState = reactive({
   mapDataPaginateBy: 1000,
 });
 
+type SearchResult = {
+  id: number;
+  taxon?: string;
+  author_year?: string;
+  fossil_group?: string;
+  fossil_group_id?: number;
+  fad?: string;
+  fad_en?: string;
+  fad_id?: number;
+  lad?: string;
+  lad_en?: string;
+  lad_id?: number;
+  locality_en?: string;
+  locality_id?: number;
+  locality?: string;
+  latlong?: string;
+  src?: number;
+};
+
 async function search() {
   let fl = `taxon,id,author_year,fossil_group,fossil_group_id,fad,fad_en,fad_id,lad,lad_en,lad_id,locality_en,locality_id,locality,latlong,src`;
   const fq = [
@@ -467,85 +501,113 @@ async function search() {
     "{!collapse field--taxon}",
     "rank:[14 TO 17]",
   ];
-  if (state.searchForm.geoparams) {
-    fq.push(state.searchForm.geoparams);
+  if (state.searchForm.isNearMeSearch) {
+    const nearMeArea = getFilterQueryForCircle(state.circle as Circle);
+    fq.push(nearMeArea);
+  } else if (state.searchForm.selectedArea) {
+    fq.push(
+      getGeoParam(state.searchForm.selectedArea as Circle | Rectangle | Polygon)
+    );
   }
-  const res = await $apiFetch(`solr/taxon_search`, {
-    query: {
-      fl,
-      fq,
-      sort: "fossil_group asc,taxon asc",
-      rows: paginationState.paginateBy,
-      start: paginationState.paginateBy * (paginationState.page - 1),
-      format: "json",
-    },
-  });
+  const res = await $apiFetch<{ results: SearchResult[]; count: number }>(
+    `solr/taxon_search`,
+    {
+      query: {
+        fl,
+        fq,
+        sort: "fossil_group asc,taxon asc",
+        rows: paginationState.paginateBy,
+        start: paginationState.paginateBy * (paginationState.page - 1),
+        format: "json",
+      },
+    }
+  );
   state.results = res.results;
   state.numberOfResults = res.count;
-  resultsHandling();
 
+  resultsHandling();
   fetchMapData();
 }
+type MapSearchResult = {
+  locality_id?: number;
+  locality_en?: string;
+  locality?: string;
+  latlong?: string;
+  src?: number;
+};
+
 async function fetchMapData() {
+  if (!map.value) return;
   let start = [paginationState.paginateBy * (paginationState.page - 1)];
-  let collapse = `{!collapse field--locality}`;
   let fl = `locality_en,locality_id,locality,latlong,src`;
   const fq = [
     ...buildSearchFilterQuery(),
     "{!collapse field--taxon}",
     "rank:[14 TO 17]",
   ];
-  if (state.searchForm.geoparams) {
-    fq.push(state.searchForm.geoparams);
+  if (state.searchForm.isNearMeSearch) {
+    const nearMeArea = getFilterQueryForCircle(state.circle as Circle);
+    fq.push(nearMeArea);
+  } else if (state.searchForm.selectedArea) {
+    fq.push(
+      getGeoParam(state.searchForm.selectedArea as Circle | Rectangle | Polygon)
+    );
   }
-  const res = await $apiFetch(`solr/taxon_search`, {
-    query: {
-      fl,
-      sort: "fossil_group asc,taxon asc",
-      fq,
-      rows: paginationState.mapDataPaginateBy,
-      start,
-      format: "json",
-    },
-  });
+  const res = await $apiFetch<{ results: MapSearchResult[]; count: number }>(
+    `solr/taxon_search`,
+    {
+      query: {
+        fl,
+        sort: "fossil_group asc,taxon asc",
+        fq,
+        rows: paginationState.mapDataPaginateBy,
+        start,
+        format: "json",
+      },
+    }
+  );
   state.mapDataResult = res.results;
 
-  for (const i = 0; i < layers.length; i++) {
-    layers[i].clearLayers();
+  if (!groupsInitialized.value) {
+    initGroups();
+    // @ts-ignore
+    $L.control.groupedLayers({}, groupedOverlays.value, {}).addTo(map.value);
+    setDefaultOverlays();
   }
 
-  resetLayers();
-  getLocationsObject(state.mapDataResult);
-  initLayers();
-  checkAllLayers();
+  resetLayerGroups();
+  populateLayerGroups(state.mapDataResult);
 }
 
 const state = reactive({
-  query: "",
   searchForm: setSearchParams(),
   initialMessage: true,
-  errorMessage: null,
-  output: {},
-  map: null,
-  tileLayer: null,
-  circle: null,
-  drawControls: null,
-  drawnItems: null,
-  layer: null,
-  searchResults: [],
+  errorMessage: null as string | null,
+  output: {} as {
+    [id: number]: {
+      fossil_group_id: number;
+      fossil_group: string;
+      node: any[];
+    };
+  },
+  tileLayer: null as TileLayer | null,
+  circle: null as CircleMarker<any> | null,
+  drawnItems: null as FeatureGroup | null,
   isLoadingResults: false,
-  isHigherTaxaLoading: false,
-  isLocLoading: false,
-  isStratLoading: false,
-  results: [],
-  mapDataResult: [],
+  results: [] as SearchResult[],
+  mapDataResult: [] as MapSearchResult[],
   numberOfResults: 0,
-  isPopupQueryTriggered: false,
-  openPopup: null,
 });
-const map = ref();
-const { layers, initLayers, resetLayers, checkAllLayers, getLocationsObject } =
-  useLeafletMap(map);
+
+const map = ref<L.Map>();
+const {
+  populateLayerGroups,
+  initGroups,
+  groupedOverlays,
+  setDefaultOverlays,
+  groupsInitialized,
+  resetLayerGroups,
+} = useLeafletMap(map);
 
 onMounted(() => {
   initialiseMap();
@@ -559,11 +621,8 @@ watch(
       state.searchForm.isSubsurface = true;
       getLocation();
     } else {
-      state.circle.remove();
-      map.value.closePopup();
-      state.searchForm.nearMeArea = false;
-      state.searchForm.geoparams = null;
-      state.searchForm.nearMeArea = null;
+      state.circle?.remove();
+      map.value?.closePopup();
       state.searchForm.radius = 5;
       state.searchForm.latlng = null;
     }
@@ -573,10 +632,9 @@ watch(
   () => state.searchForm.radius,
   () => {
     if (state.searchForm.isNearMeSearch === false) return;
-    state.searchForm.nearMeArea = getParamsForCircle(state.circle);
-    state.searchForm.nearMeArea = getFilterQueryForCircle(state.circle);
     drawAreaNearMe();
-    map.value.setView(
+    if (!state.searchForm.latlng) return;
+    map.value?.setView(
       [state.searchForm.latlng.lat, state.searchForm.latlng.lng],
       12 - state.searchForm.radius * 0.15
     );
@@ -584,8 +642,34 @@ watch(
   { deep: true }
 );
 
-async function getSpeciesCountInArea(geomParams, speciesID) {
-  const res = await $apiFetch(`solr/taxon_search`, {
+function showRecordsInSelectedArea(layer: Circle | Rectangle | Polygon) {
+  resetDrawnItemsColor();
+  layer.setStyle({ color: "#ff2a12" });
+  state.searchForm.selectedArea = layer;
+}
+function generatePopup(
+  layer: Circle | Polygon | Rectangle,
+  latlng: LatLngExpression,
+  map: Map
+) {
+  buildPopupContent(layer).then((content) => {
+    map.closePopup();
+    const popup = $L
+      .popup({
+        closeOnClick: false,
+        autoClose: false,
+      })
+      .setLatLng(latlng)
+      .setContent(content);
+
+    layer.bindPopup(popup);
+    layer.openPopup();
+  });
+}
+
+async function buildPopupContent(layer: Circle | Rectangle | Polygon) {
+  const geomParams = getGeoParam(layer);
+  const localityRes = await $apiFetch<{ count: number }>(`solr/taxon_search`, {
     query: {
       fl: "taxon",
       sort: "fossil_group asc,taxon asc",
@@ -599,14 +683,7 @@ async function getSpeciesCountInArea(geomParams, speciesID) {
       format: "json",
     },
   });
-  console.log("species element: ", document.getElementById(speciesID));
-
-  if (document.getElementById(speciesID) !== null) {
-    document.getElementById(speciesID).innerHTML = res.count ? res.count : 0;
-  }
-}
-async function getOccurrenceCountInArea(geomParams, occurrenceID) {
-  const res = await $apiFetch(`solr/taxon_search`, {
+  const taxonRes = await $apiFetch<{ count: number }>(`solr/taxon_search`, {
     query: {
       fl: "taxon",
       sort: "fossil_group asc,taxon asc",
@@ -621,206 +698,64 @@ async function getOccurrenceCountInArea(geomParams, occurrenceID) {
     },
   });
 
-  if (document.getElementById(occurrenceID) !== null) {
-    document.getElementById(occurrenceID).innerHTML = res.count ? res.count : 0;
-  }
-}
-function showRecordsInSelectedArea(layer, geomParams) {
-  resetDrawnItemsColor();
-  layer.setStyle({ color: "#ff2a12" });
-  state.searchForm.geoparams = geomParams;
-}
-function generatePopup(layer, latlng, query, map) {
-  var geomParams = "";
-  if (typeof layer.getRadius === "function") {
-    // circle
-    geomParams = getFilterQueryForCircle(layer, query);
-  } else {
-    var wkt = new Wkt.Wkt();
-    var geojson = layer.toGeoJSON();
-    var geostr = JSON.stringify(geojson);
-
-    wkt.read(geostr);
-
-    geomParams = getFilterQueryForWKT(wkt.write(), query);
-  }
-
-  state.searchForm.geoparams = geomParams;
-
-  // map.closePopup();
-  if (typeof layer.getLatLng === "function") {
-    latlng = layer.getLatLng();
-    if (
-      map._popup !== null &&
-      state.openPopup !== null &&
-      layer &&
-      state.openPopup.getLatLng().lat.toFixed(2) ===
-        layer.getLatLng().lat.toFixed(2) &&
-      state.openPopup.getLatLng().lng.toFixed(2) ===
-        layer.getLatLng().lng.toFixed(2)
-    ) {
-      layer.off("click", state.openPopup);
-      return;
-    }
-  }
-
-  if (map._popup) {
-    map.closePopup(state.openPopup);
-    if (map._popup !== null) latlng = layer.getBounds().getCenter();
-    return;
-    // if(map._popup.getLatLng()  &&  map._popup.getLatLng().lat === latlng.lat && map._popup.getLatLng().lng === latlng.lng)
-  } else {
-    latlng = layer.getBounds().getCenter();
-  }
-
-  var coordsStr = latlng.lat + "-" + latlng.lng;
-  var speciesID = "speciesCount-" + coordsStr;
-  var occurrenceID = "occurrenceCount-" + coordsStr;
-  let numberOfDrawnLayers = Object.keys(state.drawnItems._layers).length;
-
-  let content = `${t(
+  const numberOfDrawnLayers = state.drawnItems?.getLayers().length ?? 0;
+  const rootDiv = document.createElement("div");
+  const localityCountDiv = document.createElement("div");
+  localityCountDiv.innerHTML = `${t(
     "advancedsearch.js_map_popup_localitycount"
-  )}: <b id="${speciesID}">${t("advancedsearch.calculating")}</b>
-    <br />
-    ${t(
-      "advancedsearch.js_map_popup_speciescount"
-    )}: <b id="${occurrenceID}">${t("advancedsearch.calculating")}</b>`;
+  )}: <b>${localityRes.count}</b>`;
+
+  const speciesCountDiv = document.createElement("div");
+  speciesCountDiv.innerHTML = `${t(
+    "advancedsearch.js_map_popup_speciescount"
+  )}: <b>${taxonRes.count}</b>`;
+
+  rootDiv.append(localityCountDiv, speciesCountDiv);
 
   if (numberOfDrawnLayers > 1) {
-    content += `<br />
-      <a id="showOnlyTheseRecords" href="#map" onclick="return;">
+    const button = document.createElement("button");
+    button.innerHTML = `
         <span class="fa fa-search"></span>
         ${t("advancedsearch.js_map_popup_linkText")}
-      </a>`;
+`;
+    button.onclick = () => {
+      map.value?.closePopup();
+      showRecordsInSelectedArea(layer);
+    };
+    rootDiv.append(button);
   }
-  getSpeciesCountInArea(geomParams, speciesID);
-  getOccurrenceCountInArea(geomParams, occurrenceID);
 
-  state.openPopup = L.popup({
-    closeOnClick: false,
-    autoClose: false,
-  })
-    .setLatLng(latlng)
-    .setContent(content)
-    .openOn(map);
-
-  $("#showOnlyTheseRecords").on("click", function (event) {
-    map.closePopup(state.openPopup);
-    showRecordsInSelectedArea(layer, geomParams);
-  });
-
-  if (numberOfDrawnLayers === 1) {
-    showRecordsInSelectedArea(layer, geomParams);
-  }
+  return rootDiv;
 }
-function removeDrawnItems() {
-  map.value.closePopup();
-  map.value.eachLayer(function (layer) {
-    if (layer.options.hasOwnProperty("stroke")) {
-      map.value.removeLayer(layer);
-    }
-  });
 
-  Object.keys(state.drawnItems._layers).forEach(function (el) {
-    delete state.drawnItems._layers[el];
-  });
-}
 function resetDrawnItemsColor() {
-  map.value.eachLayer(function (layer) {
-    if (layer.options.hasOwnProperty("stroke")) {
-      layer.setStyle({ color: "#bada55" });
-    }
-  });
-}
-function getParamsForWKT(wkt) {
-  let coordsPairs = wkt.split(","),
-    reversedPairs = [];
-  // second and fourth pairs' places are changed because solr getting error
-  let firstLatCoord = coordsPairs[0].replace("POLYGON((", "").split(" ")[0];
-  let secondLatCoord = coordsPairs[1].split(" ")[0];
-
-  if (parseFloat(firstLatCoord) <= parseFloat(secondLatCoord)) {
-    let coordsPairs_ = coordsPairs.slice(1, coordsPairs.length - 1);
-    reversedPairs.push(coordsPairs[0]);
-    reversedPairs = reversedPairs.concat(coordsPairs_.reverse());
-    reversedPairs.push(coordsPairs[coordsPairs.length - 1]);
-  }
-
-  let changedWkt =
-    reversedPairs.length > 0 ? reversedPairs.join(",") : coordsPairs.join(",");
-  return `fq=%7B%21field%20f--latlong%7DisWithin(${changedWkt})`;
-}
-
-function getParamsForCircle(circle) {
-  var latlng = circle.getLatLng();
-  var radius = Math.round((circle.getRadius() / 1000) * 10) / 10; // convert to km (from m) and round to 1 decmial place
-  return `fq=%7B%21geofilt%7D&d=${radius}&pt=${latlng.lat},${latlng.lng}&sfield=latlong`;
+  state.drawnItems?.setStyle({ color: "#bada55" });
 }
 
 function getBaseLayers() {
   // Google map layers
-  state.tileLayer = L.tileLayer(
+  return $L.tileLayer(
     "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
     {
       attribution:
         'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, imagery &copy; <a href="https://carto.com/attribution">CartoDB</a>',
       subdomains: "abcd",
-      mapid: "",
-      token: "",
     }
   );
-  //     L.tileLayer('https://api.tiles.mapbox.com/v4/mapbox.light/{z}/{x}/{y}.png?access_token=pk.eyJ1Ijoia3V1dG9iaW5lIiwiYSI6ImNpZWlxdXAzcjAwM2Nzd204enJvN2NieXYifQ.tp6-mmPsr95hfIWu3ASz2w',
-  //     {
-  //         minZoom: 4,
-  //         maxZoom: 18,
-  //         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-  //     }
-  // );
-  //     L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
-  //     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, imagery &copy; <a href="https://carto.com/attribution">CartoDB</a>',
-  //     subdomains: 'abcd',
-  //     mapid: '',
-  //     token: ''
-  // });
-  // var roadLayer = L.gridLayer.googleMutant({ type: 'roadmap' });
-  // var terrainLayer = L.gridLayer.googleMutan type: 'terrain' });
-  // var hybridLayer = L.gridLayer.googleMutant({ type: 'satellite' });
-  // var blackWhiteLayer = new L.StamenTileLayer('toner');
-
-  var baseLayers = {};
-  baseLayers[t("advancedsearch.js_map_layers_Minimal")] = state.tileLayer;
-  // baseLayers[this.$t('advancedsearch.js.map.layers.Road')] = roadLayer;
-  // baseLayers[this.$t('advancedsearch.js.map.layers.Terrain')] = terrainLayer;
-  // baseLayers[this.$t('advancedsearch.js.map.layers.Satellite')] = hybridLayer;
-  // baseLayers[this.$t('advancedsearch.js.map.layers.BlackWhite')] = blackWhiteLayer;
-
-  return baseLayers;
 }
-function getStoredMapLayer() {
-  var storedLayerName;
-  try {
-    storedLayerName = localStorage.getItem("defaultMapLayer");
-  } catch (e) {
-    // localStorage not available
-    storedLayerName = t("advancedsearch.js_map_layers_Minimal");
-  }
-  return storedLayerName;
-}
+
 function initialiseMap() {
-  // document.getElementById("map").style.cursor = "default";
-  // initialise map
-  map.value = L.map("map", {
-    // fullscreenControl: true,
-    // fullscreenControlOptions: {
-    //     position: 'topleft'
-    // },
+  map.value = $L.map("map", {
+    fullscreenControl: true,
+    fullscreenControlOptions: {
+      position: "topleft",
+    },
     zoomControl: false,
     minZoom: 1,
     scrollWheelZoom: true,
   });
   map.value.setView([0, 0], 0);
-  drawI18N();
-  L.control
+  $L.control
     .zoom({
       position: "topleft",
       zoomInTitle: t("advancedsearch.js_map_zoomin"),
@@ -828,225 +763,131 @@ function initialiseMap() {
     })
     .addTo(map.value);
 
-  // add edit drawing toolbar
   // Initialise the FeatureGroup to store editable layers
-  state.drawnItems = new L.FeatureGroup();
-  map.value.addLayer(state.drawnItems);
+  state.drawnItems = $L.featureGroup();
+  map.value.addLayer(state.drawnItems as FeatureGroup);
 
-  // Initialise the draw control and pass it the FeatureGroup of editable layers
-  state.drawControls = new L.Control.Draw({
-    // edit: {
-    //     featureGroup: MAP_VAR.drawnItems
-    // },
-    draw: {
-      circlemarker: false,
-      marker: false,
-      polyline: false,
-      rectangle: {
-        shapeOptions: {
-          color: "#bada55",
-        },
-      },
-      circle: {
-        shapeOptions: {
-          color: "#bada55",
-        },
-      },
-      polygon: {
-        allowIntersection: false, // Restricts shapes to simple polygons
-        drawError: {
-          color: "#e1e100", // Color the shape will turn when intersects
-          message: "<strong>Oh snap!<strong> you can't draw that!", // Message that will show when intersect
-        },
-        shapeOptions: {
-          color: "#bada55",
-        },
-      },
-    },
+  // Initialise Leaflet-Geoman
+  map.value.pm.addControls({
+    position: "topleft",
+    drawCircleMarker: false,
+    drawMarker: false,
+    drawPolyline: false,
+    drawText: false,
+    editControls: false,
+  });
+  map.value.pm.setGlobalOptions({
+    allowSelfIntersection: false,
+    snappable: false,
+  });
+  map.value.pm.setPathOptions({
+    color: "#bada55",
   });
 
-  map.value.addControl(state.drawControls);
+  map.value.on("pm:create", ({ layer }) => {
+    if (!map.value) return;
+    state.drawnItems?.addLayer(layer);
+    generatePopup(layer as Circle | Rectangle | Polygon, [0, 0], map.value);
+    layer.on("click", function (e: LeafletMouseEvent) {
+      map.value?.closePopup();
 
-  map.value.on("draw:created", (e) => {
-    var layer = e.layer;
-
-    var center =
-      typeof layer.getLatLng === "function"
-        ? layer.getLatLng()
-        : layer.getBounds().getCenter();
-
-    layer.on("click", function (e) {
-      generatePopup(layer, e.latlng, state.query, map.value);
+      buildPopupContent(e.target).then((content) => {
+        const latlng = e.target.getBounds().getCenter();
+        e.target.getPopup().setLatLng(latlng);
+        e.target.setPopupContent(content);
+      });
     });
+    layer.openPopup();
+    const numberOfDrawnLayers = state.drawnItems?.getLayers().length ?? 0;
 
-    state.drawnItems.addLayer(layer);
-
-    if (state.isPopupQueryTriggered === false) {
-      layer.fireEvent("click");
+    if (numberOfDrawnLayers < 2) {
+      showRecordsInSelectedArea(layer as Circle | Rectangle | Polygon);
     }
   });
 
-  map.value.on("draw:edited", (e) => {
-    var layers = e.layers;
+  state.tileLayer = getBaseLayers();
+  map.value.addLayer(state.tileLayer as TileLayer);
 
-    layers.eachLayer(function (layer) {
-      generatePopup(layer, layer._latlng, state.query, map.value);
-    });
-  });
-
-  var baseLayers = getBaseLayers();
-
-  // add the default base layer
-  var storedLayerName = getStoredMapLayer();
-
-  var defaultLayerName;
-  if (storedLayerName in baseLayers) {
-    defaultLayerName = storedLayerName;
+  $L.control
+    // @ts-ignore
+    .coordinates({
+      position: "bottomright",
+      useLatLngOrder: true,
+      enableUserInput: false,
+    })
+    .addTo(map.value);
+}
+function getGeoParam(shape: Circle | Rectangle | Polygon) {
+  if ("getRadius" in shape) {
+    return getFilterQueryForCircle(shape);
   } else {
-    defaultLayerName = t("advancedsearch.js_map_layers_Minimal");
+    var wkt = new Wkt.Wkt();
+    var geojson = shape.toGeoJSON();
+    var geostr = JSON.stringify(geojson);
+
+    wkt.read(geostr);
+
+    return getFilterQueryForWKT(wkt.write());
   }
-
-  var defaultBaseLayer = baseLayers[defaultLayerName];
-  map.value.addLayer(defaultBaseLayer);
-
-  L.control
-    .coordinates({ position: "bottomright", useLatLngOrder: true })
-    .addTo(map.value); // coordinate plugin
-  L.Util.requestAnimFrame(
-    map.value.invalidateSize,
-    map.value,
-    !1,
-    map.value._container
-  );
 }
-// /**
-//          Translations for leaflet-draw library
-//          */
-function drawI18N() {
-  L.Control.Fullscreen.title = t("advancedsearch.draw_actions_title");
-  L.drawLocal.draw.toolbar.actions.title = t(
-    "advancedsearch.draw_actions_title"
-  );
-  L.drawLocal.draw.toolbar.actions.text = t("advancedsearch.draw_actions_text");
-  L.drawLocal.draw.toolbar.finish.title = t("advancedsearch.draw_finish_title");
-  L.drawLocal.draw.toolbar.finish.text = t("advancedsearch.draw_finish_text");
-  L.drawLocal.draw.toolbar.undo.title = t("advancedsearch.draw_undo_title");
-  L.drawLocal.draw.toolbar.undo.text = t("advancedsearch.draw_undo_text");
-  L.drawLocal.draw.toolbar.buttons.polygon = t(
-    "advancedsearch.draw_buttons_polygon"
-  );
-  L.drawLocal.draw.toolbar.buttons.rectangle = t(
-    "advancedsearch.draw_buttons_rectangle"
-  );
-  L.drawLocal.draw.toolbar.buttons.circle = t(
-    "advancedsearch.draw_buttons_circle"
-  );
-  L.drawLocal.draw.handlers.polygon.tooltip.start = t(
-    "advancedsearch.draw_polygon_tooltip_start"
-  );
-  L.drawLocal.draw.handlers.polygon.tooltip.cont = t(
-    "advancedsearch.draw_polygon_tooltip_cont"
-  );
-  L.drawLocal.draw.handlers.polygon.tooltip.end = t(
-    "advancedsearch.draw_polygon_tooltip_end"
-  );
-  L.drawLocal.draw.handlers.rectangle.tooltip.start = t(
-    "advancedsearch.draw_rectangle_tooltip_start"
-  );
-  L.drawLocal.draw.handlers.simpleshape.tooltip.end = t(
-    "advancedsearch.draw_simpleshape_tooltip_end"
-  );
-  L.drawLocal.draw.handlers.circle.tooltip.start = t(
-    "advancedsearch.draw_circle_tooltip_start"
-  );
-  L.drawLocal.draw.handlers.circle.radius = t(
-    "advancedsearch.draw_circle_radius"
-  );
-  L.drawLocal.edit.toolbar.buttons.edit = t(
-    "advancedsearch.draw_edit_toolbar_buttons_edit"
-  );
-  L.drawLocal.edit.toolbar.actions.save.text = t(
-    "advancedsearch.draw_edit_toolbar_actions_save_text"
-  );
-  L.drawLocal.edit.toolbar.actions.save.title = t(
-    "advancedsearch.draw_edit_toolbar_actions_save_title"
-  );
-  L.drawLocal.edit.toolbar.actions.cancel.title = t(
-    "advancedsearch.draw_edit_toolbar_actions_cancel_title"
-  );
-  L.drawLocal.edit.toolbar.actions.cancel.text = t(
-    "advancedsearch.draw_edit_toolbar_actions_cancel_text"
-  );
-  L.drawLocal.edit.handlers.edit.tooltip.text = t(
-    "advancedsearch.draw_edit_handlers_edit_tooltip_text"
-  );
-  L.drawLocal.edit.handlers.edit.tooltip.subtext = t(
-    "advancedsearch.draw_edit_handlers_edit_tooltip_subtext"
-  );
-  // L.drawLocal.edit.toolbar.buttons.remove.remove = t('advancedsearch.draw_edit_toolbar_buttons_remove_remove');
-  L.drawLocal.edit.toolbar.actions.clearAll.text = t(
-    "advancedsearch.draw_edit_toolbar_actions_clearAll_text"
-  );
-  L.drawLocal.edit.toolbar.actions.clearAll.title = t(
-    "advancedsearch.draw_edit_toolbar_actions_clearAll_title"
-  );
-  L.drawLocal.edit.handlers.remove.tooltip.text = t(
-    "advancedsearch.draw_edit_handlers_remove_tooltip_text"
-  );
-}
-//
-// Stratigraphy search
-function displayStratigraphyResults(item) {
+
+function displayStratigraphyResults(item: StratigraphyOption) {
   return locale.value === "et"
     ? `${item.stratigraphy}`
     : `${item.stratigraphy_en}`;
 }
 function setSearchParams() {
   return {
-    higherTaxa: null,
+    higherTaxa: null as TaxonOption | null,
     speciesField: null,
     authorField: null,
     localityField: null,
     freeTextLocality: null,
-    stratigraphy: null,
+    stratigraphy: null as StratigraphyOption | null,
     isSubsurface: false,
     isNearMeSearch: false,
-    geoparams: null,
-    nearMeArea: null,
+    selectedArea: null as Circle | Rectangle | Polygon | null,
     radius: 5,
-    latlng: null,
+    latlng: null as { lat: number; lng: number } | null,
   };
 }
 function clearSearch() {
-  // state.searchForm = setSearchParams();
-  Object.assign(state.searchForm, setSearchParams());
-  resetLayers();
-  removeDrawnItems();
+  state.searchForm = setSearchParams();
+  resetLayerGroups();
+  state.drawnItems?.clearLayers();
   state.initialMessage = true;
   state.output = {};
-  state.results = null;
+  state.results = [];
 }
 
 function resultsHandling() {
   state.initialMessage = false;
   state.isLoadingResults = false;
-  let output = {},
-    fossilGroupOrder = [];
+  let output: {
+    [id: number]: {
+      fossil_group_id: number;
+      fossil_group: string;
+      node: any[];
+    };
+  } = {};
 
   for (const taxon of state.results) {
-    if (taxon.fossil_group_id === undefined)
+    if (taxon.fossil_group_id === undefined) {
+      taxon.fossil_group_id = -1;
+    }
+    if (taxon.fossil_group === undefined) {
       taxon.fossil_group = locale.value === "et" ? "Määramata" : "None";
+    }
     if (output[taxon.fossil_group_id] === undefined) {
       output[taxon.fossil_group_id] = {
         fossil_group_id: taxon.fossil_group_id,
         fossil_group: taxon.fossil_group,
         node: [],
       };
-      fossilGroupOrder.push(taxon.fossil_group_id);
     }
     output[taxon.fossil_group_id].node.push({
       taxon: taxon.taxon,
-      taxon_id: taxon.taxon_id,
+      taxon_id: taxon.id,
       author_year: taxon.author_year,
       fad: taxon.fad,
       fad_en: taxon.fad_en,
@@ -1054,7 +895,6 @@ function resultsHandling() {
       lad_en: taxon.lad_en,
     });
   }
-
   state.output = Object.values(output);
 }
 
@@ -1062,28 +902,17 @@ function getLocation() {
   if (!navigator.geolocation) return;
   navigator.geolocation.getCurrentPosition(
     function (position) {
-      let geoparams = {
-        getRadius() {
-          return state.searchForm.radius * 1000;
-        },
-        getLatLng() {
-          return {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
-        },
-      };
+      if (!map.value) return;
+
       state.searchForm.latlng = {
         lat: position.coords.latitude,
         lng: position.coords.longitude,
       };
-      state.searchForm.nearMeArea = getParamsForCircle(geoparams);
       drawAreaNearMe();
       map.value.setView(
         [state.searchForm.latlng.lat, state.searchForm.latlng.lng],
         12 - state.searchForm.radius * 0.15
       );
-
       // this_.applySearch();
     },
     function (error) {
@@ -1093,21 +922,22 @@ function getLocation() {
   );
 }
 function drawAreaNearMe() {
-  state.type = "circle";
+  if (!map.value) return;
 
   if (state.circle !== null) {
     state.circle.remove();
     map.value.closePopup();
-    delete state.drawnItems._layers[state.circle._leaflet_id];
   }
+  if (!state.searchForm.latlng) return;
 
-  state.circle = new L.Circle(
-    state.searchForm.latlng,
-    state.searchForm.radius * 1000,
-    state.drawControls.options.draw.circle.shapeOptions
-  );
-  state.circle.on("add", ({ layer }) => {
-    generatePopup(state.circle, [0, 0], null, map.value);
+  state.circle = $L.circle(state.searchForm.latlng, {
+    color: "#bada55",
+    radius: state.searchForm.radius * 1000,
+    dashArray: "4",
+  });
+  state.circle.on("add", ({ target }) => {
+    if (!map.value) return;
+    generatePopup(target, target._latlng, map.value);
   });
   state.circle.addTo(map.value);
 }

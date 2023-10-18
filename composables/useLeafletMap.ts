@@ -1,169 +1,149 @@
+import type { LatLngExpression, LayerGroup, Map } from "leaflet";
 import { Ref, reactive, toRefs } from "vue";
 import { useRootStore } from "~/stores/root";
 
-export function useLeafletMap(map: Ref<any>) {
+type MapSearchResult = {
+  locality_id?: number;
+  locality_en?: string;
+  locality?: string;
+  latlong?: string;
+  src?: number;
+};
+export function useLeafletMap(map: Ref<Map | undefined>) {
   const { t, locale } = useI18n();
   const { mode } = useRootStore();
+  const { $L } = useNuxtApp();
   const state = reactive({
+    groupsInitialized: false,
     groupedLayers: null,
-    layers: [
-      { id: 0, name: "Specimen", active: true, features: [] },
-      { id: 1, name: "Taxon_occurrence", active: true, features: [] },
-      {
-        id: 2,
-        name: "sample + conop_distribution",
+    layersNew: {
+      1: {
         active: true,
-        features: [],
+        name: "Specimen",
+        layerGroup: null as LayerGroup | null,
       },
-    ],
+      2: {
+        active: true,
+        name: "Taxon_occurrence",
+        layerGroup: null as LayerGroup | null,
+      },
+      3: {
+        active: true,
+        name: "sample + conop_distribution",
+        layerGroup: null as LayerGroup | null,
+      },
+    },
   });
 
-  function initLayers() {
-    state.layers.forEach((layer) => {
-      let leaflatObjects = [];
-      // const markerFeatures = layer.features.filter(feature => feature.type === 'circle');
-      layer.features.forEach((feature) => {
-        function setCustomSettings(type) {
-          let setting;
-          switch (type) {
-            case 1:
-              setting = {
-                color: "rgba(240, 95, 37,0.7)",
-                opacity: 0.7,
-                weight: 6,
-                zIndexOffset: 1,
-              };
-              break;
-            case 2:
-              setting = {
-                color: "rgba(240, 85, 199,0.7)",
-                opacity: 0.7,
-                weight: 6,
-                zIndexOffset: 2,
-              };
-              break;
-            case 3:
-              setting = {
-                color: "rgba(245, 134, 0,0.7)",
-                opacity: 0.5,
-                weight: 6,
-                zIndexOffset: 3,
-              };
-              break;
-            default:
-              break;
-          }
-          return setting;
-        }
-        feature.leafletObject = L.circle(
-          feature.coords,
-          setCustomSettings(feature.type)
-        ).bindPopup(
-          feature.locid === null
-            ? feature.name
-            : '<a target="_blank" href="http://geocollections.info/locality/' +
-                feature.locid +
-                '">' +
-                feature.name +
-                "</a>",
-          { className: "custom-popup-text" }
-        );
-        // if(layer.active)feature.leafletObject.addTo(this.map)
-
-        leaflatObjects.push(feature.leafletObject);
-      });
-      layer.leaflatObjects = L.layerGroup(leaflatObjects);
-    });
-    let groupedLayers = {};
-    groupedLayers[t("map.overlay_title")] = {
-      [t("map.overlay_specimens")]: state.layers[0].leaflatObjects,
-      [t("map.overlay_literature_based")]: state.layers[1].leaflatObjects,
-      [t("map.overlay_in_samples")]: state.layers[2].leaflatObjects,
-    };
-
-    state.groupedLayers = L.control
-      .groupedLayers(null, groupedLayers)
-      .addTo(map.value);
-    // L.control.layers(null, groupedLayers,{'autoZIndex':true,'collapsed':true,'sortLayers':true}).addTo(this.map);
+  function initGroups() {
+    state.layersNew[1].layerGroup = $L.layerGroup([]);
+    state.layersNew[2].layerGroup = $L.layerGroup([]);
+    state.layersNew[3].layerGroup = $L.layerGroup([]);
+    state.groupsInitialized = true;
   }
-  function resetLayers() {
-    if (state.groupedLayers) {
-      for (let i = 0; i < state.layers.length; i++) {
-        map.value.removeLayer(state.layers[i].leaflatObjects);
-      }
-      map.value.removeControl(state.groupedLayers);
 
-      state.layers = [
-        { id: 0, name: "Specimen", active: true, features: [] },
-        { id: 1, name: "Taxon_occurrence", active: true, features: [] },
-        {
-          id: 2,
-          name: "sample + conop_distribution",
-          active: true,
-          features: [],
-        },
-      ];
-      state.groupedLayers = null;
+  function setCustomSettings(type: number) {
+    let setting = {};
+    switch (type) {
+      case 1:
+        setting = {
+          color: "rgba(240, 95, 37,0.7)",
+          opacity: 0.7,
+          weight: 6,
+          zIndexOffset: 1,
+        };
+        break;
+      case 2:
+        setting = {
+          color: "rgba(240, 85, 199,0.7)",
+          opacity: 0.7,
+          weight: 6,
+          zIndexOffset: 2,
+        };
+        break;
+      case 3:
+        setting = {
+          color: "rgba(245, 134, 0,0.7)",
+          opacity: 0.5,
+          weight: 6,
+          zIndexOffset: 3,
+        };
+        break;
+      default:
+        break;
     }
+    return setting;
+  }
+  const groupedOverlays = computed(() => {
+    return {
+      [t("map.overlay_title")]: {
+        [t("map.overlay_specimens")]: state.layersNew[1].layerGroup,
+        [t("map.overlay_literature_based")]: state.layersNew[2].layerGroup,
+        [t("map.overlay_in_samples")]: state.layersNew[3].layerGroup,
+      },
+    };
+  });
+  function setDefaultOverlays() {
+    if (!map.value) return;
+    state.layersNew[1].layerGroup?.addTo(map.value);
+    state.layersNew[2].layerGroup?.addTo(map.value);
+    state.layersNew[3].layerGroup?.addTo(map.value);
   }
   function setView() {
+    if (!map.value) return;
     if (mode) {
       if (mode === "in_global") map.value.setView([58.5, 20.5], 1);
       else if (mode === "in_estonia") map.value.setView([58.5, 25.5], 6);
       else map.value.setView([58.5, 25.5], 5);
     }
   }
-  function checkAllLayers() {
-    state.layers.sort((a, b) => a.id - b.id);
-    for (let i = 0; i < state.layers.length; i++) {
-      if (state.layers[i].active)
-        map.value.addLayer(state.layers[i].leaflatObjects);
-    }
+  function getCoords(string: string): LatLngExpression {
+    if (string === undefined) return [0, 0];
+    let tokenizedCoords = string.split(",");
+    return [Number(tokenizedCoords[0]), Number(tokenizedCoords[1])];
   }
-  function getLocationsObject(object) {
-    if (
-      object === undefined ||
-      object === {} ||
-      object === false ||
-      object.length === 0
-    )
-      return;
-    object.forEach(function (element, index) {
-      function getCoords(string) {
-        if (string === undefined) return [0, 0];
-        let tokenizedCoords = string.split(",");
-        return [tokenizedCoords[0], tokenizedCoords[1]];
-      }
-
+  function populateLayerGroups(locations: MapSearchResult[]) {
+    locations.forEach(function (element, index) {
       if (
-        element.locality !== null &&
-        element.locality_id !== null &&
+        element.locality &&
+        element.locality_id &&
         element.latlong &&
-        element.latlong !== null
+        element.src
       ) {
-        state.layers[element.src - 1].features.push({
+        const feature = {
           id: index,
           coords: getCoords(element.latlong),
           type: element.src,
-          name: locale === "ee" ? element.locality : element.locality_en,
+          name: locale.value === "ee" ? element.locality : element.locality_en,
           locid: element.locality_id,
-          // for sql query
-          // id: index,
-          // coords: [element.latitude, element.longitude],
-          // type: element['1'],
-          // name: (this_.$store.state.lang === 'ee' ? element.locality : element.locality_en),
-          // locid: element.locid
-        });
+        };
+        const layer = $L
+          .circle(feature.coords, setCustomSettings(feature.type))
+          .bindPopup(
+            '<a target="_blank" href="http://geocollections.info/locality/' +
+              feature.locid +
+              '">' +
+              feature.name +
+              "</a>",
+            { className: "custom-popup-text" }
+          );
+
+        state.layersNew[element.src as 1 | 2 | 3].layerGroup?.addLayer(layer);
       }
     });
-    return true;
+  }
+  function resetLayerGroups() {
+    state.layersNew[1].layerGroup?.clearLayers();
+    state.layersNew[2].layerGroup?.clearLayers();
+    state.layersNew[3].layerGroup?.clearLayers();
   }
   return {
     ...toRefs(state),
-    checkAllLayers,
     setView,
-    resetLayers,
-    initLayers,
-    getLocationsObject,
+    populateLayerGroups,
+    initGroups,
+    groupedOverlays,
+    setDefaultOverlays,
+    resetLayerGroups,
   };
 }

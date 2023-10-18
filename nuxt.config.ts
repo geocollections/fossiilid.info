@@ -18,45 +18,14 @@ export default defineNuxtConfig({
         { name: "apple-mobile-web-app-status-bar-style", content: "default" },
       ],
       script: [
-        { src: "https://unpkg.com/leaflet@1.3.4/dist/leaflet.js" },
-        { src: "https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js" },
-        { src: "https://unpkg.com/wicket@1.3.8/wicket.js" },
-        { src: "https://unpkg.com/wicket@1.3.8/wicket-leaflet.js" },
+        // { src: "https://unpkg.com/wicket@1.3.8/wicket.js" },
+        // { src: "https://unpkg.com/wicket@1.3.8/wicket-leaflet.js" },
         { src: "https://unpkg.com/jquery@3.3.1/dist/jquery.min.js" },
-        {
-          src: "https://unpkg.com/leaflet.coordinates@0.1.5/dist/Leaflet.Coordinates-0.1.5.min.js",
-        },
-        {
-          src: "https://unpkg.com/leaflet-groupedlayercontrol@0.6.1/dist/leaflet.groupedlayercontrol.min.js",
-        },
         {
           src: "https://unpkg.com/@fancyapps/fancybox@3.4.2/dist/jquery.fancybox.min.js",
         },
-        {
-          src: "https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js",
-        },
       ],
       link: [
-        {
-          rel: "stylesheet",
-          href: "https://unpkg.com/leaflet@1.3.4/dist/leaflet.css",
-        },
-        {
-          rel: "stylesheet",
-          href: "https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css",
-        },
-        {
-          rel: "stylesheet",
-          href: "https://unpkg.com/leaflet-groupedlayercontrol@0.6.1/dist/leaflet.groupedlayercontrol.min.css",
-        },
-        {
-          rel: "stylesheet",
-          href: "https://unpkg.com/leaflet.coordinates@0.1.5/dist/Leaflet.Coordinates-0.1.5.css",
-        },
-        {
-          rel: "stylesheet",
-          href: "https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css",
-        },
         {
           rel: "stylesheet",
           href: "https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic,900,900italic",
