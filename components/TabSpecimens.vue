@@ -2,16 +2,16 @@
   <div
     id="#tab-specimens"
     class="tab-pane"
-    :class="{ active: activeTab === 'specimens' }"
+    :class="{ active: store.activeTab === 'specimens' }"
     role="tabpanel"
   >
-    <div class="row" v-if="loading">
-      <spinner :show="loading"></spinner>
+    <div class="row" v-if="state.loading">
+      <spinner :show="state.loading"></spinner>
       <span class="p-2">{{ $t("messages.pageLoading") }}</span>
     </div>
     <div
       class="row m-1 table-responsive"
-      v-if="$parent.isDefinedAndNotEmpty(response.results) && !loading"
+      v-else-if="isDefinedAndNotEmpty(state.response.results)"
     >
       <div class="col-xs-12 pagination-center">
         <b-pagination
@@ -19,9 +19,9 @@
           align="end"
           :limit="5"
           :hide-ellipsis="true"
-          :total-rows="response.count"
-          v-model="searchParameters.specimens.page"
-          :per-page="searchParameters.specimens.paginateBy"
+          :total-rows="state.response.count"
+          v-model="store.searchParameters.specimens.page"
+          :per-page="store.searchParameters.specimens.paginateBy"
         ></b-pagination>
       </div>
       <table
@@ -77,13 +77,13 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in response.results">
+          <tr v-for="item in state.response.results">
             <td class="text-nowrap">
               <a
                 href="#"
                 @click="
-                  $parent.openUrl({
-                    parent_url: $parent.geocollectionUrl + '/specimen',
+                  openUrl({
+                    parent_url: state.geocollectionUrl + '/specimen',
                     object: item.id,
                     width: 500,
                     height: 500,
@@ -99,8 +99,8 @@
                 <a :href="'/' + item.taxon_id">{{ item.taxon }}</a>
                 <span
                   v-if="
-                    $parent.isDefinedAndNotNull(item.taxon_txt) &&
-                    $parent.isDefinedAndNotNull(item.taxon) &&
+                    isDefinedAndNotNull(item.taxon_txt) &&
+                    isDefinedAndNotNull(item.taxon) &&
                     item.taxon_txt != item.taxon
                   "
                 >
@@ -108,7 +108,7 @@
                 </span>
                 <span
                   v-if="
-                    $parent.isDefinedAndNotNull(item.taxon_txt) &&
+                    isDefinedAndNotNull(item.taxon_txt) &&
                     item.taxon_txt != item.taxon
                   "
                 >
@@ -123,8 +123,8 @@
                 <a
                   href="#"
                   @click="
-                    $parent.openUrl({
-                      parent_url: $parent.kividUrl,
+                    openUrl({
+                      parent_url: state.kividUrl,
                       object: item.rock_id,
                       width: 500,
                       height: 500,
@@ -137,16 +137,16 @@
                 </a>
                 <span
                   v-if="
-                    $parent.isDefinedAndNotNull(item.rock) &&
-                    $parent.isDefinedAndNotNull(item.rock_txt)
+                    isDefinedAndNotNull(item.rock) &&
+                    isDefinedAndNotNull(item.rock_txt)
                   "
                 >
                   |
                 </span>
                 <span
                   v-if="
-                    ($parent.isDefinedAndNotNull(item.rock_txt) ||
-                      $parent.isDefinedAndNotNull(item.rock_txt_en)) &&
+                    (isDefinedAndNotNull(item.rock_txt) ||
+                      isDefinedAndNotNull(item.rock_txt_en)) &&
                     (item.rock !== item.rock_txt ||
                       item.rock_en !== item.rock_txt_en)
                   "
@@ -163,22 +163,22 @@
               v-if="
                 !isSmallScreenDevice ||
                 (isSmallScreenDevice &&
-                  ($parent.isDefinedAndNotNull(item.locality) ||
-                    $parent.isDefinedAndNotNull(item.locality_en) ||
-                    $parent.isDefinedAndNotNull(item.locality_free)))
+                  (isDefinedAndNotNull(item.locality) ||
+                    isDefinedAndNotNull(item.locality_en) ||
+                    isDefinedAndNotNull(item.locality_free)))
               "
             >
               <div
                 v-if="
-                  $parent.isDefinedAndNotNull(item.locality) ||
-                  $parent.isDefinedAndNotNull(item.locality_en)
+                  isDefinedAndNotNull(item.locality) ||
+                  isDefinedAndNotNull(item.locality_en)
                 "
               >
                 <a
                   href="#"
                   @click="
-                    $parent.openUrl({
-                      parent_url: $parent.geocollectionUrl + '/locality',
+                    openUrl({
+                      parent_url: state.geocollectionUrl + '/locality',
                       object: item.locality_id,
                       width: 500,
                       height: 500,
@@ -190,7 +190,7 @@
                   ></span>
                 </a>
               </div>
-              <span v-if="$parent.isDefinedAndNotNull(item.locality_free)">
+              <span v-if="isDefinedAndNotNull(item.locality_free)">
                 {{ item.locality_free }}
               </span>
             </td>
@@ -198,8 +198,8 @@
               v-if="
                 !isSmallScreenDevice ||
                 (isSmallScreenDevice &&
-                  ($parent.isDefinedAndNotNull(item.depth) ||
-                    $parent.isDefinedAndNotNull(item.depth_interval)))
+                  (isDefinedAndNotNull(item.depth) ||
+                    isDefinedAndNotNull(item.depth_interval)))
               "
             >
               {{ item.depth }}
@@ -211,20 +211,20 @@
               v-if="
                 !isSmallScreenDevice ||
                 (isSmallScreenDevice &&
-                  ($parent.isDefinedAndNotNull(item.stratigraphy) ||
-                    $parent.isDefinedAndNotNull(item.stratigraphy_en))) ||
-                $parent.isDefinedAndNotNull(item.stratigraphy_txt)
+                  (isDefinedAndNotNull(item.stratigraphy) ||
+                    isDefinedAndNotNull(item.stratigraphy_en))) ||
+                isDefinedAndNotNull(item.stratigraphy_txt)
               "
             >
               <a
                 v-if="
-                  $parent.isDefinedAndNotNull(item.stratigraphy) ||
-                  $parent.isDefinedAndNotNull(item.stratigraphy_en)
+                  isDefinedAndNotNull(item.stratigraphy) ||
+                  isDefinedAndNotNull(item.stratigraphy_en)
                 "
                 href="#"
                 @click="
-                  $parent.openUrl({
-                    parent_url: $parent.geocollectionUrl + '/stratigraphy',
+                  openUrl({
+                    parent_url: state.geocollectionUrl + '/stratigraphy',
                     object: item.stratigraphy_id,
                     width: 500,
                     height: 500,
@@ -253,14 +253,14 @@
 
               <!--<span v-if="item.stratigraphy != null && item.lithostratigraphy != null">|</span>-->
 
-              <!--<em v-if="$parent.isDefinedAndNotNull(item.lithostratigraphy) || $parent.isDefinedAndNotNull(item.lithostratigraphy_en)">-->
+              <!--<em v-if="isDefinedAndNotNull(item.lithostratigraphy) || isDefinedAndNotNull(item.lithostratigraphy_en)">-->
               <!--<a href="#"-->
-              <!--@click="$parent.openUrl({parent_url:$parent.geocollectionUrl+'/stratigraphy',object:item.lithostratigraphy_id, width:500,height:500})">-->
+              <!--@click="openUrl({parent_url:$parent.geocollectionUrl+'/stratigraphy',object:item.lithostratigraphy_id, width:500,height:500})">-->
               <!--<span v-translate="{et:item.lithostratigraphy,en:item.lithostratigraphy_en}"></span></a>-->
               <!--</em>-->
             </td>
             <!--<td>-->
-            <!--<div v-if="$parent.isDefinedAndNotNull(item.collector_full_name)">-->
+            <!--<div v-if="isDefinedAndNotNull(item.collector_full_name)">-->
             <!--{{ item.collector_full_name }}-->
             <!--</div>-->
             <!--</td>-->
@@ -269,14 +269,14 @@
               v-if="
                 !isSmallScreenDevice ||
                 (isSmallScreenDevice &&
-                  ($parent.isDefinedAndNotNull(item.original_status) ||
-                    $parent.isDefinedAndNotNull(item.original_status_en)))
+                  (isDefinedAndNotNull(item.original_status) ||
+                    isDefinedAndNotNull(item.original_status_en)))
               "
             >
               <span
                 v-if="
-                  $parent.isDefinedAndNotNull(item.original_status) ||
-                  $parent.isDefinedAndNotNull(item.original_status_en)
+                  isDefinedAndNotNull(item.original_status) ||
+                  isDefinedAndNotNull(item.original_status_en)
                 "
                 v-translate="{
                   et: item.original_status,
@@ -284,7 +284,7 @@
                 }"
               ></span>
             </td>
-            <td v-if="$parent.isDefinedAndNotNull(item.image_preview_url)">
+            <td v-if="isDefinedAndNotNull(item.image_preview_url)">
               <a
                 data-fancybox="gallery3"
                 :href="item.image_url"
@@ -307,95 +307,86 @@
           align="end"
           :limit="5"
           :hide-ellipsis="true"
-          :total-rows="response.count"
-          v-model="searchParameters.specimens.page"
-          :per-page="searchParameters.specimens.paginateBy"
+          :total-rows="state.response.count"
+          v-model="store.searchParameters.specimens.page"
+          :per-page="store.searchParameters.specimens.paginateBy"
         ></b-pagination>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-import { fetchSpecimenCollection } from "../../api";
-import Spinner from "../Spinner.vue";
-import SortField from "../SortField.vue";
-import { mapWritableState, mapState } from "pinia";
+<script setup lang="ts">
+import { isDefinedAndNotEmpty, isDefinedAndNotNull, openUrl } from "~/utils";
 import { useRootStore } from "~/stores/root";
+const props = defineProps({
+  taxon: {
+    type: Object,
+    required: true,
+  },
+});
+const state = reactive({
+  loading: true,
+  clientWidth: 800,
+  response: {
+    count: 0,
+    results: [] as any[],
+  },
+  geocollectionUrl: "http://geocollections.info",
+  fossilsUrl: "https://fossiilid.info",
+  kividUrl: "http://www.kivid.info",
+});
+const store = useRootStore();
+const { $apiFetch } = useNuxtApp();
 
-export default {
-  name: "TabSpecimens",
-  components: { SortField, Spinner },
-  data() {
-    return {
-      loading: true,
-      clientWidth: 800,
-      response: this.setDefaultResponse(),
-    };
-  },
-  computed: {
-    ...mapWritableState(useRootStore, ["searchParameters"]),
-    ...mapState(useRootStore, ["activeTab"]),
-    taxon() {
-      return this.$parent.taxon;
+const isSmallScreenDevice = computed(() => {
+  return state.clientWidth < 439;
+});
+onMounted(() => {
+  window.addEventListener("resize", () => {
+    state.clientWidth = document.documentElement.clientWidth;
+  });
+  getSpecimens();
+});
+function getSpecimens() {
+  state.loading = true;
+  fetchSpecimenCollection(
+    props.taxon.hierarchy_string,
+    store.searchParameters
+  ).then((response) => {
+    state.response = response;
+    state.loading = false;
+  });
+}
+function fetchSpecimenCollection(
+  hierarchy_string: string,
+  searchParameters: any
+) {
+  let start =
+    searchParameters.specimens.paginateBy *
+    (searchParameters.specimens.page - 1);
+  let orderBy =
+    searchParameters.specimens.order === "ASCENDING"
+      ? searchParameters.specimens.sortBy + " asc"
+      : searchParameters.specimens.sortBy + " desc";
+  return $apiFetch<{ count: number; results: any[] }>(`solr/specimen`, {
+    query: {
+      q: `hierarchy_string:(${hierarchy_string}*)`,
+      rows: searchParameters.specimens.paginateBy,
+      start: start,
+      sort: orderBy,
+      format: "json",
     },
-    isSmallScreenDevice() {
-      return this.clientWidth < 439;
-    },
-  },
-  mounted() {
-    window.addEventListener("resize", () => {
-      this.clientWidth = document.documentElement.clientWidth;
-    });
-    this.getSpecimens();
-  },
-  methods: {
-    getSpecimens() {
-      this.loading = true;
-      this.setDefaultResponse();
-      this.fetchSpecimenCollection(
-        this.$parent.taxon.hierarchy_string,
-        this.searchParameters,
-      ).then((response) => {
-        this.response = response;
-        this.loading = false;
-      });
-    },
-    fetchSpecimenCollection(hierarchy_string, searchParameters) {
-      let start =
-        searchParameters.specimens.paginateBy *
-        (searchParameters.specimens.page - 1);
-      let orderBy =
-        searchParameters.specimens.order === "ASCENDING"
-          ? searchParameters.specimens.sortBy + " asc"
-          : searchParameters.specimens.sortBy + " desc";
-      return $fetch(
-        `solr/specimen/?q=hierarchy_string:(${hierarchy_string}*)&rows=${searchParameters.specimens.paginateBy}&start=${start}&sort=${orderBy}&format=json`,
+  });
+}
 
-        { baseURL: "https://api.geocollections.info" },
-      );
-    },
-    setDefaultResponse() {
-      return {
-        count: 0,
-        results: [],
-      };
-    },
+watch(
+  () => store.searchParameters.specimens,
+  () => {
+    getSpecimens();
   },
-  watch: {
-    "searchParameters.specimens": {
-      handler: function () {
-        this.getSpecimens();
-      },
-      deep: true,
-    },
-    "document.documentElement.clientWidth"(clientWidth) {
-      if (clientWidth) {
-        console.log(clientWidth);
-      }
-    },
-  },
-};
+  { deep: true }
+);
 </script>
 
 <style scoped>

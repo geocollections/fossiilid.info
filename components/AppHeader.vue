@@ -198,8 +198,8 @@ import VueMultiselect from "vue-multiselect";
 import LangButtons from "../components/LangButtons.vue";
 
 import { mapWritableState } from "pinia";
-import { useRootStore } from "../stores/root.js";
-export default {
+import { useRootStore } from "../stores/root";
+export default defineNuxtComponent({
   name: "app-header",
   components: {
     VueMultiselect,
@@ -272,5 +272,5 @@ export default {
       this.scroll = document.documentElement.scrollTop > 1;
     },
   },
-};
+});
 </script>

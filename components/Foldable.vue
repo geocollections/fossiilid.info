@@ -55,7 +55,7 @@
 <script>
 const DEFAULT_VISUAL_HEIGHT = 200;
 
-export default {
+export default defineNuxtComponent({
   name: "Foldable",
   props: {
     elLength: {
@@ -171,7 +171,7 @@ export default {
       }
     },
   },
-};
+});
 
 function onElementHeightChange({ el, callback, timeout }) {
   let oldHeight = el.scrollHeight,

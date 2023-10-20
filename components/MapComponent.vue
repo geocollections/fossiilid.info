@@ -8,7 +8,7 @@
 import { mapState } from "pinia";
 import { useRootStore } from "~/stores/root";
 
-export default {
+export default defineNuxtComponent({
   name: "map-component",
   props: {
     mapData: {
@@ -149,7 +149,7 @@ export default {
           }
           feature.leafletObject = L.circle(
             feature.coords,
-            setCustomSettings(feature.type),
+            setCustomSettings(feature.type)
           ).bindPopup(
             feature.locid === null
               ? feature.name
@@ -158,7 +158,7 @@ export default {
                   '">' +
                   feature.name +
                   "</a>",
-            { className: "custom-popup-text" },
+            { className: "custom-popup-text" }
           );
           // if(layer.active)feature.leafletObject.addTo(this.map)
 
@@ -197,7 +197,7 @@ export default {
           maxZoom: 18,
           attribution:
             '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        },
+        }
       );
       this.tileLayer.addTo(this.map);
     },
@@ -242,7 +242,7 @@ export default {
       return true;
     },
   },
-};
+});
 </script>
 <style>
 .custom-popup-text a {

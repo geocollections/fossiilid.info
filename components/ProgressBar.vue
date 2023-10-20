@@ -13,7 +13,7 @@
 </template>
 
 <script>
-export default {
+export default defineNuxtComponent({
   data() {
     return {
       percent: 0,
@@ -86,7 +86,7 @@ export default {
       return this;
     },
   },
-};
+});
 </script>
 
 <style lang="stylus" scoped>

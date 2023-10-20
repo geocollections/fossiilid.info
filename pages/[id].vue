@@ -1,16 +1,16 @@
 <template>
   <Head>
-    <Title>{{ taxon.taxon }}</Title>
+    <Title>{{ taxon?.taxon }}</Title>
     <Meta vmid="keywords" name="keywords" :content="meta" />
-    <Meta vmid="description" name="description" :content="description" />
+    <!-- <Meta vmid="description" name="description" :content="description ?? []" /> -->
   </Head>
   <section class="container-fluid my-5">
-    <div class="m-md-3 text-center" v-if="!isTaxonExisted">
+    <div class="m-md-3 text-center" v-if="!taxon">
       <div class="css-loader" style="margin: auto"></div>
       <h5 class="mt-3">{{ $t("messages.pageLoading") }}</h5>
     </div>
-    <div class="page-container" v-if="isTaxonExisted">
-      <div class="row mt-3" v-show="scroll">
+    <div class="page-container" v-if="taxon">
+      <div class="row mt-3" v-show="state.scroll">
         <span class="ml-auto">
           <button
             @click="topNavigation()"
@@ -35,7 +35,7 @@
           <tbody>
             <tr>
               <td style="vertical-align: top; cal-align: top">
-                <a
+                <NuxtLink
                   :href="'/' + taxon.fossil_group__id"
                   v-if="taxon.fossil_group__id != null"
                 >
@@ -43,11 +43,11 @@
                     class="taxon-img"
                     style="max-width: 120px"
                     border="0"
-                    :src="'/fossilgroups/' + taxon.fossil_group__id + '.png'"
+                    :src="`/fossilgroups/${taxon.fossil_group__id}.png`"
                     :alt="taxon.fossil_group__taxon"
                     :title="taxon.fossil_group__taxon"
                   />
-                </a>
+                </NuxtLink>
               </td>
               <td style="padding-left: 10px">
                 <div
@@ -79,17 +79,17 @@
           </tbody>
         </table>
       </div>
-      <TaxonTabs />
-      <TabGallery v-if="activeTab === 'gallery'" />
-      <TabSpecimens v-if="activeTab === 'specimens'" />
-      <div class="row" v-if="activeTab === 'overview'">
+      <TaxonTabs
+        :specimenCount="state.specimenCollectionCnt"
+        :imageCount="state.images.length"
+      />
+      <TabGallery v-if="store.activeTab === 'gallery'" :taxon="taxon" />
+      <TabSpecimens v-if="store.activeTab === 'specimens'" :taxon="taxon" />
+      <div class="row" v-if="store.activeTab === 'overview'">
         <div class="col-lg-8">
           <div
             class="row m-1"
-            v-if="
-              isDefinedAndNotEmpty(opinions) &&
-              isDefinedAndNotEmpty(invalidTaxonName)
-            "
+            v-if="opinions.length > 0 && invalidTaxonName.length > 0"
           >
             <div
               class="alert alert-danger"
@@ -118,7 +118,7 @@
 
                 <div
                   v-if="
-                    taxon.fossil_group__id > 0 &&
+                    taxon.fossil_group__id &&
                     taxon.fossil_group__id !== taxon.id
                   "
                 >
@@ -127,7 +127,7 @@
                     {{ taxon.fossil_group__taxon }}
                   </a>
                 </div>
-                <div v-if="taxon.id != 29">
+                <div v-if="taxon.id !== 29">
                   {{ $t("header.f_belongs_to") }}:
                   <a
                     :class="
@@ -139,7 +139,7 @@
                   </a>
                 </div>
                 <div
-                  v-if="isDefinedAndNotEmpty(opinions)"
+                  v-if="opinions.length > 0"
                   style="font-size: 0.9rem !important"
                 >
                   1 {{ $t("header.f_other_names") }}:
@@ -148,7 +148,7 @@
                       <a :href="item.other_taxon">
                         {{ item.other_taxon__taxon }}
                       </a>
-                      <span v-if="idx != opinions.length - 1">,</span>
+                      <span v-if="idx !== opinions.length - 1">,</span>
                     </span>
                   </span>
                 </div>
@@ -172,11 +172,11 @@
 
                   <a
                     href="#"
-                    v-if="taxon.stratigraphy_base__stratigraphy"
+                    v-if="taxon.stratigraphy_base_id"
                     @click="
                       openUrl({
-                        parent_url: geocollectionUrl + '/stratigraphy',
-                        object: taxon.stratigraphy_base_id,
+                        parent_url: state.geocollectionUrl + '/stratigraphy',
+                        object: taxon.stratigraphy_base_id.toString(),
                         width: 500,
                         height: 500,
                       })
@@ -188,7 +188,7 @@
                     v-if="
                       taxon.stratigraphy_top__stratigraphy !==
                         taxon.stratigraphy_base__stratigraphy &&
-                      taxon.stratigraphy_base__stratigraphy != null
+                      taxon.stratigraphy_base__stratigraphy
                     "
                   >
                     &rarr;
@@ -196,14 +196,13 @@
                   <a
                     href="#"
                     v-if="
-                      taxon.stratigraphy_top__stratigraphy &&
-                      taxon.stratigraphy_base__stratigraphy !=
-                        taxon.stratigraphy_top__stratigraphy
+                      taxon.stratigraphy_top_id &&
+                      taxon.stratigraphy_base_id !== taxon.stratigraphy_top_id
                     "
                     @click="
                       openUrl({
-                        parent_url: geocollectionUrl + '/stratigraphy',
-                        object: taxon.stratigraphy_top_id,
+                        parent_url: state.geocollectionUrl + '/stratigraphy',
+                        object: taxon.stratigraphy_top_id.toString(),
                         width: 500,
                         height: 500,
                       })
@@ -211,13 +210,11 @@
                   >
                     {{ taxon.stratigraphy_top__stratigraphy }}
                   </a>
-                  <span v-if="taxon.stratigraphy_base__age_base != null">
+                  <span v-if="taxon.stratigraphy_base__age_base">
                     ({{ $t("header.f_taxon_age_within") }}
                     {{ convertToTwoDecimal(taxon.stratigraphy_base__age_base) }}
                   </span>
-                  <!--
-                                           -->
-                  <span v-if="taxon.stratigraphy_top__age_top != null">
+                  <span v-if="taxon.stratigraphy_top__age_top">
                     &ndash;{{
                       convertToTwoDecimal(taxon.stratigraphy_top__age_top)
                     }}
@@ -227,20 +224,19 @@
                 </div>
                 <div
                   v-if="
-                    taxon.rank__rank_en != null &&
-                    taxon.rank__rank_en != 'Species'
+                    taxon.rank__rank_en && taxon.rank__rank_en !== 'Species'
                   "
                 >
-                  <span v-if="mode === 'in_baltoscandia'">
+                  <span v-if="store.mode === 'in_baltoscandia'">
                     {{ $t("header.f_baltic_species") }}
                   </span>
-                  <span v-else-if="mode === 'in_estonia'">
+                  <span v-else-if="store.mode === 'in_estonia'">
                     {{ $t("header.f_estonian_species") }}
                   </span>
                   <span v-else>{{ $t("header.f_global_species") }}</span>
                   <strong>
-                    <a href="#species" v-if="numberOfSpecimen !== null">
-                      {{ numberOfSpecimen }}
+                    <a href="#species" v-if="state.numberOfSpecimen">
+                      {{ state.numberOfSpecimen }}
                     </a>
                   </strong>
                 </div>
@@ -250,22 +246,24 @@
           <div class="m-1">
             <lingallery
               style="width: 100%"
-              v-if="images && images.length > 0"
+              v-if="state.images && state.images.length > 0"
               ref="lingallery"
               :height="200"
-              :items="images.slice(0, 10)"
+              :items="state.images.slice(0, 10)"
             />
           </div>
           <div class="m-1">
             <SeeAlso
               v-if="
-                (taxonPage && taxonPage.link_wikipedia != null) ||
-                taxon.taxon_id_tol != null ||
-                taxon.taxon_id_eol != null ||
-                taxon.taxon_id_nrm != null ||
-                taxon.taxon_id_plutof != null ||
-                taxon.taxon_id_pbdb != null
+                (taxonPage && taxonPage.link_wikipedia !== null) ||
+                taxon.taxon_id_tol !== null ||
+                taxon.taxon_id_eol !== null ||
+                taxon.taxon_id_nrm !== null ||
+                taxon.taxon_id_plutof !== null ||
+                taxon.taxon_id_pbdb !== null
               "
+              :taxon="taxon"
+              :taxon-page="taxonPage"
             />
           </div>
           <div class="row m-1" v-if="taxonPage && taxonPage.content">
@@ -283,15 +281,14 @@
               </div>
             </div>
           </div>
-          <!-- Row contains description-->
-          <div class="row m-1" v-if="description">
+          <div class="row m-1" v-if="description.length > 0">
             <div class="card px-0 rounded-0" style="width: 100%">
               <div class="card-header">
                 {{ $t("header.f_taxon_description_diagnosis") }}
               </div>
               <div class="card-body">
-                <div v-for="item in description" v-if="item.description">
-                  <h3 class="mb-3">
+                <div v-for="item in description">
+                  <h3 class="mb-3" v-if="item.description">
                     <a
                       href="#"
                       @click="
@@ -311,8 +308,7 @@
               </div>
             </div>
           </div>
-          <!-- TYPE SPECIMEN DATA begins-->
-          <div class="row m-1" v-if="taxonTypeSpecimen">
+          <div class="row m-1" v-if="typeSpecimens.length > 0">
             <div class="card px-0 rounded-0" style="width: 100%">
               <div class="card-header">
                 {{ $t("header.f_species_type_data") }}
@@ -320,63 +316,61 @@
               <div class="card-body">
                 <div
                   :class="
-                    idx === taxonTypeSpecimen.length - 1
-                      ? ''
-                      : 'border-bottom my-3'
+                    idx === typeSpecimens.length - 1 ? '' : 'border-bottom my-3'
                   "
-                  v-for="(item, idx) in taxonTypeSpecimen"
+                  v-for="(typeSpecimen, idx) in typeSpecimens"
                 >
                   <span
                     v-if="
-                      item.type_type__value !== null ||
-                      item.type_type__value_en !== null
+                      typeSpecimen.type_type__value ||
+                      typeSpecimen.type_type__value_en
                     "
                   >
                     <span
                       v-translate="{
-                        et: item.type_type__value,
-                        en: item.type_type__value_en,
+                        et: typeSpecimen.type_type__value,
+                        en: typeSpecimen.type_type__value_en,
                       }"
                     ></span>
                     :
                   </span>
-                  <span v-if="item.specimen === null">
-                    {{ item.repository }} {{ item.specimen_number }}
+                  <span v-if="typeSpecimen.specimen === null">
+                    {{ typeSpecimen.repository }}
+                    {{ typeSpecimen.specimen_number }}
                   </span>
-                  <span v-if="item.specimen !== null">
+                  <span v-if="typeSpecimen.specimen">
                     <a
                       href="#"
                       @click="
                         openUrl({
                           parent_url: 'http://geocollections.info/specimen',
-                          object: item.specimen,
+                          object: typeSpecimen.specimen.toString(),
                           width: 500,
                           height: 500,
                         })
                       "
                     >
-                      {{ item.repository }} {{ item.specimen_number }}
+                      {{ typeSpecimen.repository }}
+                      {{ typeSpecimen.specimen_number }}
                     </a>
                   </span>
-                  <!--
-                        -->
                   <span
                     v-if="
                       isAtLeastOneDefinedAndNotEmpty({
                         common: [
-                          item.level,
-                          item.attachment__filename,
-                          item.remarks,
+                          typeSpecimen.level,
+                          typeSpecimen.attachment__filename,
+                          typeSpecimen.remarks,
                         ],
                         et: [
-                          item.stratigraphy__stratigraphy,
-                          item.stratigraphy_free,
-                          item.locality__locality,
+                          typeSpecimen.stratigraphy__stratigraphy,
+                          typeSpecimen.stratigraphy_free,
+                          typeSpecimen.locality__locality,
                         ],
                         en: [
-                          item.stratigraphy__stratigraphy_en,
-                          item.stratigraphy_free_en,
-                          item.locality__locality_en,
+                          typeSpecimen.stratigraphy__stratigraphy_en,
+                          typeSpecimen.stratigraphy_free_en,
+                          typeSpecimen.locality__locality_en,
                         ],
                       })
                     "
@@ -386,66 +380,72 @@
                   <a
                     @click="
                       openUrl({
-                        parent_url: geocollectionUrl + '/locality',
-                        object: item.locality,
+                        parent_url: state.geocollectionUrl + '/locality',
+                        object: typeSpecimen.locality.toString(),
                         width: 500,
                         height: 500,
                       })
                     "
                     href="#"
-                    v-if="isDefinedAndNotNull(item.locality)"
+                    v-if="isDefinedAndNotNull(typeSpecimen.locality)"
                     v-translate="{
-                      et: item.locality__locality,
-                      en: item.locality__locality_en,
+                      et: typeSpecimen.locality__locality,
+                      en: typeSpecimen.locality__locality_en,
                     }"
                   ></a>
                   ,
                   <span
                     v-if="
                       isDifferentName({
-                        et: [item.locality__locality, item.locality_free],
-                        en: [item.locality__locality_en, item.locality_free_en],
+                        et: [
+                          typeSpecimen.locality__locality,
+                          typeSpecimen.locality_free,
+                        ],
+                        en: [
+                          typeSpecimen.locality__locality_en,
+                          typeSpecimen.locality_free_en,
+                        ],
                       })
                     "
                   >
                     (
                     <span
                       v-translate="{
-                        et: item.locality_free,
-                        en: item.locality_free_en,
+                        et: typeSpecimen.locality_free,
+                        en: typeSpecimen.locality_free_en,
                       }"
                     ></span>
                     )
                   </span>
-                  <span v-if="isDefinedAndNotNull(item.level)">
-                    {{ item.level }},
+                  <span v-if="isDefinedAndNotNull(typeSpecimen.level)">
+                    {{ typeSpecimen.level }},
                   </span>
                   <a
                     @click="
                       openUrl({
-                        parent_url: geocollectionUrl + '/stratigraphy',
-                        object: item.stratigraphy,
+                        parent_url: state.geocollectionUrl + '/stratigraphy',
+                        object: typeSpecimen.stratigraphy.toString(),
                         width: 500,
                         height: 500,
                       })
                     "
                     href="#"
-                    v-if="isDefinedAndNotNull(item.stratigraphy)"
+                    v-if="isDefinedAndNotNull(typeSpecimen.stratigraphy)"
                     v-translate="{
-                      et: item.stratigraphy__stratigraphy,
-                      en: item.stratigraphy__stratigraphy_en,
+                      et: typeSpecimen.stratigraphy__stratigraphy,
+                      en: typeSpecimen.stratigraphy__stratigraphy_en,
                     }"
                   ></a>
                   <span
                     v-if="
                       isDifferentName({
                         et: [
-                          item.stratigraphy__stratigraphy,
-                          item.stratigraphy_free,
+                          typeSpecimen.stratigraphy__stratigraphy,
+                          typeSpecimen.stratigraphy_free,
                         ],
                         en: [
-                          item.stratigraphy__stratigraphy_en,
-                          item.stratigraphy_free_en,
+                          typeSpecimen.stratigraphy__stratigraphy_en,
+                          typeSpecimen.stratigraphy_free_en,
                         ],
                       })
                     "
@@ -453,24 +453,21 @@
                     (
                     <span
                       v-translate="{
-                        et: item.stratigraphy_free,
-                        en: item.stratigraphy_free_en,
+                        et: typeSpecimen.stratigraphy_free,
+                        en: typeSpecimen.stratigraphy_free_en,
                       }"
                     ></span>
                     )
                   </span>
-                  <span v-if="isDefinedAndNotNull(item.remarks)">
-                    {{ item.remarks }}
+                  <span v-if="isDefinedAndNotNull(typeSpecimen.remarks)">
+                    {{ typeSpecimen.remarks }}
                   </span>
-                  <span
-                    class="pl-3"
-                    v-if="isDefinedAndNotNull(item.attachment__filename)"
-                  >
+                  <span class="pl-3" v-if="typeSpecimen.attachment">
                     <a
                       @click="
                         openUrl({
-                          parent_url: geocollectionUrl + '/file',
-                          object: item.attachment,
+                          parent_url: state.geocollectionUrl + '/file',
+                          object: typeSpecimen.attachment.toString(),
                           width: 500,
                           height: 500,
                         })
@@ -480,7 +477,12 @@
                       <img
                         class="img-thumbnail previewImage"
                         style="max-height: 80px"
-                        :src="composeImgUrl(item.attachment__filename, false)"
+                        :src="
+                          composeImgUrl(
+                            typeSpecimen.attachment__filename,
+                            false
+                          )
+                        "
                       />
                     </a>
                   </span>
@@ -488,7 +490,6 @@
               </div>
             </div>
           </div>
-          <!-- TYPE SPECIMEN DATA ends-->
           <div class="row m-1" v-if="synonyms && synonyms.length > 0">
             <div class="card px-0 rounded-0" style="width: 100%">
               <div class="card-header">
@@ -501,13 +502,13 @@
                   "
                   v-for="(synonym, idx) in synonyms"
                 >
-                  <span v-if="isDefinedAndNotNull(synonym.reference)">
+                  <span v-if="synonym.reference">
                     <a
                       href="#"
                       @click="
                         openUrl({
                           parent_url: 'http://geocollections.info/reference',
-                          object: synonym.reference,
+                          object: synonym.reference.toString(),
                           width: 600,
                           height: 600,
                         })
@@ -527,8 +528,6 @@
                   <span v-if="isDefinedAndNotNull(synonym.pages)">
                     , {{ $t("abbreviation.pp") }}. {{ synonym.pages }}
                   </span>
-                  <!--
-                               -->
                   <span v-if="isDefinedAndNotNull(synonym.figures)">
                     , {{ $t("abbreviation.fig") }}. {{ synonym.figures }}
                   </span>
@@ -536,16 +535,19 @@
               </div>
             </div>
           </div>
-          <div class="row m-1" v-if="references && references.length > 0">
+          <div
+            class="row m-1"
+            v-if="referencesCombined && referencesCombined.length > 0"
+          >
             <div class="card px-0 rounded-0" style="width: 100%">
               <div class="card-header">
                 {{ $t("header.f_taxon_references") }}
               </div>
               <div class="card-body">
-                <foldable :elLength="references.length">
+                <foldable :elLength="referencesCombined.length">
                   <div
-                    :class="idx === references.length - 1 ? '' : 'my-3'"
-                    v-for="(reference, idx) in references"
+                    :class="idx === referencesCombined.length - 1 ? '' : 'my-3'"
+                    v-for="(reference, idx) in referencesCombined"
                     style="padding-left: 3em; text-indent: -3em"
                   >
                     <a
@@ -562,17 +564,13 @@
                       {{ reference.reference__author }}
                       {{ reference.reference__year }}.
                     </a>
-                    <!--$author, $year. $title. $journal_name: $number or $book, $pages. DOI:$doi.-->
                     <span>{{ reference.reference__title }}.</span>
 
-                    <span
-                      v-if="reference.reference__journal__journal_name != null"
-                    >
-                      <!-- if journal article -->
+                    <span v-if="reference.reference__journal__journal_name">
                       <em>{{ reference.reference__journal__journal_name }}</em>
                       <strong>{{ reference.reference__volume }}</strong>
                       ,
-                      <span v-if="reference.reference__number != null">
+                      <span v-if="reference.reference__number">
                         {{ reference.reference__number }},
                       </span>
                       <span
@@ -582,12 +580,11 @@
                       </span>
                     </span>
                     <span v-if="isDefinedAndNotNull(reference.reference__book)">
-                      <!-- if book article -->
                       <em>{{ reference.reference__book }}</em>
                       , pp. {{ reference.reference__pages }}.
                     </span>
 
-                    <span v-if="reference.reference__doi !== null">
+                    <span v-if="reference.reference__doi">
                       <a
                         :href="'https://doi.org/' + reference.reference__doi"
                         rel="noopener"
@@ -603,16 +600,16 @@
           </div>
           <div
             class="row m-1"
-            v-if="allSpecies && allSpecies.length > 0"
+            v-if="state.allSpecies && state.allSpecies.length > 0"
             id="species"
           >
             <div class="card px-0 rounded-0" style="width: 100%">
               <div class="card-header">{{ $t("header.f_species_list") }}</div>
               <div class="card-body">
-                <div v-if="allSpecies && allSpecies.length > 0">
+                <div>
                   <div
                     style="font-size: 0.8em"
-                    v-for="(item, idx) in allSpecies"
+                    v-for="(item, idx) in state.allSpecies"
                   >
                     &ensp;&ensp;&ensp;{{ calculateSpeciesIdx(idx) }}.
                     <a :href="'/' + item.id">
@@ -621,7 +618,7 @@
                     </a>
                     <template
                       v-if="
-                        item.stratigraphy_top__stratigraphy !=
+                        item.stratigraphy_top__stratigraphy !==
                         item.stratigraphy_base__stratigraphy
                       "
                     >
@@ -632,9 +629,7 @@
                           en: item.stratigraphy_base__stratigraphy_en,
                         }"
                       ></span>
-                      <span v-if="item.stratigraphy_top__stratigraphy != null">
-                        →
-                      </span>
+                      <span v-if="item.stratigraphy_top__stratigraphy">→</span>
                       <span
                         v-translate="{
                           et: item.stratigraphy_top__stratigraphy,
@@ -661,7 +656,8 @@
                   <div
                     class="col-xs-12 col-xs-6 pagination-center"
                     v-if="
-                      numberOfSpecimen > searchParameters.species.paginateBy
+                      state.numberOfSpecimen >
+                      store.searchParameters.species.paginateBy
                     "
                   >
                     <BPagination
@@ -669,18 +665,17 @@
                       align="end"
                       :limit="5"
                       :hide-ellipsis="true"
-                      :total-rows="response.count"
-                      v-model="searchParameters.species.page"
-                      :per-page="searchParameters.species.paginateBy"
+                      :total-rows="state.numberOfSpecimen"
+                      v-model="store.searchParameters.species.page"
+                      :per-page="store.searchParameters.species.paginateBy"
                     ></BPagination>
                   </div>
                 </div>
-                <div v-else>Selle rühma all ei ole liike registreeritud</div>
               </div>
             </div>
           </div>
           <div class="row">
-            <div v-if="isDefinedAndNotEmpty(distributionConop)">
+            <div v-if="distributionConop.length > 0">
               <h3>
                 {{ $t("header.f_species_distribution_samples") }} (CONOP):
               </h3>
@@ -706,46 +701,48 @@
           </div>
         </div>
         <div class="col-lg-4">
-          <ClientOnly>
-            <b-row class="m-1" v-if="map !== undefined && map.length > 0">
-              <div class="card px-0 rounded-0" style="width: 100%">
-                <div class="card-header">
-                  {{ $t("header.f_distribution_map") }}
-                </div>
-                <div class="card-body no-padding">
-                  <map-component :map-data="map"></map-component>
-                </div>
+          <b-row class="m-1" v-if="map !== undefined && map.length > 0">
+            <div class="card px-0 rounded-0" style="width: 100%">
+              <div class="card-header">
+                {{ $t("header.f_distribution_map") }}
               </div>
-              <b-alert
-                style="width: 100%; font-size: 0.8rem"
-                class="mb-0"
-                :model-value="true"
-                variant="info"
-                v-if="isNumberOfLocalitiesOnMapOver1000"
-              >
-                Map shows only the first
-                <strong style="font-size: 0.9rem">1000</strong>
-                localities
-              </b-alert>
-            </b-row>
-          </ClientOnly>
+              <div class="card-body no-padding">
+                <ClientOnly>
+                  <map-component :map-data="map"></map-component>
+                </ClientOnly>
+              </div>
+            </div>
+            <b-alert
+              style="width: 100%; font-size: 0.8rem"
+              class="mb-0"
+              :model-value="true"
+              variant="info"
+              v-if="isNumberOfLocalitiesOnMapOver1000"
+            >
+              Map shows only the first
+              <strong style="font-size: 0.9rem">1000</strong>
+              localities
+            </b-alert>
+          </b-row>
           <div class="row m-1" v-if="isTaxonomicTreeIsLoaded">
             <div class="card px-0 rounded-0" style="width: 100%">
               <div class="card-header">
                 {{ $t("header.fossils_classification") }}
               </div>
               <div class="card-body" style="font-size: 0.8em">
-                <taxonomical-tree
-                  :lists="lists"
+                <TaxonomicalTree
+                  :lists="{ ranks: ranks }"
                   :hierarchy-data="hierarchyData"
-                ></taxonomical-tree>
+                ></TaxonomicalTree>
               </div>
             </div>
           </div>
 
           <div
             class="row m-1"
-            v-if="!isHigherTaxon(taxon.rank__rank_en) && taxonOccurrence"
+            v-if="
+              !isHigherTaxon(taxon.rank__rank_en) && taxonOccurrence.length > 0
+            "
           >
             <div class="card px-0 rounded-0" style="width: 100%">
               <div class="card-header">
@@ -789,7 +786,7 @@
               </div>
             </div>
           </div>
-          <div class="row m-1" v-if="isDefinedAndNotEmpty(distributionSamples)">
+          <div class="row m-1" v-if="distributionSamples.length > 0">
             <div class="card px-0 rounded-0" style="width: 100%">
               <div class="card-header">
                 {{ $t("header.f_species_distribution_samples") }}
@@ -816,7 +813,7 @@
                   <a
                     target="_blank"
                     :href="
-                      geocollectionUrl +
+                      state.geocollectionUrl +
                       '/specimen?taxon_1=1&taxon=' +
                       taxon.taxon +
                       '&taxon_2=1&locality_1=1&locality=' +
@@ -836,822 +833,751 @@
   </section>
 </template>
 
-<script>
+<script setup lang="ts">
 import filter from "lodash/filter";
 import orderBy from "lodash/orderBy";
 import uniqBy from "lodash/uniqBy";
-import map from "lodash/map";
+import _map from "lodash/map";
 import { useRootStore } from "../stores/root";
-import { mapState, mapWritableState } from "pinia";
-import TabGallery from "~/components/tabs/TabGallery.vue";
-import TabSpecimens from "~/components/tabs/TabSpecimens.vue";
-import Foldable from "~/components/Foldable.vue";
-import Lingallery from "~/components/Lingallery.vue";
-import SeeAlso from "~/components/SeeAlso.vue";
 import dayjs from "dayjs";
 
-export default defineNuxtComponent({
-  components: { TabGallery, TabSpecimens, Foldable, Lingallery, SeeAlso },
-  data() {
-    return this.initialData();
+const state = reactive({
+  geocollectionUrl: "http://geocollections.info",
+  fossilsUrl: "https://fossiilid.info",
+  kividUrl: "http://www.kivid.info",
+  fileUrl: "https://files.geocollections.info",
+  isReferencesCollapsed: true,
+  scroll: false,
+  parent: {},
+  images: [] as any[],
+  activeSection: "overview",
+  specimenCollectionCnt: 0,
+  loaders: {
+    isSpecimenCollectionLoaded: false,
   },
-  computed: {
-    ...mapWritableState(useRootStore, ["errorMessage", "activeTab"]),
-    ...mapState(useRootStore, ["lang", "mode", "searchParameters"]),
-    dateAdded() {
-      return dayjs(this.taxon.date_added).format("YYYY-MM-DD");
-    },
-    dateChanged() {
-      return dayjs(this.taxon.date_changed).format("YYYY-MM-DD");
-    },
-    hierarchyData() {
-      return {
-        sortedSisters: this.sortedSisters,
-        parent: this.parent,
-        taxon: this.taxon,
-        hierarchy: this.hierarchy,
-        sortedSiblings: this.sortedSiblings,
-        sortedSistersWithoutCurrentTaxon: this.sortedSistersWithoutCurrentTaxon,
-        taxon: this.taxon,
-      };
-    },
-    taxon() {
-      return this.taxon;
-    },
-    isTaxonExisted() {
-      if (this.taxon && this.taxon.hasOwnProperty("id")) {
-        return true;
-      } else {
-        let id = this.$route.params.id;
-        this.errorMessage = `This taxon with id <strong>${id}</strong> is not existing or not available `;
-        this.$router.push({ path: "/" });
-        return false;
-      }
-    },
-    taxonTitle: function () {
-      let lang = this.$i18n.locale;
-      if (this.taxonPage && this.taxonPage.title) return this.taxonPage.title;
-      let activeCommonName = filter(this.commonNames, function (o) {
-        return o.language === lang && o.is_preferred === 1;
-      });
-
-      if (activeCommonName.length > 0) return activeCommonName[0].name;
-    },
-    invalidTaxonName() {
-      return filter(this.opinions, function (o) {
-        return o.opinion_type__invalid === true && o.is_preferred === true;
-      });
-    },
-    opinions() {
-      return this.opinions;
-    },
-    description() {
-      return this.description;
-    },
-    commonNames() {
-      return this.commonNames;
-    },
-    taxonTypeSpecimen() {
-      return this.typeSpecimen;
-    },
-    distributionSamples() {
-      return this.distributionSamples;
-    },
-    distributionConop() {
-      return this.distributionConop;
-    },
-    specimenIdentification() {
-      return this.specimenIdentification;
-    },
-    taxonOccurrence() {
-      return this.taxonOccurrence;
-    },
-    references() {
-      if (
-        (this.references === [] && this.references2 === []) ||
-        this.references === false ||
-        this.references2 === false ||
-        this.references === undefined ||
-        this.references2 === undefined
-      )
-        return {};
-      let refs = this.references.concat(this.references2);
-      let uniqueRefs = uniqBy(refs, "reference");
-      if (uniqueRefs.length < 4) this.accordion.showAccordionReferences = true;
-      return orderBy(uniqueRefs, "reference__year", ["desc"]);
-    },
-    siblings() {
-      return this.children;
-    },
-    synonyms() {
-      return this.synonims;
-    },
-    //is not actually used
-    taxonList() {
-      return this.taxonList;
-    },
-    // taxonPage: function () {
-    //   let taxonPages = this.taxonPage;
-    //   if (taxonPages === undefined || taxonPages.length === 0) return {};
-    //   return taxonPages[0];
-    // },
-    filteredCommonNames: function () {
-      let lang = this.$i18n.locale;
-      return filter(this.commonNames, function (o) {
-        return o.language !== lang;
-      });
-    },
-
-    sortedSiblings: function () {
-      return orderBy(this.siblings, "taxon");
-    },
-    sortedSisters: function () {
-      return orderBy(this.sister_taxa, "taxon");
-    },
-    sortedSistersWithoutCurrentTaxon: function () {
-      return this.excludeCurrentTaxon(
-        this.sortedSisters,
-        this.$route.params.id
-      );
-    },
-
-    isTaxonomicTreeIsLoaded() {
-      return this.isSisterTaxaLoaded && this.isHierarchyLoaded;
-    },
-
-    commonNamesStrings() {
-      return map(this.commonNames, "name");
-    },
-    childrenStrings() {
-      return map(this.sortedSiblings, "taxon");
-    },
-    meta() {
-      return [
-        this.taxon.parent__taxon,
-        this.taxon.taxon,
-        this.taxon.fossil_group__taxon,
-        this.commonNamesStrings,
-        this.childrenStrings,
-      ].join(", ");
-    },
-    map_() {
-      return this.map;
-    },
-    isMapLoaded() {
-      return !!(
-        this.map_ &&
-        ["Species", "Subspecies", "Genus", "Supergenus", "Subgenus"].indexOf(
-          this.taxon.rank__rank_en
-        ) >= 0 &&
-        // && ['Species','Subspecies','Genus','Supergenus','Subgenus'].includes(this.taxon.rank__rank_en)
-        this.isDefinedAndNotNull(this.taxon.taxon)
-      );
-    },
-    isNumberOfLocalitiesOnMapOver1000() {
-      return this.cntLocalities !== undefined && this.cntLocalities > 1000;
-    },
-    computedOpinions() {
-      return this.opinions.filter((item) => {
-        return (
-          this.isDefinedAndNotNull(item.other_taxon) &&
-          item.is_preferred === true &&
-          item.opinion_type__invalid === true
-        );
-      });
-    },
+  accordion: {
+    showAccordionReferences: false,
   },
-
-  async asyncData({ $pinia, $router, $i18n }) {
-    const rootStore = useRootStore($pinia);
-    const id = $router.currentRoute._value.params.id;
-    const mode = rootStore.mode;
-    const taxonRes = await $fetch(
-      `/taxon/?id=${id}&fields=id,taxon,parent,parent__taxon,rank__rank,rank__rank_en,fossil_group__id,is_fossil_group,fossil_group__taxon,hierarchy_string,author_year,date_added,date_changed,stratigraphy_base__stratigraphy,stratigraphy_base_id,stratigraphy_top_id,stratigraphy_base__age_base,stratigraphy_top__age_top,stratigraphy_top__stratigraphy,taxon_id_tol,taxon_id_eol,taxon_id_nrm,taxon_id_plutof,taxon_id_pbdb&format=json`,
-      { baseURL: "https://api.geocollections.info" }
-    );
-    const taxon = (taxonRes.results && taxonRes.results[0]) || false;
-    let speciesMapMode = mode === "in_global" ? `` : ` AND ${mode}:1`;
-    const applyMode = (mode, separator = "=", queryJoiner = "&") => {
-      let returnVal = "";
-      if (mode === "in_baltoscandia")
-        returnVal = `${queryJoiner}in_baltoscandia${separator}1`;
-      else if (mode === "in_estonia")
-        returnVal = `${queryJoiner}in_estonia${separator}1`;
-      return returnVal;
-    };
-
-    const [
-      ranksRes,
-      taxonCommonNamesRes,
-      taxonPagesRes,
-      taxonOccurrenceRes,
-      referencesRes,
-      references2Res,
-      childrenRes,
-      descriptionsRes,
-      speciesMapRes,
-      opinionsRes,
-    ] = await Promise.all([
-      $fetch(`/taxon_rank/?order_by=sort&format=json`, {
-        baseURL: "https://api.geocollections.info",
-      }),
-      $fetch(
-        `/taxon_common_name/?taxon=${id}&is_preferred=1&fields=language,name,is_preferred&format=json`,
-        { baseURL: "https://api.geocollections.info" }
-      ),
-      $fetch(
-        `/taxon_page/?taxon=${id}&language=${$i18n.locale.value}&fields=content,author_txt,date_txt,link_wikipedia,title&format=json`,
-        { baseURL: "https://api.geocollections.info" }
-      ),
-      $fetch(
-        `/taxon_occurrence/?taxon__taxon__icontains=${taxon.taxon}&fields=reference,reference__reference,locality__locality,locality__locality_en,depth_interval,depth,stratigraphy_base__stratigraphy,stratigraphy_base__stratigraphy_en&format=json`,
-        { baseURL: "https://api.geocollections.info" }
-      ),
-      $fetch(
-        `/taxon_occurrence/?taxon__hierarchy_string__istartswith=${taxon.hierarchy_string}&reference!=null&order_by=-reference__year&fields=reference,reference__reference,reference__author,reference__year,reference__title,reference__journal__journal_name,reference__book,reference__volume,reference__number,reference__pages,reference__doi&distinct=true&format=json`,
-        { baseURL: "https://api.geocollections.info" }
-      ),
-      $fetch(
-        `/specimen_identification/?taxon__hierarchy_string__istartswith=${taxon.hierarchy_string}&reference!=null&order_by=-reference__year&fields=reference,reference__reference,reference__author,reference__year,reference__title,reference__journal__journal_name,reference__book,reference__volume,reference__number,reference__pages,reference__doi&distinct=true&format=json`,
-        { baseURL: "https://api.geocollections.info" }
-      ),
-      $fetch(
-        `/taxon/?parent=${id}${applyMode(
-          mode
-        )}&fields=id,taxon,parent__taxon,parent_id,rank__rank_en,rank__rank&format=json`,
-        { baseURL: "https://api.geocollections.info" }
-      ),
-      $fetch(
-        `/taxon_description/?taxon=${id}&fields=reference,reference__reference,description&order_by=-reference__year&format=json`,
-        { baseURL: "https://api.geocollections.info" }
-      ),
-      $fetch(
-        `/solr/taxon_search/?q=taxon_hierarchy:${taxon.hierarchy_string}*${speciesMapMode}&fq=%7B%21collapse%20field--locality%7D&fq=rank:[14%20TO%2017]&sort=fossil_group asc,taxon asc&rows=1000&start=0&fl=src,locality,locality_en,locality_id,latlong&format=json`,
-        { baseURL: "https://api.geocollections.info" }
-      ),
-      $fetch(
-        `/taxon_opinion/?taxon=${id}&order_by=-reference__year&format=json`,
-        { baseURL: "https://api.geocollections.info" }
-      ),
-    ]);
-
-    const rankFields = {
-      synonims: false,
-      typeSpecimen: false,
-      distributionSamples: false,
-      distributionConop: false,
-    };
-    if (["Species", "Subspecies"].indexOf(taxon.rank__rank_en) >= 0) {
-      const [
-        synonymRes,
-        typeSpecimenRes,
-        distributionSamplesRes,
-        distributionConopRes,
-      ] = await Promise.all([
-        $fetch(`/taxon_synonym/?taxon=${id}&order_by=year&format=json`, {
-          baseURL: "https://api.geocollections.info",
-        }),
-        $fetch(`/taxon_type_specimen/?taxon=${id}&format=json`, {
-          baseURL: "https://api.geocollections.info",
-        }),
-        $fetch(
-          `/taxon/?sql=get_species_distribution_sample&keyword=${taxon.taxon}&format=json`,
-          { baseURL: "https://api.geocollections.info" }
-        ),
-        $fetch(
-          `/taxon/?sql=get_species_distribution_conop&keyword=${taxon.taxon}&format=json`
-        ),
-      ]);
-      rankFields.typeSpecimen = typeSpecimenRes.results || false;
-      rankFields.synonims = synonymRes.results || false;
-      rankFields.distributionSamples = distributionSamplesRes.results || false;
-      rankFields.distributionConop = distributionConopRes.results || false;
-    }
-
-    return {
-      taxon: (taxonRes.results && taxonRes.results[0]) || false,
-      commonNames:
-        (taxonCommonNamesRes.results && taxonCommonNamesRes.results[0]) ||
-        false,
-      taxonPage: (taxonPagesRes.results && taxonPagesRes.results[0]) || false,
-      taxonOccurence: taxonOccurrenceRes.results || false,
-      references: referencesRes.results || false,
-      references2: references2Res.results || false,
-      children: childrenRes.results || false,
-      description: descriptionsRes.results || false,
-      map: speciesMapRes.results || false,
-      cntLocalities: speciesMapRes.count || false,
-      opinions: opinionsRes.results || false,
-      lists: {
-        ranks: ranksRes.results || false,
-      },
-      ...rankFields,
-    };
-  },
-
-  beforeMount() {
-    document.body.addEventListener("scroll", this.handleScroll);
-  },
-  beforeDestroy() {
-    document.body.addEventListener("scroll", this.handleScroll);
-  },
-
-  async mounted() {
-    window.addEventListener("scroll", this.handleScroll);
-    if (this.taxon && this.taxon.hasOwnProperty("id")) {
-      // Object.assign(this.$data, this.initialData());
-      await this.loadFullTaxonInfo();
-    }
-  },
-
-  methods: {
-    initialData: function () {
-      return {
-        geocollectionUrl: "http://geocollections.info",
-        fossilsUrl: "https://fossiilid.info",
-        kividUrl: "http://www.kivid.info",
-        fileUrl: "https://files.geocollections.info",
-        isReferencesCollapsed: true,
-        scroll: false,
-        parent: {},
-        images: [],
-        activeSection: "overview",
-        specimenCollectionCnt: false,
-        loaders: {
-          isSpecimenCollectionLoaded: false,
-        },
-        accordion: {
-          showAccordionReferences: false,
-        },
-        toggle: "",
-        mapDataLoaded: false,
-        sister_taxa: {},
-        hierarchy: {},
-        numberOfSpecimen: null,
-        requestingData: false,
-        isSisterTaxaLoaded: false,
-        isHierarchyLoaded: false,
-        allSpecies: [],
-        response: {
-          count: 0,
-          results: [],
-        },
-      };
-    },
-    async refreshData() {
-      const taxon = this.taxon;
-      const id = this.$route.params.id;
-      let speciesMapMode =
-        this.mode === "in_global" ? `` : ` AND ${this.mode}:1`;
-      const mode = this.mode;
-      const [
-        taxonCommonNamesRes,
-        taxonPagesRes,
-        taxonOccurrenceRes,
-        referencesRes,
-        references2Res,
-        childrenRes,
-        descriptionsRes,
-        speciesMapRes,
-        opinionsRes,
-      ] = await Promise.all([
-        $fetch(
-          `/taxon_common_name/?taxon=${id}&is_preferred=1&fields=language,name,is_preferred&format=json`,
-          { baseURL: "https://api.geocollections.info" }
-        ),
-        $fetch(
-          `/taxon_page/?taxon=${id}&language=${this.$i18n.locale}&fields=content,author_txt,date_txt,link_wikipedia,title&format=json`,
-          { baseURL: "https://api.geocollections.info" }
-        ),
-        $fetch(
-          `/taxon_occurrence/?taxon__taxon__icontains=${taxon.taxon}&fields=reference,reference__reference,locality__locality,locality__locality_en,depth_interval,depth,stratigraphy_base__stratigraphy,stratigraphy_base__stratigraphy_en&format=json`,
-          { baseURL: "https://api.geocollections.info" }
-        ),
-        $fetch(
-          `/taxon_occurrence/?taxon__hierarchy_string__istartswith=${taxon.hierarchy_string}&reference!=null&order_by=-reference__year&fields=reference,reference__reference,reference__author,reference__year,reference__title,reference__journal__journal_name,reference__book,reference__volume,reference__number,reference__pages,reference__doi&distinct=true&format=json`,
-          { baseURL: "https://api.geocollections.info" }
-        ),
-        $fetch(
-          `/specimen_identification/?taxon__hierarchy_string__istartswith=${taxon.hierarchy_string}&reference!=null&order_by=-reference__year&fields=reference,reference__reference,reference__author,reference__year,reference__title,reference__journal__journal_name,reference__book,reference__volume,reference__number,reference__pages,reference__doi&distinct=true&format=json`,
-          { baseURL: "https://api.geocollections.info" }
-        ),
-        $fetch(
-          `/taxon/?parent=${id}${this.applyMode(
-            mode
-          )}&fields=id,taxon,parent__taxon,parent_id,rank__rank_en,rank__rank&format=json`,
-          { baseURL: "https://api.geocollections.info" }
-        ),
-        $fetch(
-          `/taxon_description/?taxon=${id}&fields=reference,reference__reference,description&order_by=-reference__year&format=json`,
-          { baseURL: "https://api.geocollections.info" }
-        ),
-        $fetch(
-          `/solr/taxon_search/?q=taxon_hierarchy:${taxon.hierarchy_string}*${speciesMapMode}&fq=%7B%21collapse%20field--locality%7D&fq=rank:[14%20TO%2017]&sort=fossil_group asc,taxon asc&rows=1000&start=0&fl=src,locality,locality_en,locality_id,latlong&format=json`,
-          { baseURL: "https://api.geocollections.info" }
-        ),
-        $fetch(
-          `/taxon_opinion/?taxon=${id}&order_by=-reference__year&format=json`,
-          { baseURL: "https://api.geocollections.info" }
-        ),
-      ]);
-      this.commonNames =
-        (taxonCommonNamesRes.results && taxonCommonNamesRes.results[0]) ||
-        false;
-      this.taxonPage =
-        (taxonPagesRes.results && taxonPagesRes.results[0]) || false;
-      this.taxonOccurence = taxonOccurrenceRes.results || false;
-      this.references = referencesRes.results || false;
-      this.references2 = references2Res.results || false;
-      this.children = childrenRes.results || false;
-      this.description = descriptionsRes.results || false;
-      this.map = speciesMapRes.results || false;
-      this.cntLocalities = speciesMapRes.count || false;
-      this.opinions = opinionsRes.results || false;
-
-      if (["Species", "Subspecies"].indexOf(taxon.rank__rank_en) >= 0) {
-        const [
-          synonymRes,
-          typeSpecimenRes,
-          distributionSamplesRes,
-          distributionConopRes,
-        ] = await Promise.all([
-          $fetch(`/taxon_synonym/?taxon=${id}&order_by=year&format=json`, {
-            baseURL: "https://api.geocollections.info",
-          }),
-          $fetch(`/taxon_type_specimen/?taxon=${id}&format=json`, {
-            baseURL: "https://api.geocollections.info",
-          }),
-          $fetch(
-            `/taxon/?sql=get_species_distribution_sample&keyword=${taxon.taxon}&format=json`,
-            { baseURL: "https://api.geocollections.info" }
-          ),
-          $fetch(
-            `/taxon/?sql=get_species_distribution_conop&keyword=${taxon.taxon}&format=json`
-          ),
-        ]);
-        this.typeSpecimen = typeSpecimenRes.results || false;
-        this.synonims = synonymRes.results || false;
-        this.distributionSamples = distributionSamplesRes.results || false;
-        this.distributionConop = distributionConopRes.results || false;
-      }
-    },
-    applyMode(mode, separator = "=", queryJoiner = "&") {
-      let returnVal = "";
-      if (mode === "in_baltoscandia")
-        returnVal = `${queryJoiner}in_baltoscandia${separator}1`;
-      else if (mode === "in_estonia")
-        returnVal = `${queryJoiner}in_estonia${separator}1`;
-      return returnVal;
-    },
-    async loadFullTaxonInfo() {
-      if (this.isDefinedAndNotNull(this.taxon.parent)) {
-        const parentRes = await $fetch(
-          `/taxon/?id=${this.taxon.parent}&fields=id,taxon,rank__rank_en&format=json`,
-          { baseURL: "https://api.geocollections.info" }
-        );
-        this.parent = parentRes.results ? parentRes.results[0] : {};
-
-        const sisterTaxaRes = await $fetch(
-          `/taxon/?parent_id=${this.taxon.parent}${this.applyMode(
-            this.mode
-          )}&fields=id,taxon,parent__taxon,parent_id,rank__rank_en,rank__rank&format=json`,
-          { baseURL: "https://api.geocollections.info" }
-        );
-        this.sister_taxa = sisterTaxaRes.results;
-        this.isSisterTaxaLoaded = true;
-      }
-
-      if (this.taxon.rank__rank_en !== "Species") {
-        await this.searchSpecies();
-      }
-
-      const hierarchyRes = await $fetch(
-        `/taxon/?id__in=${this.formatHierarchyString(
-          this.taxon.hierarchy_string
-        )}&fields=id,taxon,rank__rank,rank__rank_en&format=json`,
-        { baseURL: "https://api.geocollections.info" }
-      );
-      this.hierarchy = hierarchyRes.results;
-      this.isHierarchyLoaded = true;
-
-      await this.getImages();
-
-      const cntSpecimenCollectionRes = await $fetch(
-        `/solr/specimen/?q=hierarchy_string:(${this.taxon.hierarchy_string}*)&rows=1&format=json`,
-        { baseURL: "https://api.geocollections.info" }
-      );
-      this.specimenCollectionCnt = cntSpecimenCollectionRes.count;
-    },
-    handleImageResponse(searchParameters, response) {
-      searchParameters.allowPaging = this.isAllowedMorePaging(
-        searchParameters.page,
-        response,
-        searchParameters.paginateBy
-      );
-      if (searchParameters.allowPaging) searchParameters.page += 1;
-      this.images = this.composeImageRequest(response.results);
-      this.imagesLoading = false;
-      return searchParameters;
-    },
-    async getImages() {
-      this.imagesLoading = true;
-      const selectedImagesRes = await $fetch(
-        `/taxon/?sql=get_taxon_selected_images&keyword=${this.taxon.id}&page=${this.searchParameters.selectedImages.page}&paginate_by=${this.searchParameters.selectedImages.paginateBy}&format=json`,
-
-        { baseURL: "https://api.geocollections.info" }
-      );
-      if (selectedImagesRes.results.length === 0) {
-        const imagesRes = await $fetch(
-          `/taxon/?sql=get_taxon_images&keyword=${this.taxon.hierarchy_string}&page=${this.searchParameters.images.page}&paginate_by=${this.searchParameters.images.paginateBy}&format=json`,
-          { baseURL: "https://api.geocollections.info" }
-        );
-        this.handleImageResponse(this.searchParameters.images, imagesRes);
-        this.searchParameters.selectedImages.allowPaging = false;
-      } else {
-        this.handleImageResponse(
-          this.searchParameters.selectedImages,
-          selectedImagesRes
-        );
-      }
-    },
-
-    isDifferentName(obj) {
-      let localizedName = this.$i18n.locale === "et" ? obj["et"] : obj["en"];
-      return localizedName[0] !== localizedName[1] && localizedName[1] !== "";
-    },
-    isAllowedMorePaging(page, response, paginateBy) {
-      return !(
-        response.results === undefined ||
-        response.results.length === 0 ||
-        parseInt(response.results.length) / page < paginateBy
-      );
-    },
-    //todo: utils
-    composeImgUrl(uuid_filename, isFull) {
-      if (uuid_filename && uuid_filename != null) {
-        return isFull
-          ? this.fileUrl +
-              "/large/" +
-              uuid_filename.substring(0, 2) +
-              "/" +
-              uuid_filename.substring(2, 4) +
-              "/" +
-              uuid_filename
-          : this.fileUrl +
-              "/small/" +
-              uuid_filename.substring(0, 2) +
-              "/" +
-              uuid_filename.substring(2, 4) +
-              "/" +
-              uuid_filename;
-      }
-    },
-    //todo: utils
-    isDefinedAndNotEmpty(value) {
-      return !!value && value.length > 0;
-    },
-
-    //todo: utils
-    isDefinedAndNotNull(value) {
-      return !!value && value !== null;
-    },
-    arrayHasNonNullElement(arr) {
-      let this_ = this,
-        found = false;
-      arr.forEach(function (el) {
-        found = this_.isDefinedAndNotNull(el);
-      });
-      return found;
-    },
-    isAtLeastOneDefinedAndNotEmpty(arr) {
-      let found = this.arrayHasNonNullElement(arr["common"]);
-      if (found) return found;
-
-      let localizedArr = this.$i18n.locale === "et" ? arr["et"] : arr["en"];
-      found = this.arrayHasNonNullElement(localizedArr);
-      return found;
-    },
-    isHigherTaxon(rank) {
-      // return !['Species','Subspecies','Genus','Supergenus','Subgenus'].includes(rank)
-      return !(
-        ["Species", "Subspecies", "Genus", "Supergenus", "Subgenus"].indexOf(
-          rank
-        ) >= 0
-      );
-    },
-    calculateSpeciesIdx: function (idx) {
-      return (
-        idx +
-        1 +
-        this.searchParameters.species.paginateBy *
-          this.searchParameters.species.page -
-        this.searchParameters.species.paginateBy
-      );
-    },
-    //todo: utils
-    openUrl: function (params) {
-      window.open(
-        params.parent_url + "/" + params.object,
-        "",
-        "width=" + params.width + ",height=" + params.height,
-        scrollbars
-      );
-    },
-    excludeCurrentTaxon: function (list, itemID) {
-      return list.filter(function (val, i) {
-        return itemID.indexOf(val.id) === -1;
-      }, this);
-    },
-    //todo: utils
-    convertToTwoDecimal: function (value) {
-      return value.toFixed(1);
-    },
-    //todo: utils
-    formatHierarchyString: function (value) {
-      return value ? value.replace(/-/g, ",") : value;
-    },
-
-    topNavigation: function () {
-      location.href = "#top";
-    },
-    setFancyBoxCaption: function (el) {
-      let text = "",
-        infoBtn = "",
-        imgBtn = "",
-        additionalInfo = {};
-      switch (el.type) {
-        case "selected_image":
-          additionalInfo = {
-            imageName: el.link_taxon,
-            infoId: el.specimen_id,
-            imageId: el.attachment_id,
-            navigateId: el.link_id,
-          };
-          break;
-        case "non_higher_taxon":
-          additionalInfo = {
-            imageName: el.specimen__specimen_id
-              ? el.database__acronym + " " + el.specimen__specimen_id
-              : el.database__acronym + " " + el.id,
-            infoId: el.specimen_id,
-            imageId: el.id ? el.id : el.specimen_image_id,
-            navigateId: el.link
-              ? el.link
-              : el.specimen__specimenidentification__taxon__id,
-          };
-          break;
-        case "higher_taxon":
-          additionalInfo = {
-            imageName: el.taxon,
-            infoId: el.specimen_id,
-            imageId: el.attachment_id,
-            navigateId: el.taxon_id,
-          };
-        default:
-          break;
-      }
-
-      // if(this.isHigherTaxon(this.taxon.rank__rank_en)) {}
-      text +=
-        '<div><button type="button" class="btn btn-xs  btn-primary" onclick="window.open(\'' +
-        this.fossilsUrl +
-        "/" +
-        additionalInfo.navigateId +
-        "?mode=in_baltoscandia&lang=en')\">Read more</button></div>";
-
-      if (additionalInfo.infoId)
-        infoBtn =
-          '<button type="button" class="btn btn-sm  btn-info" onclick="window.open(\'' +
-          this.geocollectionUrl +
-          "/specimen/" +
-          additionalInfo.infoId +
-          "')\">INFO</button>";
-      if (additionalInfo.imageId)
-        imgBtn =
-          ' <button type="button" class="btn btn-sm btn-secondary" onclick="window.open(\'' +
-          this.geocollectionUrl +
-          "/file/" +
-          additionalInfo.imageId +
-          "')\">IMAGE</button>";
-      text +=
-        "<div class='mt-3'><span>" +
-        additionalInfo.imageName +
-        "</span>&ensp;&ensp;" +
-        infoBtn +
-        imgBtn +
-        "</div>";
-      return text;
-    },
-
-    //todo: utils
-    composeImageRequest(taxonImages) {
-      if (
-        taxonImages === undefined ||
-        taxonImages === {} ||
-        taxonImages.length === 0
-      )
-        return;
-      if (taxonImages.length > 0) {
-        let this_ = this;
-        taxonImages.forEach(function (el) {
-          function setImageType(el) {
-            if (el.specimen_image_id || el.specimen_image_id === null) {
-              return "non_higher_taxon";
-            } else if (el.link_id || el.link_id === null) {
-              return "selected_image";
-            }
-            return "higher_taxon";
-          }
-
-          function setImageSrc(el) {
-            if (el.type === "higher_taxon") {
-              el.thumbnail =
-                this_.fileUrl +
-                "/small/" +
-                el.filename.substring(0, 2) +
-                "/" +
-                el.filename.substring(2, 4) +
-                "/" +
-                el.filename;
-              el.src =
-                this_.fileUrl +
-                "/large/" +
-                el.filename.substring(0, 2) +
-                "/" +
-                el.filename.substring(2, 4) +
-                "/" +
-                el.filename;
-            } else if (el.type === "non_higher_taxon") {
-              el.thumbnail =
-                this_.fileUrl +
-                "/small/" +
-                el.uuid_filename.substring(0, 2) +
-                "/" +
-                el.uuid_filename.substring(2, 4) +
-                "/" +
-                el.uuid_filename;
-              el.src =
-                this_.fileUrl +
-                "/large/" +
-                el.uuid_filename.substring(0, 2) +
-                "/" +
-                el.uuid_filename.substring(2, 4) +
-                "/" +
-                el.uuid_filename;
-            } else if (el.type === "selected_image") {
-              el.thumbnail = el.preview_url;
-              el.src = el.image_url;
-            }
-            return el;
-          }
-          el.type = setImageType(el);
-          el = setImageSrc(el);
-          el.caption = this_.setFancyBoxCaption(el);
-        });
-        return taxonImages;
-      }
-      return [];
-    },
-
-    async searchSpecies() {
-      const speciesRes = await $fetch(
-        `/taxon/?hierarchy_string__istartswith=${
-          this.taxon.hierarchy_string
-        }&rank__rank_en=species${this.applyMode(
-          this.mode
-        )}&order_by=taxon&fields=taxon,author_year,id,stratigraphy_base__stratigraphy_en,stratigraphy_base__stratigraphy,stratigraphy_top__stratigraphy_en,stratigraphy_top__stratigraphy&page=${
-          this.searchParameters.species.page
-        }&paginate_by=${this.searchParameters.species.paginateBy}&format=json`,
-        { baseURL: "https://api.geocollections.info" }
-      );
-      this.allSpecies = speciesRes.results;
-      this.numberOfSpecimen = speciesRes.count;
-      this.response.count = speciesRes.count;
-      this.response.results = speciesRes.results;
-    },
-
-    handleScroll(e) {
-      this.scroll = window.scrollY > 150;
-    },
-  },
-
-  watch: {
-    "searchParameters.species": {
-      async handler() {
-        await this.searchSpecies();
-        await this.refreshData();
-      },
-      deep: true,
-    },
-    mode: {
-      async handler() {
-        await this.searchSpecies();
-        await this.refreshData();
-      },
-      deep: true,
-    },
+  toggle: "",
+  mapDataLoaded: false,
+  sister_taxa: {},
+  hierarchy: [] as any[],
+  numberOfSpecimen: 0,
+  requestingData: false,
+  isSisterTaxaLoaded: false,
+  isHierarchyLoaded: false,
+  imagesLoading: true,
+  allSpecies: [] as Species[],
+  response: {
+    count: 0,
+    results: [],
   },
 });
+const route = useRoute();
+const store = useRootStore();
+const { locale } = useI18n();
+const { $apiFetch } = useNuxtApp();
+
+type Taxon = {
+  id: number;
+  taxon: string;
+  parent?: string;
+  parent__taxon?: string;
+  rank__rank?: string;
+  rank__rank_en?: string;
+  fossil_group__id?: number;
+  is_fossil_group?: boolean;
+  fossil_group__taxon?: string;
+  hierarchy_string?: string;
+  author_year?: string;
+  date_added?: string;
+  date_changed?: string;
+  stratigraphy_base__stratigraphy?: string;
+  stratigraphy_base_id?: number;
+  stratigraphy_top_id?: number;
+  stratigraphy_base__age_base?: number;
+  stratigraphy_top__age_top?: number;
+  stratigraphy_top__stratigraphy?: string;
+  taxon_id_tol?: number;
+  taxon_id_eol?: number;
+  taxon_id_nrm?: string;
+  taxon_id_plutof?: number;
+  taxon_id_pbdb?: number;
+};
+
+const { data: taxonRes } = await useApiFetch<{ results?: Taxon[] }>("/taxon", {
+  query: {
+    id: route.params.id,
+    fields: `id,taxon,parent,parent__taxon,rank__rank,rank__rank_en,fossil_group__id,is_fossil_group,fossil_group__taxon,hierarchy_string,author_year,date_added,date_changed,stratigraphy_base__stratigraphy,stratigraphy_base_id,stratigraphy_top_id,stratigraphy_base__age_base,stratigraphy_top__age_top,stratigraphy_top__stratigraphy,taxon_id_tol,taxon_id_eol,taxon_id_nrm,taxon_id_plutof,taxon_id_pbdb`,
+    format: "json",
+  },
+});
+// TODO: Throw error when taxon results is empty
+const taxon = ref(taxonRes.value?.results?.[0]);
+if (!taxon.value) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: "Page not found",
+  });
+}
+
+const [
+  { data: ranksRes },
+  { data: commonNamesRes },
+  { data: pageRes },
+  { data: occurenceRes },
+  { data: referenceRes },
+  { data: reference2Res },
+  { data: childrenRes },
+  { data: descriptionRes },
+  { data: speciesMapRes },
+  { data: opinionRes },
+  { data: hierarchyRes },
+  { data: cntSpecimenCollectionRes },
+  _imageRes,
+] = await Promise.all([
+  useApiFetch<{ results?: any[] }>("/taxon_rank", {
+    query: {
+      order_by: "sort",
+      format: "json",
+    },
+  }),
+  useApiFetch<{ results?: any[] }>("/taxon_common_name", {
+    query: {
+      taxon: route.params.id,
+      is_preferred: 1,
+      fields: "language,name,is_preferred",
+      format: "json",
+    },
+  }),
+  useApiFetch<{ results?: any[] }>("/taxon_page", {
+    query: {
+      taxon: route.params.id,
+      language: locale.value,
+      fields: "content,author_txt,date_txt,link_wikipedia,title",
+      format: "json",
+    },
+  }),
+  useApiFetch<{ results?: any[] }>("/taxon_occurrence", {
+    query: {
+      taxon__taxon__icontains: taxon.value.taxon,
+      fields:
+        "reference,reference__reference,locality__locality,locality__locality_en,depth_interval,depth,stratigraphy_base__stratigraphy,stratigraphy_base__stratigraphy_en",
+      format: "json",
+    },
+  }),
+  useApiFetch<{ results?: any[] }>("/taxon_occurrence", {
+    query: {
+      taxon__hierarchy_string__istartswith: taxon.value.hierarchy_string,
+      reference__isnull: false,
+      order_by: "-reference__year",
+      fields:
+        "reference,reference__reference,reference__author,reference__year,reference__title,reference__journal__journal_name,reference__book,reference__volume,reference__number,reference__pages,reference__doi",
+      distinct: true,
+      format: "json",
+    },
+  }),
+  useApiFetch<{ results?: any[] }>("/specimen_identification", {
+    query: {
+      taxon__hierarchy_string__istartswith: taxon.value.hierarchy_string,
+      reference__isnull: false,
+      order_by: "-reference__year",
+      fields:
+        "reference,reference__reference,reference__author,reference__year,reference__title,reference__journal__journal_name,reference__book,reference__volume,reference__number,reference__pages,reference__doi",
+      distinct: true,
+      format: "json",
+    },
+  }),
+  useApiFetch<{ results?: any[] }>("/taxon", {
+    query: {
+      parent: route.params.id,
+      ...getModeQueryParam(store.mode),
+      fields: "id,taxon,parent__taxon,parent_id,rank__rank_en,rank__rank",
+      format: "json",
+    },
+  }),
+  useApiFetch<{ results?: any[] }>("/taxon_description", {
+    query: {
+      taxon: route.params.id,
+      fields: "reference,reference__reference,description",
+      order_by: "-reference__year",
+      format: "json",
+    },
+  }),
+  useApiFetch<{
+    results: any[];
+    count: number;
+  }>("/solr/taxon_search", {
+    query: {
+      q: `taxon_hierarchy:${taxon.value.hierarchy_string}*${
+        store.mode === "in_global" ? `` : ` AND ${store.mode}:1`
+      }`,
+      fq: ["{!collapse field--locality}", "rank:[14 TO 17]"],
+      sort: "fossil_group asc,taxon asc",
+      rows: 1000,
+      start: 0,
+      fl: "src,locality,locality_en,locality_id,latlong",
+      format: "json",
+    },
+  }),
+  useApiFetch<{ results?: any[] }>("/taxon_opinion", {
+    query: {
+      taxon: route.params.id,
+      order_by: "-reference__year",
+      format: "json",
+    },
+  }),
+  useApiFetch<{ results?: any[] }>("/taxon", {
+    query: {
+      id__in: formatHierarchyString(taxon.value.hierarchy_string),
+      fields: "id,taxon,rank__rank,rank__rank_en",
+      format: "json",
+    },
+  }),
+  useApiFetch<{ count: number }>("/solr/specimen", {
+    query: {
+      q: `hierarchy_string:(${taxon.value.hierarchy_string}*)`,
+      rows: 1,
+      format: "json",
+    },
+  }),
+  getImages(),
+]);
+
+const ranks = ref(ranksRes.value?.results ?? []);
+const commonNames = ref(commonNamesRes.value?.results?.[0]);
+const taxonPage = ref(pageRes.value?.results?.[0]);
+const taxonOccurrence = ref(occurenceRes.value?.results ?? []);
+const references = ref(referenceRes.value?.results ?? []);
+const references2 = ref(reference2Res.value?.results ?? []);
+const children = ref(childrenRes.value?.results ?? []);
+const description = ref(descriptionRes.value?.results ?? []);
+const map = ref(speciesMapRes.value?.results ?? []);
+const cntLocalities = ref(speciesMapRes.value?.count);
+const opinions = ref(opinionRes.value?.results ?? []);
+state.hierarchy = hierarchyRes.value?.results ?? [];
+state.isHierarchyLoaded = true;
+state.specimenCollectionCnt = cntSpecimenCollectionRes.value?.count ?? 0;
+
+function getModeQueryParam(mode: string) {
+  if (mode === "in_baltoscandia") {
+    return { in_baltoscandia: 1 };
+  } else if (mode === "in_estonia") {
+    return { in_estonia: 1 };
+  }
+  return {};
+}
+
+const parent = ref();
+const sisterTaxa = ref();
+
+if (isDefinedAndNotNull(taxon.value.parent)) {
+  const [{ data: parentRes }, { data: sisterTaxaRes }] = await Promise.all([
+    useApiFetch<{ results?: any[] }>(
+      `/taxon/?id=${taxon.value.parent}&fields=id,taxon,rank__rank_en&format=json`
+    ),
+    useApiFetch<{ results?: any[] }>(
+      `/taxon/?parent_id=${taxon.value.parent}${applyMode(
+        store.mode
+      )}&fields=id,taxon,parent__taxon,parent_id,rank__rank_en,rank__rank&format=json`
+    ),
+  ]);
+  parent.value = parentRes.value?.results?.[0] ?? [];
+  sisterTaxa.value = sisterTaxaRes.value?.results ?? [];
+  state.isSisterTaxaLoaded = true;
+}
+type TaxonTypeSpecimen = {
+  id: number;
+  type_type__value: string;
+  type_type__value_en: string;
+  specimen?: number;
+  specimen_number?: number;
+  repository?: string;
+  level?: string;
+  attachment?: number;
+  attachment__filename?: string;
+  remarks?: string;
+  stratigraphy: number;
+  stratigraphy__stratigraphy: string;
+  stratigraphy__stratigraphy_en: string;
+  stratigraphy_free?: string;
+  stratigraphy_free_en?: string;
+  locality__locality: string;
+  locality: number;
+  locality_free: string;
+  locality_free_en: string;
+  locality__locality_en: string;
+};
+
+type TaxonSynonym = {
+  id: number;
+  reference?: number;
+  year: string;
+  taxon_synonym: string;
+  pages?: string;
+  figures?: string;
+  author: string;
+};
+
+type TaxonConop = {
+  locality_id: number;
+  locality_et: string;
+  num: number;
+};
+type TaxonDistributionSample = {
+  locality_id: number;
+  locality_et: string;
+  locality_en: string;
+  depth_min: number;
+  depth_max: number;
+  num: number;
+};
+const typeSpecimens = ref<TaxonTypeSpecimen[]>([]);
+const synonyms = ref<TaxonSynonym[]>([]);
+const distributionSamples = ref<TaxonDistributionSample[]>([]);
+const distributionConop = ref<TaxonConop[]>([]);
+
+if (taxon.value.rank__rank_en !== "Species") {
+  await searchSpecies();
+} else if (["Species", "Subspecies"].includes(taxon.value.rank__rank_en)) {
+  const [
+    { data: synonymRes },
+    { data: typeSpecimenRes },
+    { data: distributionSamplesRes },
+    { data: distributionConopRes },
+  ] = await Promise.all([
+    useApiFetch<{ results?: TaxonSynonym[] }>("/taxon_synonym", {
+      query: {
+        taxon: route.params.id,
+        order_by: "year",
+        format: "json",
+      },
+    }),
+    useApiFetch<{ results?: TaxonTypeSpecimen[] }>("/taxon_type_specimen", {
+      query: {
+        taxon: route.params.id,
+        format: "json",
+      },
+    }),
+    useApiFetch<{
+      results?: TaxonDistributionSample[];
+    }>("/taxon", {
+      query: {
+        sql: "get_species_distribution_sample",
+        keyword: taxon.value.taxon,
+        format: "json",
+      },
+    }),
+    useApiFetch<{
+      results?: TaxonConop[];
+    }>("/taxon", {
+      query: {
+        sql: "get_species_distribution_conop",
+        keyword: taxon.value.taxon,
+        format: "json",
+      },
+    }),
+  ]);
+  synonyms.value = synonymRes.value?.results ?? [];
+  typeSpecimens.value = typeSpecimenRes.value?.results ?? [];
+  distributionSamples.value = distributionSamplesRes.value?.results ?? [];
+  distributionConop.value = distributionConopRes.value?.results ?? [];
+}
+
+const dateAdded = computed(() => {
+  return dayjs(taxon.value?.date_added).format("YYYY-MM-DD");
+});
+const dateChanged = computed(() => {
+  return dayjs(taxon.value?.date_changed).format("YYYY-MM-DD");
+});
+const hierarchyData = computed(() => {
+  return {
+    sortedSisters: sortedSisters.value,
+    parent: parent.value,
+    taxon: taxon.value,
+    hierarchy: state.hierarchy,
+    sortedSiblings: sortedSiblings.value,
+    sortedSistersWithoutCurrentTaxon: sortedSistersWithoutCurrentTaxon.value,
+  };
+});
+const taxonTitle = computed(() => {
+  let lang = locale.value;
+  if (taxonPage.value && taxonPage.value.title) return taxonPage.value.title;
+  let activeCommonName = filter(commonNames.value, function (o) {
+    return o.language === lang && o.is_preferred === 1;
+  });
+
+  if (activeCommonName.length > 0) return activeCommonName[0].name;
+});
+const invalidTaxonName = computed(() => {
+  return filter(opinions.value, function (o) {
+    return o.opinion_type__invalid === true && o.is_preferred === true;
+  });
+});
+const referencesCombined = computed(() => {
+  if (!references2.value && !references.value) return [];
+  let refs = references.value.concat(references2.value);
+  let uniqueRefs = uniqBy(refs, "reference");
+  if (uniqueRefs.length < 4) state.accordion.showAccordionReferences = true;
+  return orderBy(uniqueRefs, "reference__year", ["desc"]);
+});
+const filteredCommonNames = computed(function () {
+  let lang = locale.value;
+  return filter(commonNames.value, function (o) {
+    return o.language !== lang;
+  });
+});
+
+const sortedSiblings = computed(function () {
+  return orderBy(children.value, "taxon");
+});
+const sortedSisters = computed(function () {
+  return orderBy(sisterTaxa.value, "taxon");
+});
+const sortedSistersWithoutCurrentTaxon = computed(function () {
+  return excludeCurrentTaxon(sortedSisters.value, route.params.id as string);
+});
+
+const isTaxonomicTreeIsLoaded = computed(() => {
+  return state.isSisterTaxaLoaded && state.isHierarchyLoaded;
+});
+
+const commonNamesStrings = computed(() => {
+  return _map(commonNames.value, "name");
+});
+const childrenStrings = computed(() => {
+  return _map(sortedSiblings.value, "taxon");
+});
+const meta = computed(() => {
+  return [
+    taxon.value?.parent__taxon,
+    taxon.value?.taxon,
+    taxon.value?.fossil_group__taxon,
+    commonNamesStrings.value,
+    childrenStrings.value,
+  ].join(", ");
+});
+const isNumberOfLocalitiesOnMapOver1000 = computed(() => {
+  return cntLocalities.value !== undefined && cntLocalities.value > 1000;
+});
+const computedOpinions = computed(() => {
+  return opinions.value.filter((item) => {
+    return (
+      isDefinedAndNotNull(item.other_taxon) &&
+      item.is_preferred === true &&
+      item.opinion_type__invalid === true
+    );
+  });
+});
+onMounted(() => {
+  window.addEventListener("scroll", handleScroll);
+});
+
+function handleImageResponse(
+  searchParameters: { page: number; paginateBy: number; allowPaging: boolean },
+  response: { results: any[] }
+) {
+  searchParameters.allowPaging = isAllowedMorePaging(
+    searchParameters.page,
+    response,
+    searchParameters.paginateBy
+  );
+  if (searchParameters.allowPaging) searchParameters.page += 1;
+  state.images = composeImageRequest(response.results);
+  state.imagesLoading = false;
+  return searchParameters;
+}
+async function getImages() {
+  state.imagesLoading = true;
+  const selectedImagesRes = await $apiFetch<{ results: any[] }>("/taxon", {
+    query: {
+      sql: "get_taxon_selected_images",
+      keyword: taxon.value?.id,
+      page: store.searchParameters.selectedImages.page,
+      paginateBy: store.searchParameters.selectedImages.paginateBy,
+      format: "json",
+    },
+  });
+  if (selectedImagesRes.results.length === 0) {
+    const imagesRes = await $apiFetch<{ results: any[] }>("/taxon", {
+      query: {
+        sql: "get_taxon_images",
+        keyword: taxon.value?.hierarchy_string,
+        page: store.searchParameters.images.page,
+        paginateBy: store.searchParameters.images.paginateBy,
+        format: "json",
+      },
+    });
+    handleImageResponse(store.searchParameters.images, imagesRes);
+    store.searchParameters.selectedImages.allowPaging = false;
+  } else {
+    handleImageResponse(
+      store.searchParameters.selectedImages,
+      selectedImagesRes
+    );
+  }
+}
+
+function isDifferentName(obj: any) {
+  let localizedName = locale.value === "et" ? obj["et"] : obj["en"];
+  return localizedName[0] !== localizedName[1] && localizedName[1] !== "";
+}
+function isAllowedMorePaging(
+  page: number,
+  response: { results: any[] },
+  paginateBy: number
+) {
+  return !(
+    response.results === undefined ||
+    response.results.length === 0 ||
+    response.results.length / page < paginateBy
+  );
+}
+function composeImgUrl(uuid_filename: string | undefined, isFull: boolean) {
+  if (uuid_filename) {
+    return isFull
+      ? state.fileUrl +
+          "/large/" +
+          uuid_filename.substring(0, 2) +
+          "/" +
+          uuid_filename.substring(2, 4) +
+          "/" +
+          uuid_filename
+      : state.fileUrl +
+          "/small/" +
+          uuid_filename.substring(0, 2) +
+          "/" +
+          uuid_filename.substring(2, 4) +
+          "/" +
+          uuid_filename;
+  }
+}
+
+function isDefinedAndNotNull(value: any) {
+  return !!value && value !== null;
+}
+function arrayHasNonNullElement(arr: any[]) {
+  let found = false;
+  arr.forEach(function (el) {
+    found = isDefinedAndNotNull(el);
+  });
+  return found;
+}
+function isAtLeastOneDefinedAndNotEmpty(arr: any) {
+  let found = arrayHasNonNullElement(arr["common"]);
+  if (found) return found;
+
+  let localizedArr = locale.value === "et" ? arr["et"] : arr["en"];
+  found = arrayHasNonNullElement(localizedArr);
+  return found;
+}
+function isHigherTaxon(rank: string | undefined | null) {
+  if (!rank) return false;
+  // return !['Species','Subspecies','Genus','Supergenus','Subgenus'].includes(rank)
+  return !(
+    ["Species", "Subspecies", "Genus", "Supergenus", "Subgenus"].indexOf(
+      rank
+    ) >= 0
+  );
+}
+function calculateSpeciesIdx(idx: number) {
+  return (
+    idx +
+    1 +
+    store.searchParameters.species.paginateBy *
+      store.searchParameters.species.page -
+    store.searchParameters.species.paginateBy
+  );
+}
+function excludeCurrentTaxon(list: any[], itemID: string) {
+  return list.filter((val) => {
+    return itemID.indexOf(val.id) === -1;
+  });
+}
+function convertToTwoDecimal(value: number) {
+  return value.toFixed(1);
+}
+function formatHierarchyString(value: string | undefined) {
+  return value ? value.replace(/-/g, ",") : value;
+}
+
+function topNavigation() {
+  location.href = "#top";
+}
+function setFancyBoxCaption(el: any) {
+  let text = "",
+    infoBtn = "",
+    imgBtn = "",
+    additionalInfo: any = {};
+  switch (el.type) {
+    case "selected_image":
+      additionalInfo = {
+        imageName: el.link_taxon,
+        infoId: el.specimen_id,
+        imageId: el.attachment_id,
+        navigateId: el.link_id,
+      };
+      break;
+    case "non_higher_taxon":
+      additionalInfo = {
+        imageName: el.specimen__specimen_id
+          ? el.database__acronym + " " + el.specimen__specimen_id
+          : el.database__acronym + " " + el.id,
+        infoId: el.specimen_id,
+        imageId: el.id ? el.id : el.specimen_image_id,
+        navigateId: el.link
+          ? el.link
+          : el.specimen__specimenidentification__taxon__id,
+      };
+      break;
+    case "higher_taxon":
+      additionalInfo = {
+        imageName: el.taxon,
+        infoId: el.specimen_id,
+        imageId: el.attachment_id,
+        navigateId: el.taxon_id,
+      };
+    default:
+      break;
+  }
+
+  // if(this.isHigherTaxon(this.taxon.rank__rank_en)) {}
+  text +=
+    '<div><button type="button" class="btn btn-xs  btn-primary" onclick="window.open(\'' +
+    state.fossilsUrl +
+    "/" +
+    additionalInfo.navigateId +
+    "?mode=in_baltoscandia&lang=en')\">Read more</button></div>";
+
+  if (additionalInfo.infoId)
+    infoBtn =
+      '<button type="button" class="btn btn-sm  btn-info" onclick="window.open(\'' +
+      state.geocollectionUrl +
+      "/specimen/" +
+      additionalInfo.infoId +
+      "')\">INFO</button>";
+  if (additionalInfo.imageId)
+    imgBtn =
+      ' <button type="button" class="btn btn-sm btn-secondary" onclick="window.open(\'' +
+      state.geocollectionUrl +
+      "/file/" +
+      additionalInfo.imageId +
+      "')\">IMAGE</button>";
+  text +=
+    "<div class='mt-3'><span>" +
+    additionalInfo.imageName +
+    "</span>&ensp;&ensp;" +
+    infoBtn +
+    imgBtn +
+    "</div>";
+  return text;
+}
+
+function composeImageRequest(taxonImages: any[]) {
+  if (taxonImages === undefined || taxonImages.length === 0) return [];
+  if (taxonImages.length > 0) {
+    taxonImages.forEach(function (el) {
+      function setImageType(el: any) {
+        if (el.specimen_image_id || el.specimen_image_id === null) {
+          return "non_higher_taxon";
+        } else if (el.link_id || el.link_id === null) {
+          return "selected_image";
+        }
+        return "higher_taxon";
+      }
+
+      function setImageSrc(el: any) {
+        if (el.type === "higher_taxon") {
+          el.thumbnail =
+            state.fileUrl +
+            "/small/" +
+            el.filename.substring(0, 2) +
+            "/" +
+            el.filename.substring(2, 4) +
+            "/" +
+            el.filename;
+          el.src =
+            state.fileUrl +
+            "/large/" +
+            el.filename.substring(0, 2) +
+            "/" +
+            el.filename.substring(2, 4) +
+            "/" +
+            el.filename;
+        } else if (el.type === "non_higher_taxon") {
+          el.thumbnail =
+            state.fileUrl +
+            "/small/" +
+            el.uuid_filename.substring(0, 2) +
+            "/" +
+            el.uuid_filename.substring(2, 4) +
+            "/" +
+            el.uuid_filename;
+          el.src =
+            state.fileUrl +
+            "/large/" +
+            el.uuid_filename.substring(0, 2) +
+            "/" +
+            el.uuid_filename.substring(2, 4) +
+            "/" +
+            el.uuid_filename;
+        } else if (el.type === "selected_image") {
+          el.thumbnail = el.preview_url;
+          el.src = el.image_url;
+        }
+        return el;
+      }
+      el.type = setImageType(el);
+      el = setImageSrc(el);
+      el.caption = setFancyBoxCaption(el);
+    });
+    return taxonImages;
+  }
+  return [];
+}
+
+function applyMode(mode: string, separator = "=", queryJoiner = "&") {
+  let returnVal = "";
+  if (mode === "in_baltoscandia")
+    returnVal = `${queryJoiner}in_baltoscandia${separator}1`;
+  else if (mode === "in_estonia")
+    returnVal = `${queryJoiner}in_estonia${separator}1`;
+  return returnVal;
+}
+type Species = {
+  taxon: string;
+  author_year?: string;
+  id: string;
+  stratigraphy_base__stratigraphy_en?: string;
+  stratigraphy_base__stratigraphy?: string;
+  stratigraphy_top__stratigraphy_en?: string;
+  stratigraphy_top__stratigraphy?: string;
+};
+
+async function searchSpecies() {
+  const speciesRes = await $apiFetch<{ count: number; results?: Species[] }>(
+    "/taxon",
+    {
+      query: {
+        hierarchy_string__istartswith: taxon.value?.hierarchy_string,
+        rank__rank_en: "species",
+        ...getModeQueryParam(store.mode),
+        order_by: "taxon",
+        fields:
+          "taxon,author_year,id,stratigraphy_base__stratigraphy_en,stratigraphy_base__stratigraphy,stratigraphy_top__stratigraphy_en,stratigraphy_top__stratigraphy",
+        page: store.searchParameters.species.page,
+        paginate_by: store.searchParameters.species.paginateBy,
+        format: "json",
+      },
+    }
+  );
+  state.allSpecies = speciesRes.results ?? [];
+  state.numberOfSpecimen = speciesRes.count;
+}
+
+function handleScroll() {
+  state.scroll = window.scrollY > 150;
+}
 </script>
 
 <style scoped>

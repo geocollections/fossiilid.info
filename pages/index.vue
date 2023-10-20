@@ -10,8 +10,12 @@
       style="max-width: 1280px !important; text-align: center"
       v-if="frontPage"
     >
-      <div class="fossilgroup_box" v-for="item in frontPage.results">
-        <a :href="'/' + item.taxon" :title="item.taxon__taxon">
+      <div
+        class="fossilgroup_box"
+        v-for="(item, idx) in frontPage.results"
+        :key="idx"
+      >
+        <NuxtLink :to="{ path: `/${item.taxon}` }" :title="item.taxon__taxon">
           <img
             :src="
               'https://files.geocollections.info/img/fossiilid/fossilgroups/' +
@@ -21,7 +25,7 @@
             :alt="item.frontpage + ' (' + item.taxon__taxon + ')'"
           />
           {{ item.frontpage }}
-        </a>
+        </NuxtLink>
       </div>
     </div>
   </section>
@@ -43,12 +47,12 @@ type TaxonPage = {
   taxon__taxon: string;
 };
 
-const { data: frontPage } = useApiFetch<ApiListResponse<TaxonPage>>(
+const { data: frontPage } = await useApiFetch<ApiListResponse<TaxonPage>>(
   "/taxon_page",
   {
     query: {
       on_frontpage: 1,
-      language: locale.value === "se" ? "sv" : locale,
+      language: locale.value === "se" ? "sv" : locale.value,
       fields: "frontpage,taxon,taxon__taxon",
       order_by: "frontpage_order",
       format: "json",

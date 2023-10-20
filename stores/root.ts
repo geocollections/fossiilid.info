@@ -3,7 +3,7 @@ import { defineStore } from "pinia";
 export const useRootStore = defineStore("root", {
   state: () => {
     return {
-      errorMessage: null,
+      errorMessage: null as string | null,
       activeTab: "overview",
       lang: "en",
       mode: "in_baltoscandia",

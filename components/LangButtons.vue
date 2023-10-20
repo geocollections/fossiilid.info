@@ -22,8 +22,8 @@
 <script>
 import { mapActions } from "pinia";
 
-import { useRootStore } from "../stores/root.js";
-export default {
+import { useRootStore } from "../stores/root";
+export default defineNuxtComponent({
   name: "LangButtons",
   props: {
     langClass: String,
@@ -56,7 +56,7 @@ export default {
     //   })
     // },
   },
-};
+});
 </script>
 
 <style lang="sass" scoped>

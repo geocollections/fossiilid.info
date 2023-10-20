@@ -23,7 +23,7 @@
 <script>
 import { mapState, mapWritableState } from "pinia";
 import { useRootStore } from "~/stores/root";
-export default {
+export default defineNuxtComponent({
   name: "SortField",
   data() {
     return {
@@ -62,7 +62,5 @@ export default {
       return this.lang === "et" ? value_et : value_en;
     },
   },
-};
+});
 </script>
-
-<style scoped></style>

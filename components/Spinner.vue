@@ -21,12 +21,12 @@
   </transition>
 </template>
 
-<script>
-export default {
-  name: "spinner",
-  props: ["show"],
-  serverCacheKey: (props) => props.show,
-};
+<script setup lang="ts">
+defineProps({
+  show: {
+    type: Boolean,
+  },
+});
 </script>
 
 <style lang="stylus">

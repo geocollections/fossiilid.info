@@ -4,38 +4,33 @@
       <li class="nav-item">
         <a
           href="#"
-          v-on:click="activeTab = 'overview'"
+          v-on:click="store.activeTab = 'overview'"
           class="nav-link"
-          :class="{ active: activeTab === 'overview' }"
+          :class="{ active: store.activeTab === 'overview' }"
         >
           {{ $t("tabs.overview") }}
         </a>
       </li>
-      <li class="nav-item" v-if="$parent.images && $parent.images.length > 0">
+      <li class="nav-item" v-if="imageCount > 0">
         <a
           href="#"
-          v-on:click="activeTab = 'gallery'"
+          v-on:click="store.activeTab = 'gallery'"
           class="nav-link"
-          :class="{ active: activeTab === 'gallery' }"
+          :class="{ active: store.activeTab === 'gallery' }"
         >
           {{ $t("tabs.gallery") }}
         </a>
       </li>
-      <li
-        class="nav-item"
-        v-if="
-          !!$parent.specimenCollectionCnt && $parent.specimenCollectionCnt > 0
-        "
-      >
+      <li class="nav-item" v-if="specimenCount > 0">
         <a
           href="#"
-          v-on:click="activeTab = 'specimens'"
+          v-on:click="store.activeTab = 'specimens'"
           class="nav-link"
-          :class="{ active: activeTab === 'specimens' }"
+          :class="{ active: store.activeTab === 'specimens' }"
         >
           {{ $t("tabs.specimens") }}
           <span class="badge bg-secondary rounded-pill">
-            {{ $parent.specimenCollectionCnt }}
+            {{ specimenCount }}
           </span>
         </a>
       </li>
@@ -43,14 +38,17 @@
   </div>
 </template>
 
-<script>
-import { mapState, mapWritableState } from "pinia";
+<script setup lang="ts">
 import { useRootStore } from "~/stores/root";
-
-export default {
-  name: "TaxonTabs",
-  computed: {
-    ...mapWritableState(useRootStore, ["activeTab"]),
+defineProps({
+  specimenCount: {
+    type: Number,
+    required: true,
   },
-};
+  imageCount: {
+    type: Number,
+    required: true,
+  },
+});
+const store = useRootStore();
 </script>

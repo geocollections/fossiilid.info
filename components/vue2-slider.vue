@@ -262,7 +262,7 @@ const roundToDPR = (function () {
   return (value) => Math.round(value * r) / r;
 })();
 
-export default {
+export default defineNuxtComponent({
   name: "VueSliderComponent",
   props: {
     width: {
@@ -581,7 +581,7 @@ export default {
         0
       ) {
         this.printError(
-          "Prop[interval] is illegal, Please make sure that the interval can be divisible",
+          "Prop[interval] is illegal, Please make sure that the interval can be divisible"
         );
       }
       return (this.maximum - this.minimum) / this.interval;
@@ -778,7 +778,7 @@ export default {
     max(val) {
       if (val < this.min) {
         return this.printError(
-          "The maximum value can not be less than the minimum value.",
+          "The maximum value can not be less than the minimum value."
         );
       }
 
@@ -789,7 +789,7 @@ export default {
     min(val) {
       if (val > this.max) {
         return this.printError(
-          "The minimum value can not be greater than the maximum value.",
+          "The minimum value can not be greater than the maximum value."
         );
       }
 
@@ -830,11 +830,11 @@ export default {
       if (this.isRange && this.tooltipMerge) {
         this.$refs.dot0.addEventListener(
           "transitionend",
-          this.handleOverlapTooltip,
+          this.handleOverlapTooltip
         );
         this.$refs.dot1.addEventListener(
           "transitionend",
-          this.handleOverlapTooltip,
+          this.handleOverlapTooltip
         );
       }
     },
@@ -852,11 +852,11 @@ export default {
       if (this.isRange && this.tooltipMerge) {
         this.$refs.dot0.removeEventListener(
           "transitionend",
-          this.handleOverlapTooltip,
+          this.handleOverlapTooltip
         );
         this.$refs.dot1.removeEventListener(
           "transitionend",
-          this.handleOverlapTooltip,
+          this.handleOverlapTooltip
         );
       }
     },
@@ -925,7 +925,7 @@ export default {
     mergeFormatting(value1, value2) {
       return typeof this.mergeFormatter === "string"
         ? this.mergeFormatter.replace(/\{(value1|value2)\}/g, (_, key) =>
-            key === "value1" ? value1 : value2,
+            key === "value1" ? value1 : value2
           )
         : this.mergeFormatter(value1, value2);
     },
@@ -995,7 +995,7 @@ export default {
           this.processSign = {
             pos: this.position,
             start: this.getPos(
-              e.targetTouches && e.targetTouches[0] ? e.targetTouches[0] : e,
+              e.targetTouches && e.targetTouches[0] ? e.targetTouches[0] : e
             ),
           };
         }
@@ -1024,12 +1024,12 @@ export default {
         this.currentSlider = 0;
         this.setValueOnPos(
           this.processSign.pos[0] + this.getPos(e) - this.processSign.start,
-          true,
+          true
         );
         this.currentSlider = 1;
         this.setValueOnPos(
           this.processSign.pos[1] + this.getPos(e) - this.processSign.start,
-          true,
+          true
         );
       } else {
         this.dragFlag = true;
@@ -1074,7 +1074,7 @@ export default {
           this.setTransform(
             pos +
               this.fixedValue * this.gap * (this.currentSlider === 0 ? 1 : -1),
-            true,
+            true
           );
           this.setCurrentValue(
             (v * this.multiple +
@@ -1084,7 +1084,7 @@ export default {
                 (this.currentSlider === 0 ? 1 : -1)) /
               this.multiple,
             isDrag,
-            true,
+            true
           );
         }
       } else {
@@ -1097,7 +1097,7 @@ export default {
           this.setCurrentValue(
             this.valueLimit[this.idleSlider][anotherSlider],
             isDrag,
-            true,
+            true
           );
         } else if (
           this.isRange &&
@@ -1212,7 +1212,7 @@ export default {
 
       this.fixedValue = Math.max(
         this.fixed ? this.currentIndex[1] - this.currentIndex[0] : 0,
-        this.minRange || 0,
+        this.minRange || 0
       );
     },
     setPosition(speed) {
@@ -1231,7 +1231,7 @@ export default {
       const value = roundToDPR(
         (this.direction === "vertical"
           ? this.dotHeightVal / 2 - val
-          : val - this.dotWidthVal / 2) * (this.reverse ? -1 : 1),
+          : val - this.dotWidthVal / 2) * (this.reverse ? -1 : 1)
       );
       const translateValue =
         this.direction === "vertical"
@@ -1295,12 +1295,12 @@ export default {
       const inRange = (v) => {
         if (v < this.min) {
           this.printError(
-            `The value of the slider is ${val}, the minimum value is ${this.min}, the value of this slider can not be less than the minimum value`,
+            `The value of the slider is ${val}, the minimum value is ${this.min}, the value of this slider can not be less than the minimum value`
           );
           return this.min;
         } else if (v > this.max) {
           this.printError(
-            `The value of the slider is ${val}, the maximum value is ${this.max}, the value of this slider can not be greater than the maximum value`,
+            `The value of the slider is ${val}, the maximum value is ${this.max}, the value of this slider can not be greater than the maximum value`
           );
           return this.max;
         }
@@ -1404,7 +1404,7 @@ export default {
 
     if (typeof window === "undefined" || typeof document === "undefined") {
       return this.printError(
-        "window or document is undefined, can not be initialization.",
+        "window or document is undefined, can not be initialization."
       );
     }
 
@@ -1414,7 +1414,7 @@ export default {
         this.setValue(
           this.limitValue(this.value),
           true,
-          this.startAnimation ? this.speed : 0,
+          this.startAnimation ? this.speed : 0
         );
         this.bindEvents();
 
@@ -1432,7 +1432,7 @@ export default {
     this.isComponentExists = false;
     this.unbindEvents();
   },
-};
+});
 </script>
 
 <style>

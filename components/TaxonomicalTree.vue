@@ -3,7 +3,7 @@
     <li style="list-style-type: none">
       <table v-if="ranks.length > 0">
         <tbody class="hierarchy_tree">
-          <tr v-for="item in taxonomicTree.nodes">
+          <tr v-for="(item, idx) in taxonomicTree.nodes" :key="`node-${idx}`">
             <td
               v-if="isHigherRank(item.rank_en) || item.id === taxon.id"
               align="right"
@@ -12,20 +12,26 @@
               v-translate="{ et: item.rank, en: item.rank_en }"
             ></td>
             <td v-else></td>
-            <td
-              :class="$parent.isHigherTaxon(item.rank_en) ? '' : 'fst-italic'"
-            >
+            <td :class="isHigherTaxon(item.rank_en) ? '' : 'fst-italic'">
               <span v-for="i in convertToNumber(item.i)">&ensp;</span>
-              <a :href="'/' + item.id" v-if="item.id !== taxon.id">
+              <NuxtLink
+                :to="{ path: `/${item.id}` }"
+                v-if="item.id !== taxon.id"
+              >
                 {{ item.label }}
-              </a>
+              </NuxtLink>
               <span class="node_in_tree_selected" v-if="item.id === taxon.id">
                 {{ item.label }}
               </span>
-              <ul v-for="sibling in item.siblings">
+              <ul
+                v-for="(sibling, siblingIdx) in item.siblings"
+                :key="`sibling-${siblingIdx}`"
+              >
                 <li style="list-style-type: none">
                   <span v-for="j in convertToNumber(item.i) - 2">&ensp;</span>
-                  <a :href="'/' + sibling.id">{{ sibling.label }}</a>
+                  <NuxtLink :to="{ path: `/${sibling.id}` }">
+                    {{ sibling.label }}
+                  </NuxtLink>
                 </li>
               </ul>
             </td>
@@ -41,7 +47,7 @@ import { useRootStore } from "~/stores/root";
 import { mapState } from "pinia";
 import _ from "lodash";
 
-export default {
+export default defineNuxtComponent({
   name: "TaxonomicalTree",
   props: {
     lists: {
@@ -200,10 +206,18 @@ export default {
         "rank_en"
       );
     },
+    isHigherTaxon(rank) {
+      // return !['Species','Subspecies','Genus','Supergenus','Subgenus'].includes(rank)
+      return !(
+        ["Species", "Subspecies", "Genus", "Supergenus", "Subgenus"].indexOf(
+          rank
+        ) >= 0
+      );
+    },
     isHigherRank(rank) {
       return this.ranks.indexOf(rank) >= 0;
       // return this.ranks.includes(rank)
     },
   },
-};
+});
 </script>

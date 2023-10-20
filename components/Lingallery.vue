@@ -55,7 +55,7 @@
 </template>
 
 <script>
-export default {
+export default defineNuxtComponent({
   name: "Lingallery",
   data() {
     return {
@@ -213,7 +213,7 @@ export default {
     //     elements_selector: ".lazy"
     // });
   },
-};
+});
 </script>
 
 <style scoped>

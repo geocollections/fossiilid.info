@@ -7,6 +7,10 @@ export default defineNuxtConfig({
     // "~assest/css/vue-multiselect.min.css",
     "~/assets/css/creative.css",
     "~/assets/css/fonts.css",
+    "@fortawesome/fontawesome-free/css/fontawesome.css",
+    "@fortawesome/fontawesome-free/css/brands.css",
+    "@fortawesome/fontawesome-free/css/solid.css",
+    "vue-multiselect/dist/vue-multiselect.css",
   ],
   app: {
     head: {
