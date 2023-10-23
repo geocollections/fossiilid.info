@@ -22,8 +22,6 @@ export default defineNuxtConfig({
         { name: "apple-mobile-web-app-status-bar-style", content: "default" },
       ],
       script: [
-        // { src: "https://unpkg.com/wicket@1.3.8/wicket.js" },
-        // { src: "https://unpkg.com/wicket@1.3.8/wicket-leaflet.js" },
         { src: "https://unpkg.com/jquery@3.3.1/dist/jquery.min.js" },
         {
           src: "https://unpkg.com/@fancyapps/fancybox@3.4.2/dist/jquery.fancybox.min.js",
