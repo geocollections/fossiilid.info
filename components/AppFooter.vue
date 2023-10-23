@@ -90,5 +90,4 @@
       </a>
     </div>
   </footer>
-  <!-- end footer -->
 </template>

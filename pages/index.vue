@@ -1,5 +1,5 @@
 <template>
-  <section class="my-5">
+  <section>
     <div class="col-lg-12" v-if="errorMessage">
       <div role="alert" class="alert alert-warning">
         <span v-html="errorMessage"></span>
@@ -17,11 +17,7 @@
       >
         <NuxtLink :to="{ path: `/${item.taxon}` }" :title="item.taxon__taxon">
           <img
-            :src="
-              'https://files.geocollections.info/img/fossiilid/fossilgroups/' +
-              item.taxon +
-              '.png'
-            "
+            :src="`https://files.geocollections.info/img/fossiilid/fossilgroups/${item.taxon}.png`"
             :alt="item.frontpage + ' (' + item.taxon__taxon + ')'"
           />
           {{ item.frontpage }}

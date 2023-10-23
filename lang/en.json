@@ -3,7 +3,9 @@
     "pagination": "Show {num} results per page",
     "btnViewMore": "View more",
     "btnViewLess": "Collapse",
-    "taxon_do_not_exist": "This taxon is not existing or not available"
+    "taxon_do_not_exist": "This taxon is not existing or not available",
+    "backToLanding": "Back to landing page",
+    "errorDoesNotExist": "This page does not exist"
   },
   "header": {
     "zero": "",
@@ -236,5 +238,5 @@
     "btn_search": "Search",
     "btn_clear": "Clear",
     "msg_add_criteria": "Please specify some search criteria to show list of species and genera."
-  }
+  }, 
 }

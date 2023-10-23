@@ -5,7 +5,7 @@
     </Title>
     <Meta vmid="keywords" name="keywords" :content="meta" />
   </Head>
-  <section class="container-fluid my-5">
+  <section class="container-fluid">
     <div class="card" v-if="page">
       <span class="card-body" v-html="currentContent"></span>
     </div>

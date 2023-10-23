@@ -1,9 +1,7 @@
 <template>
-  <div>
-    <AppHeader />
+  <NuxtLayout>
     <NuxtPage />
-    <AppFooter />
-  </div>
+  </NuxtLayout>
 </template>
 
 <script setup lang="ts">
@@ -30,24 +28,24 @@ watch(
     });
   }
 );
-setLangAndMode();
+onMounted(() => {
+  setLangAndMode();
+});
 function setLangAndMode() {
-  nextTick(() => {
-    let lang = locale.value,
-      mode = store.mode;
-    //check if manually set lang or mode value is correct otherwise set default
+  let lang = locale.value,
+    mode = store.mode;
+  //check if manually set lang or mode value is correct otherwise set default
 
-    if (route.query?.mode && checkIfModeIsCorrect(route.query.mode as string)) {
-      store.mode = route.query.mode as string;
-    }
+  if (route.query?.mode && checkIfModeIsCorrect(route.query.mode as string)) {
+    store.mode = route.query.mode as string;
+  }
 
-    if (route.query?.lang && checkIfLangIsCorrect(route.query.lang as string)) {
-      setLocale(route.query.lang as string);
-    }
-    // route.path
-    router.replace({
-      query: { mode: mode, lang: lang },
-    });
+  if (route.query?.lang && checkIfLangIsCorrect(route.query.lang as string)) {
+    setLocale(route.query.lang as string);
+  }
+  // route.path
+  router.replace({
+    query: { mode: mode, lang: lang },
   });
 }
 

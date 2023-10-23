@@ -4,7 +4,7 @@
     <Meta vmid="keywords" name="keywords" :content="meta" />
     <!-- <Meta vmid="description" name="description" :content="description ?? []" /> -->
   </Head>
-  <section class="container-fluid my-5">
+  <section class="container-fluid">
     <div class="m-md-3 text-center" v-if="!taxon">
       <div class="css-loader" style="margin: auto"></div>
       <h5 class="mt-3">{{ $t("messages.pageLoading") }}</h5>
@@ -841,7 +841,6 @@ import orderBy from "lodash/orderBy";
 import uniqBy from "lodash/uniqBy";
 import _map from "lodash/map";
 import { useRootStore } from "../stores/root";
-import { storeToRefs } from "pinia";
 import dayjs from "dayjs";
 
 const state = reactive({
@@ -918,7 +917,7 @@ const { data: taxonRes } = await useApiFetch<{ results?: Taxon[] }>("/taxon", {
 
 const taxon = ref(taxonRes.value?.results?.[0]);
 if (!taxon.value) {
-  throw createError({
+  showError({
     statusCode: 404,
     statusMessage: "Page not found",
   });

@@ -3,7 +3,9 @@
     "pagination": "Kuva {num} kaupa",
     "btnViewMore": "Loe rohkem",
     "btnViewLess": "Peida",
-    "taxon_do_not_exist": "Selline takson puudub või ei ole kättesaadav"
+    "taxon_do_not_exist": "Selline takson puudub või ei ole kättesaadav",
+    "backToLanding": "Tagasi avalehele",
+    "errorDoesNotExist": "Seda lehekülge ei eksisteeri"
   },
   "header": {
     "zero": "",

@@ -1,5 +1,5 @@
 <template>
-  <section class="container-fluid my-5">
+  <section class="container-fluid">
     <div
       class="page-container"
       style="max-width: 1280px; margin-left: auto; margin-right: auto"

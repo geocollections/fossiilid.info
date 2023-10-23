@@ -9,9 +9,9 @@
         <NuxtLink
           class="navbar-brand"
           :style="{
-            color: scroll ? '#eb3812' : '',
+            color: state.scroll ? '#eb3812' : '',
             // 'letter-spacing': scroll ? '0px':'2px',
-            'font-size': scroll ? '18px' : 'larger',
+            'font-size': state.scroll ? '18px' : 'larger',
             'text-transform': 'uppercase',
             'font-weight': '700 !important',
           }"
@@ -40,9 +40,9 @@
                 :custom-label="displayResults"
                 track-by="code"
                 :placeholder="$t('search.fossils_search')"
-                :options="searchResults"
+                :options="state.searchResults"
                 :searchable="true"
-                :loading="isLoading"
+                :loading="state.isLoading"
                 :max-height="600"
                 :show-no-results="false"
                 :show-labels="false"
@@ -70,21 +70,21 @@
                 <button
                   class="dropdown-item"
                   @click="changeMode('in_estonia')"
-                  :class="mode === 'in_estonia' ? 'fw-bold' : ''"
+                  :class="store.mode === 'in_estonia' ? 'fw-bold' : ''"
                 >
                   {{ $t("header.in_estonia_mode") }}
                 </button>
                 <button
                   class="dropdown-item"
                   @click="changeMode('in_baltoscandia')"
-                  :class="mode === 'in_baltoscandia' ? 'fw-bold' : ''"
+                  :class="store.mode === 'in_baltoscandia' ? 'fw-bold' : ''"
                 >
                   {{ $t("header.in_baltoscandia_mode") }}
                 </button>
                 <button
                   class="dropdown-item"
                   @click="changeMode('in_global')"
-                  :class="mode === 'in_global' ? 'fw-bold' : ''"
+                  :class="store.mode === 'in_global' ? 'fw-bold' : ''"
                 >
                   {{ $t("header.global_mode") }}
                 </button>
@@ -104,8 +104,8 @@
                 <li>
                   <button
                     class="dropdown-item p-2"
-                    @click="changeLang('et')"
-                    :class="$i18n.locale === 'et' ? 'fw-bold' : ''"
+                    @click="setLocale('et')"
+                    :class="locale === 'et' ? 'fw-bold' : ''"
                   >
                     EST &nbsp;
                     <span
@@ -115,8 +115,8 @@
                 </li>
                 <li>
                   <button
-                    @click="changeLang('en')"
-                    :class="$i18n.locale === 'en' ? 'fw-bold' : ''"
+                    @click="setLocale('en')"
+                    :class="locale === 'en' ? 'fw-bold' : ''"
                     class="dropdown-item p-2"
                   >
                     ENG &nbsp;
@@ -127,8 +127,8 @@
                 </li>
                 <li>
                   <button
-                    @click="changeLang('fi')"
-                    :class="$i18n.locale === 'fi' ? 'fw-bold' : ''"
+                    @click="setLocale('fi')"
+                    :class="locale === 'fi' ? 'fw-bold' : ''"
                     class="dropdown-item p-2"
                   >
                     FIN &nbsp;
@@ -139,8 +139,8 @@
                 </li>
                 <li>
                   <button
-                    @click="changeLang('se')"
-                    :class="$i18n.locale === 'se' ? 'fw-bold' : ''"
+                    @click="setLocale('se')"
+                    :class="locale === 'se' ? 'fw-bold' : ''"
                     class="dropdown-item p-2"
                   >
                     SWE &nbsp;
@@ -193,84 +193,69 @@
     </div>
   </header>
 </template>
-<script>
+
+<script setup lang="ts">
 import VueMultiselect from "vue-multiselect";
-import LangButtons from "../components/LangButtons.vue";
-
-import { mapWritableState } from "pinia";
 import { useRootStore } from "../stores/root";
-export default defineNuxtComponent({
-  name: "app-header",
-  components: {
-    VueMultiselect,
-    LangButtons,
-  },
 
-  data() {
-    return {
-      scroll: false,
-      searchResults: [],
-      isLoading: false,
-      selectedTaxon: null,
-    };
-  },
-  computed: {
-    ...mapWritableState(useRootStore, ["mode"]),
-    langCode() {
-      let code = "ENG";
-      switch (this.$i18n.locale) {
-        case "et":
-          code = "EST";
-          break;
-        case "se":
-          code = "SWE";
-          break;
-        case "fi":
-          code = "FIN";
-          break;
-        default:
-          break;
-      }
-      return code;
-    },
-    modeText() {
-      if (this.mode === "in_baltoscandia") return "header.in_baltoscandia_mode";
-      else if (this.mode === "in_estonia") return "header.in_estonia_mode";
-      else return "header.global_mode";
-    },
-  },
-  beforeMount() {
-    window.addEventListener("scroll", this.handleScroll);
-  },
-  methods: {
-    simpleTaxonSearchApiCall(value) {
-      if (value.length < 3) this.searchResults = [];
-      if (value.length > 2) {
-        this.isLoading = true;
-        $fetch(`taxon/?sql=simple_taxon_search&keyword=${value}&format=json`, {
-          baseURL: "https://api.geocollections.info",
-        }).then((response) => {
-          this.isLoading = false;
-          this.searchResults = response.results;
-        });
-      }
-    },
-    onSelect(value) {
-      this.selectedTaxon = null;
-      location.replace("/" + value.id);
-    },
-    displayResults: function (item) {
-      return `${item.name}`;
-    },
-    changeLang(lang) {
-      this.$i18n.setLocale(lang);
-    },
-    changeMode: function (mode) {
-      this.mode = mode;
-    },
-    handleScroll(e) {
-      this.scroll = document.documentElement.scrollTop > 1;
-    },
-  },
+const state = reactive({
+  scroll: false,
+  searchResults: [],
+  isLoading: false,
+  selectedTaxon: null,
 });
+const store = useRootStore();
+const { setLocale, locale } = useI18n();
+const { $apiFetch } = useNuxtApp();
+
+const langCode = computed(() => {
+  let code = "ENG";
+  switch (locale.value) {
+    case "et":
+      code = "EST";
+      break;
+    case "se":
+      code = "SWE";
+      break;
+    case "fi":
+      code = "FIN";
+      break;
+    default:
+      break;
+  }
+  return code;
+});
+const modeText = computed(() => {
+  if (store.mode === "in_baltoscandia") return "header.in_baltoscandia_mode";
+  else if (store.mode === "in_estonia") return "header.in_estonia_mode";
+  else return "header.global_mode";
+});
+onBeforeMount(() => {
+  window.addEventListener("scroll", handleScroll);
+});
+function simpleTaxonSearchApiCall(value: string) {
+  if (value.length < 3) state.searchResults = [];
+  if (value.length > 2) {
+    state.isLoading = true;
+    $apiFetch(
+      `/taxon/?sql=simple_taxon_search&keyword=${value}&format=json`
+    ).then((response: any) => {
+      state.isLoading = false;
+      state.searchResults = response.results;
+    });
+  }
+}
+function onSelect(value: any) {
+  state.selectedTaxon = null;
+  location.replace("/" + value.id);
+}
+function displayResults(item: any) {
+  return `${item.name}`;
+}
+function changeMode(mode: string) {
+  store.mode = mode;
+}
+function handleScroll() {
+  state.scroll = document.documentElement.scrollTop > 1;
+}
 </script>
