@@ -98,7 +98,9 @@
             >
               <div v-for="(item, index) in computedOpinions" :key="index">
                 {{ $t("header.f_name_is_invalid") }}
-                <a :href="item.other_taxon">{{ item.other_taxon__taxon }}</a>
+                <NuxtLink :href="`/${item.other_taxon}`">
+                  {{ item.other_taxon__taxon }}
+                </NuxtLink>
               </div>
             </div>
             <div class="card px-0 rounded-0" style="width: 100%">
@@ -123,20 +125,20 @@
                   "
                 >
                   {{ $t("header.f_fossil_group") }}:
-                  <a :href="'/' + taxon.fossil_group__id">
+                  <NuxtLink :href="`/${taxon.fossil_group__id}`">
                     {{ taxon.fossil_group__taxon }}
-                  </a>
+                  </NuxtLink>
                 </div>
                 <div v-if="taxon.id !== 29">
                   {{ $t("header.f_belongs_to") }}:
-                  <a
+                  <NuxtLink
                     :class="
                       isHigherTaxon(taxon.rank__rank_en) ? '' : 'fst-italic'
                     "
-                    :href="'/' + parent.id"
+                    :href="`/${parent.id}`"
                   >
                     {{ parent.taxon }}
-                  </a>
+                  </NuxtLink>
                 </div>
                 <div
                   v-if="opinions.length > 0"
@@ -145,9 +147,9 @@
                   1 {{ $t("header.f_other_names") }}:
                   <span v-for="(item, idx) in opinions" :key="idx">
                     <span v-if="isDefinedAndNotNull(item.other_taxon)">
-                      <a :href="item.other_taxon">
+                      <NuxtLink :href="`/${item.other_taxon}`">
                         {{ item.other_taxon__taxon }}
-                      </a>
+                      </NuxtLink>
                       <span v-if="idx !== opinions.length - 1">,</span>
                     </span>
                   </span>
@@ -839,6 +841,7 @@ import orderBy from "lodash/orderBy";
 import uniqBy from "lodash/uniqBy";
 import _map from "lodash/map";
 import { useRootStore } from "../stores/root";
+import { storeToRefs } from "pinia";
 import dayjs from "dayjs";
 
 const state = reactive({
@@ -912,7 +915,7 @@ const { data: taxonRes } = await useApiFetch<{ results?: Taxon[] }>("/taxon", {
     format: "json",
   },
 });
-// TODO: Throw error when taxon results is empty
+
 const taxon = ref(taxonRes.value?.results?.[0]);
 if (!taxon.value) {
   throw createError({
@@ -989,12 +992,12 @@ const [
     },
   }),
   useApiFetch<{ results?: any[] }>("/taxon", {
-    query: {
+    query: computed(() => ({
       parent: route.params.id,
       ...getModeQueryParam(store.mode),
       fields: "id,taxon,parent__taxon,parent_id,rank__rank_en,rank__rank",
       format: "json",
-    },
+    })),
   }),
   useApiFetch<{ results?: any[] }>("/taxon_description", {
     query: {
@@ -1009,9 +1012,12 @@ const [
     count: number;
   }>("/solr/taxon_search", {
     query: {
-      q: `taxon_hierarchy:${taxon.value.hierarchy_string}*${
-        store.mode === "in_global" ? `` : ` AND ${store.mode}:1`
-      }`,
+      q: computed(
+        () =>
+          `taxon_hierarchy:${taxon.value?.hierarchy_string}*${
+            store.mode === "in_global" ? `` : ` AND ${store.mode}:1`
+          }`
+      ),
       fq: ["{!collapse field--locality}", "rank:[14 TO 17]"],
       sort: "fossil_group asc,taxon asc",
       rows: 1000,
@@ -1050,9 +1056,9 @@ const taxonPage = ref(pageRes.value?.results?.[0]);
 const taxonOccurrence = ref(occurenceRes.value?.results ?? []);
 const references = ref(referenceRes.value?.results ?? []);
 const references2 = ref(reference2Res.value?.results ?? []);
-const children = ref(childrenRes.value?.results ?? []);
+const children = computed(() => childrenRes.value?.results ?? []);
 const description = ref(descriptionRes.value?.results ?? []);
-const map = ref(speciesMapRes.value?.results ?? []);
+const map = computed(() => speciesMapRes.value?.results ?? []);
 const cntLocalities = ref(speciesMapRes.value?.count);
 const opinions = ref(opinionRes.value?.results ?? []);
 state.hierarchy = hierarchyRes.value?.results ?? [];
@@ -1067,6 +1073,15 @@ function getModeQueryParam(mode: string) {
   }
   return {};
 }
+watch(
+  () => store.mode,
+  () => searchSpecies()
+);
+watch(
+  () => store.searchParameters.species,
+  () => searchSpecies(),
+  { deep: true }
+);
 
 const parent = ref();
 const sisterTaxa = ref();
