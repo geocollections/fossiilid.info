@@ -5,7 +5,6 @@
         <span v-html="errorMessage"></span>
       </div>
     </div>
-    <NuxtLink href="/Amaltheus margaritatus">test</NuxtLink>
     <div
       id="fossilgroups_box"
       style="max-width: 1280px !important; text-align: center"
@@ -16,6 +15,7 @@
         v-for="(item, idx) in frontPage.results"
         :key="idx"
       >
+        <NuxtLink :to="{ path: `/${item.taxon}` }" :title="item.taxon__taxon">
           <img
             :src="`https://files.geocollections.info/img/fossiilid/fossilgroups/${item.taxon}.png`"
             :alt="item.frontpage + ' (' + item.taxon__taxon + ')'"
