@@ -1,7 +1,7 @@
 const logRequests = !!process.env.DEBUG_API;
 
 const api = {
-  url: "https://api.geocollections.info/",
+  url: "http://api0.geocollections.info/",
 };
 
 function fetch(child) {
@@ -15,7 +15,7 @@ function fetch(child) {
       (errResponse) => {
         console.log("ERROR: " + JSON.stringify(errResponse));
         reject(errResponse);
-      },
+      }
     );
   });
 }
@@ -35,11 +35,11 @@ export function fetchStaticPage(id) {
 export function fetchFrontPage(lang) {
   if (lang === "se") {
     return fetch(
-      `taxon_page/?language=sv&on_frontpage=1&order_by=frontpage_order&fields=frontpage,taxon,taxon__taxon&format=json`,
+      `taxon_page/?language=sv&on_frontpage=1&order_by=frontpage_order&fields=frontpage,taxon,taxon__taxon&format=json`
     );
   } else {
     return fetch(
-      `taxon_page/?language=${lang}&on_frontpage=1&order_by=frontpage_order&fields=frontpage,taxon,taxon__taxon&format=json`,
+      `taxon_page/?language=${lang}&on_frontpage=1&order_by=frontpage_order&fields=frontpage,taxon,taxon__taxon&format=json`
     );
   }
 }
@@ -47,7 +47,7 @@ export function fetchFrontPage(lang) {
 /* Item page request */
 export function fetchTaxon(id) {
   return fetch(
-    `taxon/?id=${id}&fields=id,taxon,parent,parent__taxon,rank__rank,rank__rank_en,fossil_group__id,is_fossil_group,fossil_group__taxon,hierarchy_string,author_year,date_added,date_changed,stratigraphy_base__stratigraphy,stratigraphy_base_id,stratigraphy_top_id,stratigraphy_base__age_base,stratigraphy_top__age_top,stratigraphy_top__stratigraphy,taxon_id_tol,taxon_id_eol,taxon_id_nrm,taxon_id_plutof,taxon_id_pbdb&format=json`,
+    `taxon/?id=${id}&fields=id,taxon,parent,parent__taxon,rank__rank,rank__rank_en,fossil_group__id,is_fossil_group,fossil_group__taxon,hierarchy_string,author_year,date_added,date_changed,stratigraphy_base__stratigraphy,stratigraphy_base_id,stratigraphy_top_id,stratigraphy_base__age_base,stratigraphy_top__age_top,stratigraphy_top__stratigraphy,taxon_id_tol,taxon_id_eol,taxon_id_nrm,taxon_id_plutof,taxon_id_pbdb&format=json`
   );
 }
 export function fetchParentTaxon(id) {
@@ -59,20 +59,20 @@ export function fetchSisterTaxa(id, mode) {
     "id,taxon,parent__taxon,parent_id,rank__rank_en,rank__rank";
   let mode_ = applyMode(mode);
   return fetch(
-    `taxon/?parent_id=${id}${mode_}&fields=${returningFields}&format=json`,
+    `taxon/?parent_id=${id}${mode_}&fields=${returningFields}&format=json`
   );
 }
 
 export function fetchSpecies(hierarchy_string, mode, searchParameters) {
   let mode_ = applyMode(mode);
   return fetch(
-    `taxon/?hierarchy_string__istartswith=${hierarchy_string}&rank__rank_en=species${mode_}&order_by=taxon&fields=taxon,author_year,id,stratigraphy_base__stratigraphy_en,stratigraphy_base__stratigraphy,stratigraphy_top__stratigraphy_en,stratigraphy_top__stratigraphy&page=${searchParameters.species.page}&paginate_by=${searchParameters.species.paginateBy}&format=json`,
+    `taxon/?hierarchy_string__istartswith=${hierarchy_string}&rank__rank_en=species${mode_}&order_by=taxon&fields=taxon,author_year,id,stratigraphy_base__stratigraphy_en,stratigraphy_base__stratigraphy,stratigraphy_top__stratigraphy_en,stratigraphy_top__stratigraphy&page=${searchParameters.species.page}&paginate_by=${searchParameters.species.paginateBy}&format=json`
   );
 }
 
 export function fetchHierarchy(hierarchy_string) {
   return fetch(
-    `taxon/?id__in=${hierarchy_string}&fields=id,taxon,rank__rank,rank__rank_en&format=json`,
+    `taxon/?id__in=${hierarchy_string}&fields=id,taxon,rank__rank,rank__rank_en&format=json`
   );
 }
 
@@ -81,35 +81,35 @@ export function fetchChildren(id, mode) {
     "id,taxon,parent__taxon,parent_id,rank__rank_en,rank__rank";
   let mode_ = applyMode(mode);
   return fetch(
-    `taxon/?parent=${id}${mode_}&fields=${returningFields}&format=json`,
+    `taxon/?parent=${id}${mode_}&fields=${returningFields}&format=json`
   );
 }
 export function fetchSelectedImages(id, searchParameters) {
   return fetch(
-    `taxon/?sql=get_taxon_selected_images&keyword=${id}&page=${searchParameters.selectedImages.page}&paginate_by=${searchParameters.selectedImages.paginateBy}&format=json`,
+    `taxon/?sql=get_taxon_selected_images&keyword=${id}&page=${searchParameters.selectedImages.page}&paginate_by=${searchParameters.selectedImages.paginateBy}&format=json`
   );
 }
 export function fetchImages(hierarchy_string, searchParameters) {
   return fetch(
-    `taxon/?sql=get_taxon_images&keyword=${hierarchy_string}&page=${searchParameters.images.page}&paginate_by=${searchParameters.images.paginateBy}&format=json`,
+    `taxon/?sql=get_taxon_images&keyword=${hierarchy_string}&page=${searchParameters.images.page}&paginate_by=${searchParameters.images.paginateBy}&format=json`
   );
 }
 
 export function fetchTaxonPages(id, lang) {
   return fetch(
-    `taxon_page/?taxon=${id}&language=${lang}&fields=content,author_txt,date_txt,link_wikipedia,title&format=json`,
+    `taxon_page/?taxon=${id}&language=${lang}&fields=content,author_txt,date_txt,link_wikipedia,title&format=json`
   );
 }
 
 export function fetchTaxonDescription(id) {
   return fetch(
-    `taxon_description/?taxon=${id}&fields=reference,reference__reference,description&order_by=-reference__year&format=json`,
+    `taxon_description/?taxon=${id}&fields=reference,reference__reference,description&order_by=-reference__year&format=json`
   );
 }
 
 export function fetchTaxonCommonName(id) {
   return fetch(
-    `taxon_common_name/?taxon=${id}&is_preferred=1&fields=language,name,is_preferred&format=json`,
+    `taxon_common_name/?taxon=${id}&is_preferred=1&fields=language,name,is_preferred&format=json`
   );
 }
 
@@ -119,17 +119,17 @@ export function fetchTaxonList(id) {
 
 export function fetchTaxonOccurrence(name) {
   return fetch(
-    `taxon_occurrence/?taxon__taxon__icontains=${name}&fields=reference,reference__reference,locality__locality,locality__locality_en,depth_interval,depth,stratigraphy_base__stratigraphy,stratigraphy_base__stratigraphy_en&format=json`,
+    `taxon_occurrence/?taxon__taxon__icontains=${name}&fields=reference,reference__reference,locality__locality,locality__locality_en,depth_interval,depth,stratigraphy_base__stratigraphy,stratigraphy_base__stratigraphy_en&format=json`
   );
 }
 export function fetchReferences(hierarchy_string) {
   return fetch(
-    `taxon_occurrence/?taxon__hierarchy_string__istartswith=${hierarchy_string}&reference!=null&order_by=-reference__year&fields=reference,reference__reference,reference__author,reference__year,reference__title,reference__journal__journal_name,reference__book,reference__volume,reference__number,reference__pages,reference__doi&distinct=true&format=json`,
+    `taxon_occurrence/?taxon__hierarchy_string__istartswith=${hierarchy_string}&reference!=null&order_by=-reference__year&fields=reference,reference__reference,reference__author,reference__year,reference__title,reference__journal__journal_name,reference__book,reference__volume,reference__number,reference__pages,reference__doi&distinct=true&format=json`
   );
 }
 export function fetchReferences2(hierarchy_string) {
   return fetch(
-    `specimen_identification/?taxon__hierarchy_string__istartswith=${hierarchy_string}&reference!=null&order_by=-reference__year&fields=reference,reference__reference,reference__author,reference__year,reference__title,reference__journal__journal_name,reference__book,reference__volume,reference__number,reference__pages,reference__doi&distinct=true&format=json`,
+    `specimen_identification/?taxon__hierarchy_string__istartswith=${hierarchy_string}&reference!=null&order_by=-reference__year&fields=reference,reference__reference,reference__author,reference__year,reference__title,reference__journal__journal_name,reference__book,reference__volume,reference__number,reference__pages,reference__doi&distinct=true&format=json`
   );
 }
 export function fetchSynonims(id) {
@@ -142,31 +142,31 @@ export function fetchTypeSpecimen(id) {
 
 export function fetchDistributionSamples(name) {
   return fetch(
-    `taxon/?sql=get_species_distribution_sample&keyword=${name}&format=json`,
+    `taxon/?sql=get_species_distribution_sample&keyword=${name}&format=json`
   );
 }
 export function fetchDistributionConop(name) {
   return fetch(
-    `taxon/?sql=get_species_distribution_conop&keyword=${name}&format=json`,
+    `taxon/?sql=get_species_distribution_conop&keyword=${name}&format=json`
   );
 }
 
 export function fetchSpeciesMap(taxon_hierarchy, mode) {
   let mode_ = mode === "in_global" ? `` : `${applyMode(mode, ":", " AND ")}`;
   return fetch(
-    `solr/taxon_search/?q=taxon_hierarchy:${taxon_hierarchy}*${mode_}&fq=%7B%21collapse%20field--locality%7D&fq=rank:[14%20TO%2017]&sort=fossil_group asc,taxon asc&rows=1000&start=0&fl=src,locality,locality_en,locality_id,latlong&format=json`,
+    `solr/taxon_search/?q=taxon_hierarchy:${taxon_hierarchy}*${mode_}&fq=%7B%21collapse%20field--locality%7D&fq=rank:[14%20TO%2017]&sort=fossil_group asc,taxon asc&rows=1000&start=0&fl=src,locality,locality_en,locality_id,latlong&format=json`
   );
 }
 
 export function fetchSpecimenIdentification(taxon) {
   return fetch(
-    `specimen/?specimenidentification__name__icontains=${taxon}&fields=id,locality_id,locality__locality,locality__locality_en,locality__longitude,locality__latitude&format=json`,
+    `specimen/?specimenidentification__name__icontains=${taxon}&fields=id,locality_id,locality__locality,locality__locality_en,locality__longitude,locality__latitude&format=json`
   );
 }
 
 export function fetchNumberOfSpecimenIdentifications(id) {
   return fetch(
-    `specimen_identification/?taxon_id=${id}&fields=id&page=1&paginate_by=1&format=json`,
+    `specimen_identification/?taxon_id=${id}&fields=id&page=1&paginate_by=1&format=json`
   );
 }
 
@@ -178,7 +178,7 @@ export function fetchAttachment(hierarchy_string, searchParameters) {
       searchParameters.images.paginateBy
     : "";
   return fetch(
-    `attachment/?specimen__specimenidentification__taxon__hierarchy_string__istartswith=${hierarchy_string}&fields=id,specimen_id,specimen__specimen_id,specimen_image_id,database__acronym,uuid_filename,specimen__specimenidentification__taxon__id&format=json&distinct=true&order_by=stars${applyPaging}`,
+    `attachment/?specimen__specimenidentification__taxon__hierarchy_string__istartswith=${hierarchy_string}&fields=id,specimen_id,specimen__specimen_id,specimen_image_id,database__acronym,uuid_filename,specimen__specimenidentification__taxon__id&format=json&distinct=true&order_by=stars${applyPaging}`
   );
 }
 
@@ -188,7 +188,7 @@ export function fetchRanks() {
 
 export function cntSpecimenCollection(hierarchy_string) {
   return fetch(
-    `solr/specimen/?q=hierarchy_string:(${hierarchy_string}*)&rows=1&format=json`,
+    `solr/specimen/?q=hierarchy_string:(${hierarchy_string}*)&rows=1&format=json`
   );
 }
 
@@ -201,7 +201,7 @@ export function fetchSpecimenCollection(hierarchy_string, searchParameters) {
       ? searchParameters.specimens.sortBy + " asc"
       : searchParameters.specimens.sortBy + " desc";
   return fetch(
-    `solr/specimen/?q=hierarchy_string:(${hierarchy_string}*)&rows=${searchParameters.specimens.paginateBy}&start=${start}&sort=${orderBy}&format=json`,
+    `solr/specimen/?q=hierarchy_string:(${hierarchy_string}*)&rows=${searchParameters.specimens.paginateBy}&start=${start}&sort=${orderBy}&format=json`
   );
 }
 
@@ -211,14 +211,14 @@ export function fetchSimpleTaxonSearch(value) {
 
 export function fetchSpeciesCountInArea(geoparams) {
   return fetch(
-    `solr/taxon_search/?${geoparams}q=rank:[14%20TO%2017]&fl=taxon&rows=1&format=json`,
+    `solr/taxon_search/?${geoparams}q=rank:[14%20TO%2017]&fl=taxon&rows=1&format=json`
   );
 }
 
 export function fetchAdvancedTaxonSearch(
   query,
   searchParameters,
-  isMapData = false,
+  isMapData = false
 ) {
   let start =
     searchParameters.advancedSearch.paginateBy *
@@ -234,22 +234,22 @@ export function fetchAdvancedTaxonSearch(
       isMapData
         ? searchParameters.advancedSearch.madDataPaginateBy
         : searchParameters.advancedSearch.paginateBy
-    }&start=${start}&${fl}&format=json`,
+    }&start=${start}&${fl}&format=json`
   );
 }
 
 export function fetchAutocompleteSearch(query) {
   return fetch(
-    `solr/taxon/?fq=${query}&sort=taxon asc&rows=30&fl=taxon,taxon_id,hierarchy_string&format=json`,
+    `solr/taxon/?fq=${query}&sort=taxon asc&rows=30&fl=taxon,taxon_id,hierarchy_string&format=json`
   );
 }
 export function fetchAutocompleteSearchStratigraphy(query) {
   return fetch(
-    `solr/stratigraphy/?fq=${query}&sort=stratigraphy asc&rows=30&fl=stratigraphy,stratigraphy_en,id,hierarchy_string&fq=type:1&format=json`,
+    `solr/stratigraphy/?fq=${query}&sort=stratigraphy asc&rows=30&fl=stratigraphy,stratigraphy_en,id,hierarchy_string&fq=type:1&format=json`
   );
 }
 export function fetchOpinion(id) {
   return fetch(
-    `taxon_opinion/?taxon=${id}&order_by=-reference__year&format=json`,
+    `taxon_opinion/?taxon=${id}&order_by=-reference__year&format=json`
   );
 }

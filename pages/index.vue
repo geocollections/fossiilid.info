@@ -5,6 +5,7 @@
         <span v-html="errorMessage"></span>
       </div>
     </div>
+    <NuxtLink href="/Amaltheus margaritatus">test</NuxtLink>
     <div
       id="fossilgroups_box"
       style="max-width: 1280px !important; text-align: center"

@@ -907,9 +907,18 @@ type Taxon = {
   taxon_id_pbdb?: number;
 };
 
+const taxonSearchParams = computed(() => {
+  const parsedId = parseInt(route.params.id as string);
+  if (Number.isNaN(parsedId)) {
+    return {
+      taxon__iexact: route.params.id,
+    };
+  }
+  return { id: route.params.id };
+});
 const { data: taxonRes } = await useApiFetch<{ results?: Taxon[] }>("/taxon", {
   query: {
-    id: route.params.id,
+    ...taxonSearchParams.value,
     fields: `id,taxon,parent,parent__taxon,rank__rank,rank__rank_en,fossil_group__id,is_fossil_group,fossil_group__taxon,hierarchy_string,author_year,date_added,date_changed,stratigraphy_base__stratigraphy,stratigraphy_base_id,stratigraphy_top_id,stratigraphy_base__age_base,stratigraphy_top__age_top,stratigraphy_top__stratigraphy,taxon_id_tol,taxon_id_eol,taxon_id_nrm,taxon_id_plutof,taxon_id_pbdb`,
     format: "json",
   },
@@ -917,9 +926,10 @@ const { data: taxonRes } = await useApiFetch<{ results?: Taxon[] }>("/taxon", {
 
 const taxon = ref(taxonRes.value?.results?.[0]);
 if (!taxon.value) {
-  showError({
+  throw createError({
     statusCode: 404,
     statusMessage: "Page not found",
+    fatal: true,
   });
 }
 
@@ -946,7 +956,7 @@ const [
   }),
   useApiFetch<{ results?: any[] }>("/taxon_common_name", {
     query: {
-      taxon: route.params.id,
+      taxon: taxon.value.id,
       is_preferred: 1,
       fields: "language,name,is_preferred",
       format: "json",
@@ -954,7 +964,7 @@ const [
   }),
   useApiFetch<{ results?: any[] }>("/taxon_page", {
     query: {
-      taxon: route.params.id,
+      taxon: taxon.value.id,
       language: locale.value,
       fields: "content,author_txt,date_txt,link_wikipedia,title",
       format: "json",
@@ -992,7 +1002,7 @@ const [
   }),
   useApiFetch<{ results?: any[] }>("/taxon", {
     query: computed(() => ({
-      parent: route.params.id,
+      parent: taxon.value?.id,
       ...getModeQueryParam(store.mode),
       fields: "id,taxon,parent__taxon,parent_id,rank__rank_en,rank__rank",
       format: "json",
@@ -1000,7 +1010,7 @@ const [
   }),
   useApiFetch<{ results?: any[] }>("/taxon_description", {
     query: {
-      taxon: route.params.id,
+      taxon: taxon.value.id,
       fields: "reference,reference__reference,description",
       order_by: "-reference__year",
       format: "json",
@@ -1027,7 +1037,7 @@ const [
   }),
   useApiFetch<{ results?: any[] }>("/taxon_opinion", {
     query: {
-      taxon: route.params.id,
+      taxon: taxon.value.id,
       order_by: "-reference__year",
       format: "json",
     },
@@ -1162,14 +1172,14 @@ if (taxon.value.rank__rank_en !== "Species") {
   ] = await Promise.all([
     useApiFetch<{ results?: TaxonSynonym[] }>("/taxon_synonym", {
       query: {
-        taxon: route.params.id,
+        taxon: taxon.value.id,
         order_by: "year",
         format: "json",
       },
     }),
     useApiFetch<{ results?: TaxonTypeSpecimen[] }>("/taxon_type_specimen", {
       query: {
-        taxon: route.params.id,
+        taxon: taxon.value.id,
         format: "json",
       },
     }),
@@ -1249,7 +1259,10 @@ const sortedSisters = computed(function () {
   return orderBy(sisterTaxa.value, "taxon");
 });
 const sortedSistersWithoutCurrentTaxon = computed(function () {
-  return excludeCurrentTaxon(sortedSisters.value, route.params.id as string);
+  return excludeCurrentTaxon(
+    sortedSisters.value,
+    taxon.value?.id.toString() ?? ""
+  );
 });
 
 const isTaxonomicTreeIsLoaded = computed(() => {

@@ -138,14 +138,18 @@
                     {{ state.errorMessage }}
                   </b-alert>
                 </b-col>
-                <b-col sm="8" class="pt-2">
-                  <vue-slider
+                <b-col
+                  v-if="state.searchForm.isNearMeSearch"
+                  sm="8"
+                  class="pt-2"
+                >
+                  <VueSlider
                     ref="slider"
                     :min="0"
                     :max="20"
                     :piecewiseLabel="true"
                     width="100%"
-                    :show="state.searchForm.isNearMeSearch === true"
+                    :show="state.searchForm.isNearMeSearch"
                     :value="state.searchForm.radius"
                     @input="state.searchForm.radius = $event"
                     :disabled="state.errorMessage !== null"
@@ -164,7 +168,7 @@
                         {{ label }} km
                       </span>
                     </template>
-                  </vue-slider>
+                  </VueSlider>
                 </b-col>
               </b-row>
               <b-row class="my-1">
@@ -316,18 +320,19 @@
 
 <script setup lang="ts">
 import VueMultiselect from "vue-multiselect";
-import VueSlider from "~/components/vue2-slider.vue";
 // @ts-ignore
 import Wkt from "wicket/wicket";
-import { FeatureGroup } from "leaflet";
-import { LeafletMouseEvent } from "leaflet";
-import { CircleMarker } from "leaflet";
-import { TileLayer } from "leaflet";
-import { Circle } from "leaflet";
-import { Polygon } from "leaflet";
-import { Rectangle } from "leaflet";
-import { LatLngExpression } from "leaflet";
-import { Map } from "leaflet";
+import type {
+  FeatureGroup,
+  LeafletMouseEvent,
+  CircleMarker,
+  TileLayer,
+  Circle,
+  Polygon,
+  Rectangle,
+  LatLngExpression,
+  Map,
+} from "leaflet";
 const { t, locale } = useI18n();
 const { $apiFetch, $L } = useNuxtApp();
 
