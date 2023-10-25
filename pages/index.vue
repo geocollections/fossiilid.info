@@ -16,7 +16,6 @@
         v-for="(item, idx) in frontPage.results"
         :key="idx"
       >
-        <NuxtLink :to="{ path: `/${item.taxon}` }" :title="item.taxon__taxon">
           <img
             :src="`https://files.geocollections.info/img/fossiilid/fossilgroups/${item.taxon}.png`"
             :alt="item.frontpage + ' (' + item.taxon__taxon + ')'"
