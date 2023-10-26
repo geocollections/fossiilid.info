@@ -25,7 +25,7 @@ commands:
 jobs:
   build_run_image:
     docker:
-      - image: circleci/node:lts-stretch
+      - image: cimg/node:lts-stretch
     steps:
       - ssh-run:
           step-name: Build Docker image
