@@ -211,48 +211,40 @@ function bottomVisible() {
     ? false
     : bottomEl.getBoundingClientRect().bottom - 100 <= visible;
 }
-function loadMoreImages() {
+async function loadMoreImages() {
   if (state.imagesLoading) return;
   state.imagesLoading = true;
-  if (
-    store.searchParameters.images.allowPaging === false ||
-    state.noMoreResults
-  ) {
+  if (!store.searchParameters.images.allowPaging || state.noMoreResults) {
     state.imagesLoading = false;
     return;
   }
-  let query;
-  if (store.searchParameters.selectedImages.allowPaging === true) {
-    query = $apiFetch(
-      `/taxon/?sql=get_taxon_selected_images&keyword=${props.taxon.id}&page=${state.selectedImagesPage}&paginate_by=${state.paginateBy}&format=json`,
-
-      { baseURL: "https://api0.geocollections.info" }
+  let response;
+  if (store.searchParameters.selectedImages.allowPaging) {
+    response = await $apiFetch<{ results: any[] }>(
+      `/taxon/?sql=get_taxon_selected_images&keyword=${props.taxon.id}&page=${state.selectedImagesPage}&paginate_by=${state.paginateBy}&format=json`
     );
+
+    if (response.results.length < 1) {
+      store.searchParameters.selectedImages.allowPaging = false;
+      state.imagesLoading = false;
+      loadMoreImages();
+    } else {
+      state.images = state.images.concat(composeImageRequest(response.results));
+      state.selectedImagesPage = state.selectedImagesPage + 1;
+    }
   } else if (store.searchParameters.images.allowPaging) {
-    query = $apiFetch(
+    response = await $apiFetch<{ results: any[] }>(
       `/taxon/?sql=get_taxon_images&keyword=${props.taxon.hierarchy_string}&page=${state.imagesPage}&paginate_by=${state.paginateBy}&format=json`
     );
-  }
-  if (!query) return;
-  //67033
-  query.then((response: any) => {
-    if (response && response.results && response.results.length > 0) {
+    if (response.results.length < 1) {
+      state.noMoreResults = true;
+    } else {
       state.images = state.images.concat(composeImageRequest(response.results));
-    } else {
-      if (store.searchParameters.selectedImages.allowPaging) {
-        store.searchParameters.selectedImages.allowPaging = false;
-      } else {
-        state.noMoreResults = true;
-      }
-    }
-    if (store.searchParameters.selectedImages.allowPaging) {
-      state.selectedImagesPage = state.selectedImagesPage + 1;
-    } else {
       state.imagesPage = state.imagesPage + 1;
     }
+  }
 
-    state.imagesLoading = false;
-  });
+  state.imagesLoading = false;
 }
 </script>
 

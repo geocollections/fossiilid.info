@@ -1300,19 +1300,9 @@ onMounted(() => {
   window.addEventListener("scroll", handleScroll);
 });
 
-function handleImageResponse(
-  searchParameters: { page: number; paginateBy: number; allowPaging: boolean },
-  response: { results: any[] }
-) {
-  searchParameters.allowPaging = isAllowedMorePaging(
-    searchParameters.page,
-    response,
-    searchParameters.paginateBy
-  );
-  if (searchParameters.allowPaging) searchParameters.page += 1;
+function handleImageResponse(response: { results: any[] }) {
   state.images = composeImageRequest(response.results);
   state.imagesLoading = false;
-  return searchParameters;
 }
 async function getImages() {
   state.imagesLoading = true;
@@ -1320,8 +1310,8 @@ async function getImages() {
     query: {
       sql: "get_taxon_selected_images",
       keyword: taxon.value?.id,
-      page: store.searchParameters.selectedImages.page,
-      paginateBy: store.searchParameters.selectedImages.paginateBy,
+      page: 1,
+      paginateBy: 10,
       format: "json",
     },
   });
@@ -1330,18 +1320,14 @@ async function getImages() {
       query: {
         sql: "get_taxon_images",
         keyword: taxon.value?.hierarchy_string,
-        page: store.searchParameters.images.page,
-        paginateBy: store.searchParameters.images.paginateBy,
+        page: 1,
+        paginateBy: 10,
         format: "json",
       },
     });
-    handleImageResponse(store.searchParameters.images, imagesRes);
-    store.searchParameters.selectedImages.allowPaging = false;
+    handleImageResponse(imagesRes);
   } else {
-    handleImageResponse(
-      store.searchParameters.selectedImages,
-      selectedImagesRes
-    );
+    handleImageResponse(selectedImagesRes);
   }
 }
 
