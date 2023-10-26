@@ -226,7 +226,7 @@ function loadMoreImages() {
     query = $apiFetch(
       `/taxon/?sql=get_taxon_selected_images&keyword=${props.taxon.id}&page=${state.selectedImagesPage}&paginate_by=${state.paginateBy}&format=json`,
 
-      { baseURL: "http://api0.geocollections.info" }
+      { baseURL: "https://api0.geocollections.info" }
     );
   } else if (store.searchParameters.images.allowPaging) {
     query = $apiFetch(

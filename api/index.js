@@ -1,7 +1,7 @@
 const logRequests = !!process.env.DEBUG_API;
 
 const api = {
-  url: "http://api0.geocollections.info/",
+  url: "https://api0.geocollections.info/",
 };
 
 function fetch(child) {
