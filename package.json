@@ -13,6 +13,7 @@
   "devDependencies": {
     "@bootstrap-vue-next/nuxt": "^0.14.8",
     "@nuxt/devtools": "latest",
+    "@nuxtjs/google-fonts": "^3.0.2",
     "@nuxtjs/i18n": "^8.0.0-rc.5",
     "@pinia-plugin-persistedstate/nuxt": "^1.1.2",
     "@types/leaflet": "^1.9.6",

@@ -570,6 +570,7 @@
 
                     <span v-if="reference.reference__journal__journal_name">
                       <em>{{ reference.reference__journal__journal_name }}</em>
+                      {{ " " }}
                       <strong>{{ reference.reference__volume }}</strong>
                       ,
                       <span v-if="reference.reference__number">

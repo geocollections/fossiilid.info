@@ -30,14 +30,6 @@ export default defineNuxtConfig({
       link: [
         {
           rel: "stylesheet",
-          href: "https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic,900,900italic",
-        },
-        {
-          rel: "stylesheet",
-          href: "https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800",
-        },
-        {
-          rel: "stylesheet",
           href: "https://unpkg.com/@fancyapps/fancybox@3.4.2/dist/jquery.fancybox.min.css",
         },
       ],
@@ -48,6 +40,7 @@ export default defineNuxtConfig({
     "@pinia-plugin-persistedstate/nuxt",
     "@nuxtjs/i18n",
     "@bootstrap-vue-next/nuxt",
+    "@nuxtjs/google-fonts",
   ],
   i18n: {
     locales: [
@@ -60,5 +53,17 @@ export default defineNuxtConfig({
     langDir: "lang",
     defaultLocale: "en",
     strategy: "no_prefix",
+  },
+  googleFonts: {
+    families: {
+      Merriweather: {
+        wght: [300, 400, 700, 900],
+        ital: [300, 400, 700, 900],
+      },
+      "Open+Sans": {
+        wght: [300, 400, 600, 700, 800],
+        ital: [300, 400, 600, 700, 800],
+      },
+    },
   },
 });
