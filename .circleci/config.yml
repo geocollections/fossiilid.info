@@ -24,6 +24,8 @@ commands:
           command: << pipeline.parameters.ssh-connect >> "cd << pipeline.parameters.workingdir >> && << parameters.command >>"
 jobs:
   build_run_image:
+    docker:
+      - image: circleci/node:lts-stretch
     steps:
       - ssh-run:
           step-name: Build Docker image
