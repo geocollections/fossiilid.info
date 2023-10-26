@@ -65,5 +65,6 @@ export default defineNuxtConfig({
         ital: [300, 400, 600, 700, 800],
       },
     },
+    display: "optional",
   },
 });
