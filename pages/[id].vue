@@ -916,7 +916,7 @@ const taxonSearchParams = computed(() => {
   }
   return { id: route.params.id };
 });
-const { data: taxonRes } = await useApiFetch<{ results?: Taxon[] }>("/taxon", {
+const { data: taxonRes } = await useApiFetch<{ results?: Taxon[] }>("/taxon/", {
   query: {
     ...taxonSearchParams.value,
     fields: `id,taxon,parent,parent__taxon,rank__rank,rank__rank_en,fossil_group__id,is_fossil_group,fossil_group__taxon,hierarchy_string,author_year,date_added,date_changed,stratigraphy_base__stratigraphy,stratigraphy_base_id,stratigraphy_top_id,stratigraphy_base__age_base,stratigraphy_top__age_top,stratigraphy_top__stratigraphy,taxon_id_tol,taxon_id_eol,taxon_id_nrm,taxon_id_plutof,taxon_id_pbdb`,
@@ -948,13 +948,13 @@ const [
   { data: cntSpecimenCollectionRes },
   _imageRes,
 ] = await Promise.all([
-  useApiFetch<{ results?: any[] }>("/taxon_rank", {
+  useApiFetch<{ results?: any[] }>("/taxon_rank/", {
     query: {
       order_by: "sort",
       format: "json",
     },
   }),
-  useApiFetch<{ results?: any[] }>("/taxon_common_name", {
+  useApiFetch<{ results?: any[] }>("/taxon_common_name/", {
     query: {
       taxon: taxon.value.id,
       is_preferred: 1,
@@ -962,7 +962,7 @@ const [
       format: "json",
     },
   }),
-  useApiFetch<{ results?: any[] }>("/taxon_page", {
+  useApiFetch<{ results?: any[] }>("/taxon_page/", {
     query: {
       taxon: taxon.value.id,
       language: locale.value,
@@ -970,7 +970,7 @@ const [
       format: "json",
     },
   }),
-  useApiFetch<{ results?: any[] }>("/taxon_occurrence", {
+  useApiFetch<{ results?: any[] }>("/taxon_occurrence/", {
     query: {
       taxon__taxon__icontains: taxon.value.taxon,
       fields:
@@ -978,7 +978,7 @@ const [
       format: "json",
     },
   }),
-  useApiFetch<{ results?: any[] }>("/taxon_occurrence", {
+  useApiFetch<{ results?: any[] }>("/taxon_occurrence/", {
     query: {
       taxon__hierarchy_string__istartswith: taxon.value.hierarchy_string,
       reference__isnull: false,
@@ -989,7 +989,7 @@ const [
       format: "json",
     },
   }),
-  useApiFetch<{ results?: any[] }>("/specimen_identification", {
+  useApiFetch<{ results?: any[] }>("/specimen_identification/", {
     query: {
       taxon__hierarchy_string__istartswith: taxon.value.hierarchy_string,
       reference__isnull: false,
@@ -1000,7 +1000,7 @@ const [
       format: "json",
     },
   }),
-  useApiFetch<{ results?: any[] }>("/taxon", {
+  useApiFetch<{ results?: any[] }>("/taxon/", {
     query: computed(() => ({
       parent: taxon.value?.id,
       ...getModeQueryParam(store.mode),
@@ -1008,7 +1008,7 @@ const [
       format: "json",
     })),
   }),
-  useApiFetch<{ results?: any[] }>("/taxon_description", {
+  useApiFetch<{ results?: any[] }>("/taxon_description/", {
     query: {
       taxon: taxon.value.id,
       fields: "reference,reference__reference,description",
@@ -1019,7 +1019,7 @@ const [
   useApiFetch<{
     results: any[];
     count: number;
-  }>("/solr/taxon_search", {
+  }>("/solr/taxon_search/", {
     query: {
       q: computed(
         () =>
@@ -1035,21 +1035,21 @@ const [
       format: "json",
     },
   }),
-  useApiFetch<{ results?: any[] }>("/taxon_opinion", {
+  useApiFetch<{ results?: any[] }>("/taxon_opinion/", {
     query: {
       taxon: taxon.value.id,
       order_by: "-reference__year",
       format: "json",
     },
   }),
-  useApiFetch<{ results?: any[] }>("/taxon", {
+  useApiFetch<{ results?: any[] }>("/taxon/", {
     query: {
       id__in: formatHierarchyString(taxon.value.hierarchy_string),
       fields: "id,taxon,rank__rank,rank__rank_en",
       format: "json",
     },
   }),
-  useApiFetch<{ count: number }>("/solr/specimen", {
+  useApiFetch<{ count: number }>("/solr/specimen/", {
     query: {
       q: `hierarchy_string:(${taxon.value.hierarchy_string}*)`,
       rows: 1,
@@ -1097,14 +1097,21 @@ const sisterTaxa = ref();
 
 if (isDefinedAndNotNull(taxon.value.parent)) {
   const [{ data: parentRes }, { data: sisterTaxaRes }] = await Promise.all([
-    useApiFetch<{ results?: any[] }>(
-      `/taxon/?id=${taxon.value.parent}&fields=id,taxon,rank__rank_en&format=json`
-    ),
-    useApiFetch<{ results?: any[] }>(
-      `/taxon/?parent_id=${taxon.value.parent}${applyMode(
-        store.mode
-      )}&fields=id,taxon,parent__taxon,parent_id,rank__rank_en,rank__rank&format=json`
-    ),
+    useApiFetch<{ results?: any[] }>("/taxon/", {
+      query: {
+        id: taxon.value.parent,
+        fields: "id,taxon,rank__rank_en",
+        format: "json",
+      },
+    }),
+    useApiFetch<{ results?: any[] }>("/taxon/", {
+      query: computed(() => ({
+        parent_id: taxon.value?.parent,
+        ...getModeQueryParam(store.mode),
+        fields: "id,taxon,parent__taxon,parent_id,rank__rank_en,rank__rank",
+        format: "json",
+      })),
+    }),
   ]);
   parent.value = parentRes.value?.results?.[0] ?? [];
   sisterTaxa.value = sisterTaxaRes.value?.results ?? [];
@@ -1170,14 +1177,14 @@ if (taxon.value.rank__rank_en !== "Species") {
     { data: distributionSamplesRes },
     { data: distributionConopRes },
   ] = await Promise.all([
-    useApiFetch<{ results?: TaxonSynonym[] }>("/taxon_synonym", {
+    useApiFetch<{ results?: TaxonSynonym[] }>("/taxon_synonym/", {
       query: {
         taxon: taxon.value.id,
         order_by: "year",
         format: "json",
       },
     }),
-    useApiFetch<{ results?: TaxonTypeSpecimen[] }>("/taxon_type_specimen", {
+    useApiFetch<{ results?: TaxonTypeSpecimen[] }>("/taxon_type_specimen/", {
       query: {
         taxon: taxon.value.id,
         format: "json",
@@ -1185,7 +1192,7 @@ if (taxon.value.rank__rank_en !== "Species") {
     }),
     useApiFetch<{
       results?: TaxonDistributionSample[];
-    }>("/taxon", {
+    }>("/taxon/", {
       query: {
         sql: "get_species_distribution_sample",
         keyword: taxon.value.taxon,
@@ -1194,7 +1201,7 @@ if (taxon.value.rank__rank_en !== "Species") {
     }),
     useApiFetch<{
       results?: TaxonConop[];
-    }>("/taxon", {
+    }>("/taxon/", {
       query: {
         sql: "get_species_distribution_conop",
         keyword: taxon.value.taxon,
@@ -1306,7 +1313,7 @@ function handleImageResponse(response: { results: any[] }) {
 }
 async function getImages() {
   state.imagesLoading = true;
-  const selectedImagesRes = await $apiFetch<{ results: any[] }>("/taxon", {
+  const selectedImagesRes = await $apiFetch<{ results: any[] }>("/taxon/", {
     query: {
       sql: "get_taxon_selected_images",
       keyword: taxon.value?.id,
@@ -1316,7 +1323,7 @@ async function getImages() {
     },
   });
   if (selectedImagesRes.results.length === 0) {
-    const imagesRes = await $apiFetch<{ results: any[] }>("/taxon", {
+    const imagesRes = await $apiFetch<{ results: any[] }>("/taxon/", {
       query: {
         sql: "get_taxon_images",
         keyword: taxon.value?.hierarchy_string,
@@ -1569,7 +1576,7 @@ type Species = {
 
 async function searchSpecies() {
   const speciesRes = await $apiFetch<{ count: number; results?: Species[] }>(
-    "/taxon",
+    "/taxon/",
     {
       query: {
         hierarchy_string__istartswith: taxon.value?.hierarchy_string,
