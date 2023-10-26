@@ -41,7 +41,8 @@
                 >
                   <img
                     class="taxon-img"
-                    style="max-width: 120px"
+                    height="120"
+                    width="120"
                     border="0"
                     :src="`/fossilgroups/${taxon.fossil_group__id}.png`"
                     :alt="taxon.fossil_group__taxon"

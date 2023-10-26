@@ -19,6 +19,8 @@
           <img
             :src="`https://files.geocollections.info/img/fossiilid/fossilgroups/${item.taxon}.png`"
             :alt="item.frontpage + ' (' + item.taxon__taxon + ')'"
+            width="150"
+            height="150"
           />
           {{ item.frontpage }}
         </NuxtLink>
