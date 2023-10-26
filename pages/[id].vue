@@ -948,7 +948,7 @@ const [
   { data: opinionRes },
   { data: hierarchyRes },
   { data: cntSpecimenCollectionRes },
-  _imageRes,
+  // _imageRes,
 ] = await Promise.all([
   useApiFetch<{ results?: any[] }>("/taxon_rank/", {
     query: {
@@ -1058,7 +1058,7 @@ const [
       format: "json",
     },
   }),
-  getImages(),
+  // getImages(),
 ]);
 
 const ranks = ref(ranksRes.value?.results ?? []);
@@ -1084,15 +1084,6 @@ function getModeQueryParam(mode: string) {
   }
   return {};
 }
-watch(
-  () => store.mode,
-  () => searchSpecies()
-);
-watch(
-  () => store.searchParameters.species,
-  () => searchSpecies(),
-  { deep: true }
-);
 
 const parent = ref();
 const sisterTaxa = ref();
@@ -1171,7 +1162,32 @@ const distributionSamples = ref<TaxonDistributionSample[]>([]);
 const distributionConop = ref<TaxonConop[]>([]);
 
 if (taxon.value.rank__rank_en !== "Species") {
-  await searchSpecies();
+  // await searchSpecies();
+  const { data: speciesRes } = await useApiFetch<{
+    count: number;
+    results?: Species[];
+  }>("/taxon/", {
+    query: computed(() => ({
+      hierarchy_string__istartswith: taxon.value?.hierarchy_string,
+      rank__rank_en: "species",
+      ...getModeQueryParam(store.mode),
+      order_by: "taxon",
+      fields:
+        "taxon,author_year,id,stratigraphy_base__stratigraphy_en,stratigraphy_base__stratigraphy,stratigraphy_top__stratigraphy_en,stratigraphy_top__stratigraphy",
+      page: store.searchParameters.species.page,
+      paginate_by: store.searchParameters.species.paginateBy,
+      format: "json",
+    })),
+  });
+  state.allSpecies = speciesRes.value?.results ?? [];
+  state.numberOfSpecimen = speciesRes.value?.count ?? 0;
+  watch(
+    () => speciesRes.value,
+    (res) => {
+      state.allSpecies = res?.results ?? [];
+      state.numberOfSpecimen = res?.count ?? 0;
+    }
+  );
 } else if (["Species", "Subspecies"].includes(taxon.value.rank__rank_en)) {
   const [
     { data: synonymRes },
@@ -1307,6 +1323,7 @@ const computedOpinions = computed(() => {
 });
 onMounted(() => {
   window.addEventListener("scroll", handleScroll);
+  getImages();
 });
 
 function handleImageResponse(response: { results: any[] }) {
@@ -1344,17 +1361,7 @@ function isDifferentName(obj: any) {
   let localizedName = locale.value === "et" ? obj["et"] : obj["en"];
   return localizedName[0] !== localizedName[1] && localizedName[1] !== "";
 }
-function isAllowedMorePaging(
-  page: number,
-  response: { results: any[] },
-  paginateBy: number
-) {
-  return !(
-    response.results === undefined ||
-    response.results.length === 0 ||
-    response.results.length / page < paginateBy
-  );
-}
+
 function composeImgUrl(uuid_filename: string | undefined, isFull: boolean) {
   if (uuid_filename) {
     return isFull
@@ -1558,14 +1565,6 @@ function composeImageRequest(taxonImages: any[]) {
   return [];
 }
 
-function applyMode(mode: string, separator = "=", queryJoiner = "&") {
-  let returnVal = "";
-  if (mode === "in_baltoscandia")
-    returnVal = `${queryJoiner}in_baltoscandia${separator}1`;
-  else if (mode === "in_estonia")
-    returnVal = `${queryJoiner}in_estonia${separator}1`;
-  return returnVal;
-}
 type Species = {
   taxon: string;
   author_year?: string;
@@ -1575,27 +1574,6 @@ type Species = {
   stratigraphy_top__stratigraphy_en?: string;
   stratigraphy_top__stratigraphy?: string;
 };
-
-async function searchSpecies() {
-  const speciesRes = await $apiFetch<{ count: number; results?: Species[] }>(
-    "/taxon/",
-    {
-      query: {
-        hierarchy_string__istartswith: taxon.value?.hierarchy_string,
-        rank__rank_en: "species",
-        ...getModeQueryParam(store.mode),
-        order_by: "taxon",
-        fields:
-          "taxon,author_year,id,stratigraphy_base__stratigraphy_en,stratigraphy_base__stratigraphy,stratigraphy_top__stratigraphy_en,stratigraphy_top__stratigraphy",
-        page: store.searchParameters.species.page,
-        paginate_by: store.searchParameters.species.paginateBy,
-        format: "json",
-      },
-    }
-  );
-  state.allSpecies = speciesRes.results ?? [];
-  state.numberOfSpecimen = speciesRes.count;
-}
 
 function handleScroll() {
   state.scroll = window.scrollY > 150;
