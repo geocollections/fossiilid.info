@@ -1,0 +1,36 @@
+version: 2.1
+parameters:
+  package-version:
+    type: string
+    default: "1.0.0"
+  workingdir:
+    type: string
+    default: /var/www/fossiilid-nuxt3
+  ssh-connect:
+    type: string
+    default: ssh -o "StrictHostKeyChecking no" -p ${PORT} ${USER}@${ADDRESS}
+commands:
+  ssh-run:
+    description: "Run a command on the remote server over SSH"
+    parameters:
+      command:
+        type: string
+      step-name:
+        type: string
+        default: Running << parameters.command >> over SSH
+    steps:
+      - run: 
+          name: << parameters.step-name >>
+          command: << pipeline.parameters.ssh-connect >> "cd << pipeline.parameters.workingdir >> && << parameters.command >>"
+jobs:
+  build_run_image:
+    steps:
+      - ssh-run:
+          step-name: Build Docker image
+          command: bash -e fossiilid-nuxt3-build-run.sh
+workflows:
+  build_deploy_nuxt3:
+    when:
+      equal: [refactor/nuxt3, << pipeline.git.branch >>]
+    jobs:
+      - build_run_image
