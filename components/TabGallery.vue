@@ -58,7 +58,7 @@ const state = reactive({
   noMoreResults: false,
   selectedImagesPage: 1,
   imagesPage: 1,
-  paginateBy: 25,
+  paginateBy: 40,
 });
 const store = useRootStore();
 const { $apiFetch } = useNuxtApp();
