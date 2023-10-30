@@ -62,11 +62,15 @@ const state = reactive({
 });
 const store = useRootStore();
 const { $apiFetch } = useNuxtApp();
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener("scroll", () => {
     state.bottom = bottomVisible();
   });
-  loadMoreImages();
+  await loadMoreImages();
+
+  if (state.images.length < 10) {
+    loadMoreImages();
+  }
 });
 watch(
   () => state.bottom,

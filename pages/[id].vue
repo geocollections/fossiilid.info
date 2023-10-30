@@ -1341,19 +1341,18 @@ async function getImages() {
       format: "json",
     },
   });
-  if (selectedImagesRes.results.length === 0) {
+  handleImageResponse(selectedImagesRes);
+  if (selectedImagesRes.results.length < 10) {
     const imagesRes = await $apiFetch<{ results: any[] }>("/taxon/", {
       query: {
         sql: "get_taxon_images",
         keyword: taxon.value?.hierarchy_string,
         page: 1,
-        paginateBy: 10,
+        paginateBy: 10 - selectedImagesRes.results.length,
         format: "json",
       },
     });
     handleImageResponse(imagesRes);
-  } else {
-    handleImageResponse(selectedImagesRes);
   }
 }
 
