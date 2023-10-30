@@ -23,14 +23,11 @@
           class="mb-2 mt-2 navbar-toggler"
           data-bs-toggle="collapse"
           data-bs-target="#nav_collapse"
+          aria-expanded="false"
         >
           <span class="navbar-toggler-icon"></span>
         </button>
-        <div
-          class="collapse navbar-collapse"
-          id="nav_collapse"
-          style="display: none"
-        >
+        <div class="collapse navbar-collapse" id="nav_collapse">
           <ul class="navbar-nav ms-auto">
             <form class="d-flex my-lg-0 me-5">
               <vue-multiselect
