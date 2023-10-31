@@ -9,9 +9,16 @@ export default defineNuxtPlugin(({ vueApp, $i18n }) => {
       let value =
         $i18n.locale.value === "et" ? binding.value.et : binding.value.en;
       return {
-        test: value,
-        innerHTML: value === undefined || value === null ? "" : value,
+        innerText: value === undefined || value === null ? "" : value,
       };
     },
   });
+  function translate(translations) {
+    return $i18n.locale.value === "et" ? translations.et : translations.en;
+  }
+  return {
+    provide: {
+      translate,
+    },
+  };
 });

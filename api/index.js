@@ -1,7 +1,7 @@
 const logRequests = !!process.env.DEBUG_API;
 
 const api = {
-  url: "https://api0.geocollections.info/",
+  url: "https://rwapi.geoloogia.info/api/v0/public",
 };
 
 function fetch(child) {

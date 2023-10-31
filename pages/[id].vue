@@ -2,7 +2,11 @@
   <Head>
     <Title>{{ taxon?.taxon }}</Title>
     <Meta vmid="keywords" name="keywords" :content="meta" />
-    <!-- <Meta vmid="description" name="description" :content="description ?? []" /> -->
+    <Meta
+      vmid="description"
+      name="description"
+      :content="description[0]?.description"
+    />
   </Head>
   <section class="container-fluid">
     <div class="m-md-3 text-center" v-if="!taxon">
@@ -51,13 +55,14 @@
                 </NuxtLink>
               </td>
               <td style="padding-left: 10px">
-                <div
-                  style="font-size: 0.9em"
-                  v-translate="{
-                    et: taxon.rank__rank,
-                    en: taxon.rank__rank_en,
-                  }"
-                ></div>
+                <div style="font-size: 0.9em">
+                  {{
+                    $translate({
+                      et: taxon.rank__rank,
+                      en: taxon.rank__rank_en,
+                    })
+                  }}
+                </div>
                 <h1
                   style="display: inline; font-weight: bold"
                   :class="
@@ -82,22 +87,15 @@
       </div>
       <TaxonTabs
         :specimenCount="state.specimenCollectionCnt"
-        :imageCount="state.images.length"
+        :imageCount="images.length"
       />
       <TabGallery v-if="store.activeTab === 'gallery'" :taxon="taxon" />
       <TabSpecimens v-if="store.activeTab === 'specimens'" :taxon="taxon" />
       <div class="row" v-if="store.activeTab === 'overview'">
         <div class="col-lg-8">
-          <div
-            class="row m-1"
-            v-if="opinions.length > 0 && invalidTaxonName.length > 0"
-          >
-            <div
-              class="alert alert-danger"
-              style="width: 100%"
-              v-if="computedOpinions.length > 0"
-            >
-              <div v-for="(item, index) in computedOpinions" :key="index">
+          <div class="row m-1" v-if="opinions.length > 0">
+            <div class="alert alert-danger" style="width: 100%">
+              <div v-for="(item, index) in opinions" :key="index">
                 {{ $t("header.f_name_is_invalid") }}
                 <NuxtLink :href="`/${item.other_taxon}`">
                   {{ item.other_taxon__taxon }}
@@ -136,9 +134,9 @@
                     :class="
                       isHigherTaxon(taxon.rank__rank_en) ? '' : 'fst-italic'
                     "
-                    :href="`/${parent.id}`"
+                    :href="`/${taxon.parent}`"
                   >
-                    {{ parent.taxon }}
+                    {{ taxon.parent__taxon }}
                   </NuxtLink>
                 </div>
                 <div
@@ -249,10 +247,9 @@
           <div class="m-1">
             <lingallery
               style="width: 100%"
-              v-if="state.images && state.images.length > 0"
-              ref="lingallery"
+              v-if="images.length > 0"
               :height="200"
-              :items="state.images.slice(0, 10)"
+              :items="images"
             />
           </div>
           <div class="m-1">
@@ -303,7 +300,7 @@
                         })
                       "
                     >
-                      <strong>{{ item.reference__reference }}</strong>
+                      <strong>{{ item.reference }}</strong>
                     </a>
                   </h3>
                   <div v-html="item.description"></div>
@@ -329,12 +326,14 @@
                       typeSpecimen.type_type__value_en
                     "
                   >
-                    <span
-                      v-translate="{
-                        et: typeSpecimen.type_type__value,
-                        en: typeSpecimen.type_type__value_en,
-                      }"
-                    ></span>
+                    <span>
+                      {{
+                        $translate({
+                          et: typeSpecimen.type_type__value,
+                          en: typeSpecimen.type_type__value_en,
+                        })
+                      }}
+                    </span>
                     :
                   </span>
                   <span v-if="typeSpecimen.specimen === null">
@@ -391,11 +390,14 @@
                     "
                     href="#"
                     v-if="isDefinedAndNotNull(typeSpecimen.locality)"
-                    v-translate="{
-                      et: typeSpecimen.locality__locality,
-                      en: typeSpecimen.locality__locality_en,
-                    }"
-                  ></a>
+                  >
+                    {{
+                      $translate({
+                        et: typeSpecimen.locality__locality,
+                        en: typeSpecimen.locality__locality_en,
+                      })
+                    }}
+                  </a>
                   ,
                   <span
                     v-if="
@@ -412,12 +414,14 @@
                     "
                   >
                     (
-                    <span
-                      v-translate="{
-                        et: typeSpecimen.locality_free,
-                        en: typeSpecimen.locality_free_en,
-                      }"
-                    ></span>
+                    <span>
+                      {{
+                        $translate({
+                          et: typeSpecimen.locality_free,
+                          en: typeSpecimen.locality_free_en,
+                        })
+                      }}
+                    </span>
                     )
                   </span>
                   <span v-if="isDefinedAndNotNull(typeSpecimen.level)">
@@ -434,11 +438,14 @@
                     "
                     href="#"
                     v-if="isDefinedAndNotNull(typeSpecimen.stratigraphy)"
-                    v-translate="{
-                      et: typeSpecimen.stratigraphy__stratigraphy,
-                      en: typeSpecimen.stratigraphy__stratigraphy_en,
-                    }"
-                  ></a>
+                  >
+                    {{
+                      $translate({
+                        et: typeSpecimen.stratigraphy__stratigraphy,
+                        en: typeSpecimen.stratigraphy__stratigraphy_en,
+                      })
+                    }}
+                  </a>
                   <span
                     v-if="
                       isDifferentName({
@@ -454,12 +461,14 @@
                     "
                   >
                     (
-                    <span
-                      v-translate="{
-                        et: typeSpecimen.stratigraphy_free,
-                        en: typeSpecimen.stratigraphy_free_en,
-                      }"
-                    ></span>
+                    <span>
+                      {{
+                        $translate({
+                          et: typeSpecimen.stratigraphy_free,
+                          en: typeSpecimen.stratigraphy_free_en,
+                        })
+                      }}
+                    </span>
                     )
                   </span>
                   <span v-if="isDefinedAndNotNull(typeSpecimen.remarks)">
@@ -538,19 +547,16 @@
               </div>
             </div>
           </div>
-          <div
-            class="row m-1"
-            v-if="referencesCombined && referencesCombined.length > 0"
-          >
+          <div class="row m-1" v-if="references.length > 0">
             <div class="card px-0 rounded-0" style="width: 100%">
               <div class="card-header">
                 {{ $t("header.f_taxon_references") }}
               </div>
               <div class="card-body">
-                <foldable :elLength="referencesCombined.length">
+                <foldable :elLength="references.length">
                   <div
-                    :class="idx === referencesCombined.length - 1 ? '' : 'my-3'"
-                    v-for="(reference, idx) in referencesCombined"
+                    :class="idx === references.length - 1 ? '' : 'my-3'"
+                    v-for="(reference, idx) in references"
                     style="padding-left: 3em; text-indent: -3em"
                   >
                     <a
@@ -558,43 +564,41 @@
                       @click="
                         openUrl({
                           parent_url: 'http://geocollections.info/reference',
-                          object: reference.reference,
+                          object: reference.id,
                           width: 500,
                           height: 500,
                         })
                       "
                     >
-                      {{ reference.reference__author }}
-                      {{ reference.reference__year }}.
+                      {{ reference.author }}
+                      {{ reference.year }}.
                     </a>
-                    <span>{{ reference.reference__title }}.</span>
+                    <span>{{ reference.title }}.</span>
 
-                    <span v-if="reference.reference__journal__journal_name">
-                      <em>{{ reference.reference__journal__journal_name }}</em>
+                    <span v-if="reference.journal_name">
+                      <em>{{ reference.journal_name }}</em>
                       {{ " " }}
-                      <strong>{{ reference.reference__volume }}</strong>
+                      <strong>{{ reference.volume }}</strong>
                       ,
-                      <span v-if="reference.reference__number">
-                        {{ reference.reference__number }},
+                      <span v-if="reference.number">
+                        {{ reference.number }},
                       </span>
-                      <span
-                        v-if="isDefinedAndNotNull(reference.reference__pages)"
-                      >
-                        {{ reference.reference__pages }}.
+                      <span v-if="isDefinedAndNotNull(reference.pages)">
+                        {{ reference.pages }}.
                       </span>
                     </span>
-                    <span v-if="isDefinedAndNotNull(reference.reference__book)">
-                      <em>{{ reference.reference__book }}</em>
-                      , pp. {{ reference.reference__pages }}.
+                    <span v-if="isDefinedAndNotNull(reference.book)">
+                      <em>{{ reference.book }}</em>
+                      , pp. {{ reference.pages }}.
                     </span>
 
-                    <span v-if="reference.reference__doi">
+                    <span v-if="reference.doi">
                       <a
-                        :href="'https://doi.org/' + reference.reference__doi"
+                        :href="'https://doi.org/' + reference.doi"
                         rel="noopener"
                         target="_blank"
                       >
-                        DOI:{{ reference.reference__doi }}
+                        DOI:{{ reference.doi }}
                       </a>
                     </span>
                   </div>
@@ -627,19 +631,23 @@
                       "
                     >
                       |
-                      <span
-                        v-translate="{
-                          et: item.stratigraphy_base__stratigraphy,
-                          en: item.stratigraphy_base__stratigraphy_en,
-                        }"
-                      ></span>
+                      <span>
+                        {{
+                          $translate({
+                            et: item.stratigraphy_base__stratigraphy,
+                            en: item.stratigraphy_base__stratigraphy_en,
+                          })
+                        }}
+                      </span>
                       <span v-if="item.stratigraphy_top__stratigraphy">→</span>
-                      <span
-                        v-translate="{
-                          et: item.stratigraphy_top__stratigraphy,
-                          en: item.stratigraphy_top__stratigraphy_en,
-                        }"
-                      ></span>
+                      <span>
+                        {{
+                          $translate({
+                            et: item.stratigraphy_top__stratigraphy,
+                            en: item.stratigraphy_top__stratigraphy_en,
+                          })
+                        }}
+                      </span>
                     </template>
                     <template
                       v-else-if="
@@ -649,12 +657,14 @@
                       "
                     >
                       |
-                      <span
-                        v-translate="{
-                          et: item.stratigraphy_base__stratigraphy,
-                          en: item.stratigraphy_base__stratigraphy_en,
-                        }"
-                      ></span>
+                      <span>
+                        {{
+                          $translate({
+                            et: item.stratigraphy_base__stratigraphy,
+                            en: item.stratigraphy_base__stratigraphy_en,
+                          })
+                        }}
+                      </span>
                     </template>
                   </div>
                   <div
@@ -713,6 +723,19 @@
               <div class="card-body no-padding">
                 <ClientOnly>
                   <map-component :map-data="map"></map-component>
+                  <template #fallback>
+                    <div
+                      style="
+                        height: 300px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        background-color: #d4dadc;
+                      "
+                    >
+                      Loading...
+                    </div>
+                  </template>
                 </ClientOnly>
               </div>
             </div>
@@ -728,18 +751,8 @@
               localities
             </b-alert>
           </b-row>
-          <div class="row m-1" v-if="isTaxonomicTreeIsLoaded">
-            <div class="card px-0 rounded-0" style="width: 100%">
-              <div class="card-header">
-                {{ $t("header.fossils_classification") }}
-              </div>
-              <div class="card-body" style="font-size: 0.8em">
-                <TaxonomicalTree
-                  :lists="{ ranks: ranks }"
-                  :hierarchy-data="hierarchyData"
-                ></TaxonomicalTree>
-              </div>
-            </div>
+          <div class="m-1">
+            <TaxonomicalTree :id="taxon.id" />
           </div>
 
           <div
@@ -767,23 +780,27 @@
                           })
                         "
                       >
-                        <strong>{{ reference.reference__reference }}</strong>
+                        <strong>{{ reference.reference }}</strong>
                       </a>
-                      <span
-                        v-translate="{
-                          et: reference.locality__locality,
-                          en: reference.locality__locality_en,
-                        }"
-                      ></span>
+                      <span>
+                        {{
+                          $translate({
+                            et: reference.locality__locality,
+                            en: reference.locality__locality_en,
+                          })
+                        }}
+                      </span>
                       <span v-if="reference.depth || reference.depth_interval">
                         {{ reference.depth }} - {{ reference.depth_interval }}
                       </span>
-                      <span
-                        v-translate="{
-                          et: reference.stratigraphy_base__stratigraphy,
-                          en: reference.stratigraphy_base__stratigraphy_en,
-                        }"
-                      ></span>
+                      <span>
+                        {{
+                          $translate({
+                            et: reference.stratigraphy_base__stratigraphy,
+                            en: reference.stratigraphy_base__stratigraphy_en,
+                          })
+                        }}
+                      </span>
                     </em>
                   </li>
                 </ul>
@@ -804,12 +821,14 @@
                     "
                     target="_blank"
                   >
-                    <i
-                      v-translate="{
-                        et: sample.locality_et,
-                        en: sample.locality_en,
-                      }"
-                    ></i>
+                    <i>
+                      {{
+                        $translate({
+                          et: sample.locality_et,
+                          en: sample.locality_en,
+                        })
+                      }}
+                    </i>
                   </a>
                   <span>
                     ({{ sample.depth_min }} ... {{ sample.depth_max }}):
@@ -840,10 +859,10 @@
 <script setup lang="ts">
 import filter from "lodash/filter";
 import orderBy from "lodash/orderBy";
-import uniqBy from "lodash/uniqBy";
 import _map from "lodash/map";
 import { useRootStore } from "../stores/root";
 import dayjs from "dayjs";
+import { useNewApiFetch } from "~/composables/useApiFetch";
 
 const state = reactive({
   geocollectionUrl: "http://geocollections.info",
@@ -852,8 +871,6 @@ const state = reactive({
   fileUrl: "https://files.geocollections.info",
   isReferencesCollapsed: true,
   scroll: false,
-  parent: {},
-  images: [] as any[],
   activeSection: "overview",
   specimenCollectionCnt: 0,
   loaders: {
@@ -870,7 +887,6 @@ const state = reactive({
   requestingData: false,
   isSisterTaxaLoaded: false,
   isHierarchyLoaded: false,
-  imagesLoading: true,
   allSpecies: [] as Species[],
   response: {
     count: 0,
@@ -880,7 +896,6 @@ const state = reactive({
 const route = useRoute();
 const store = useRootStore();
 const { locale } = useI18n();
-const { $apiFetch } = useNuxtApp();
 
 type Taxon = {
   id: number;
@@ -936,26 +951,17 @@ if (!taxon.value) {
 }
 
 const [
-  { data: ranksRes },
   { data: commonNamesRes },
   { data: pageRes },
   { data: occurenceRes },
-  { data: referenceRes },
-  { data: reference2Res },
   { data: childrenRes },
   { data: descriptionRes },
   { data: speciesMapRes },
   { data: opinionRes },
-  { data: hierarchyRes },
   { data: cntSpecimenCollectionRes },
-  // _imageRes,
+  { data: referenceRes },
+  { data: imagesNewRes },
 ] = await Promise.all([
-  useApiFetch<{ results?: any[] }>("/taxon_rank/", {
-    query: {
-      order_by: "sort",
-      format: "json",
-    },
-  }),
   useApiFetch<{ results?: any[] }>("/taxon_common_name/", {
     query: {
       taxon: taxon.value.id,
@@ -976,29 +982,7 @@ const [
     query: {
       taxon__taxon__icontains: taxon.value.taxon,
       fields:
-        "reference,reference__reference,locality__locality,locality__locality_en,depth_interval,depth,stratigraphy_base__stratigraphy,stratigraphy_base__stratigraphy_en",
-      format: "json",
-    },
-  }),
-  useApiFetch<{ results?: any[] }>("/taxon_occurrence/", {
-    query: {
-      taxon__hierarchy_string__istartswith: taxon.value.hierarchy_string,
-      reference__isnull: false,
-      order_by: "-reference__year",
-      fields:
-        "reference,reference__reference,reference__author,reference__year,reference__title,reference__journal__journal_name,reference__book,reference__volume,reference__number,reference__pages,reference__doi",
-      distinct: true,
-      format: "json",
-    },
-  }),
-  useApiFetch<{ results?: any[] }>("/specimen_identification/", {
-    query: {
-      taxon__hierarchy_string__istartswith: taxon.value.hierarchy_string,
-      reference__isnull: false,
-      order_by: "-reference__year",
-      fields:
-        "reference,reference__reference,reference__author,reference__year,reference__title,reference__journal__journal_name,reference__book,reference__volume,reference__number,reference__pages,reference__doi",
-      distinct: true,
+        "reference,reference,locality__locality,locality__locality_en,depth_interval,depth,stratigraphy_base__stratigraphy,stratigraphy_base__stratigraphy_en",
       format: "json",
     },
   }),
@@ -1013,8 +997,7 @@ const [
   useApiFetch<{ results?: any[] }>("/taxon_description/", {
     query: {
       taxon: taxon.value.id,
-      fields: "reference,reference__reference,description",
-      order_by: "-reference__year",
+      fields: "reference,reference,description",
       format: "json",
     },
   }),
@@ -1040,14 +1023,10 @@ const [
   useApiFetch<{ results?: any[] }>("/taxon_opinion/", {
     query: {
       taxon: taxon.value.id,
-      order_by: "-reference__year",
-      format: "json",
-    },
-  }),
-  useApiFetch<{ results?: any[] }>("/taxon/", {
-    query: {
-      id__in: formatHierarchyString(taxon.value.hierarchy_string),
-      fields: "id,taxon,rank__rank,rank__rank_en",
+      other_taxon__isnull: false,
+      is_preferred: true,
+      opinion_type__invalid: true,
+      order_by: "-year",
       format: "json",
     },
   }),
@@ -1058,22 +1037,25 @@ const [
       format: "json",
     },
   }),
-  // getImages(),
+  useNewApiFetch<{ results: any[]; count: number }>(
+    `/taxa/${taxon.value.id}/references/`,
+    { query: { limit: 100 } }
+  ),
+  useNewApiFetch<{ results: any[]; count: number }>(
+    `/taxa/${taxon.value.id}/images/`
+  ),
 ]);
 
-const ranks = ref(ranksRes.value?.results ?? []);
 const commonNames = ref(commonNamesRes.value?.results?.[0]);
 const taxonPage = ref(pageRes.value?.results?.[0]);
 const taxonOccurrence = ref(occurenceRes.value?.results ?? []);
 const references = ref(referenceRes.value?.results ?? []);
-const references2 = ref(reference2Res.value?.results ?? []);
 const children = computed(() => childrenRes.value?.results ?? []);
 const description = ref(descriptionRes.value?.results ?? []);
 const map = computed(() => speciesMapRes.value?.results ?? []);
 const cntLocalities = ref(speciesMapRes.value?.count);
 const opinions = ref(opinionRes.value?.results ?? []);
-state.hierarchy = hierarchyRes.value?.results ?? [];
-state.isHierarchyLoaded = true;
+const images = ref(buildGalleryImages(imagesNewRes.value?.results ?? []));
 state.specimenCollectionCnt = cntSpecimenCollectionRes.value?.count ?? 0;
 
 function getModeQueryParam(mode: string) {
@@ -1085,31 +1067,6 @@ function getModeQueryParam(mode: string) {
   return {};
 }
 
-const parent = ref();
-const sisterTaxa = ref();
-
-if (isDefinedAndNotNull(taxon.value.parent)) {
-  const [{ data: parentRes }, { data: sisterTaxaRes }] = await Promise.all([
-    useApiFetch<{ results?: any[] }>("/taxon/", {
-      query: {
-        id: taxon.value.parent,
-        fields: "id,taxon,rank__rank_en",
-        format: "json",
-      },
-    }),
-    useApiFetch<{ results?: any[] }>("/taxon/", {
-      query: computed(() => ({
-        parent_id: taxon.value?.parent,
-        ...getModeQueryParam(store.mode),
-        fields: "id,taxon,parent__taxon,parent_id,rank__rank_en,rank__rank",
-        format: "json",
-      })),
-    }),
-  ]);
-  parent.value = parentRes.value?.results?.[0] ?? [];
-  sisterTaxa.value = sisterTaxaRes.value?.results ?? [];
-  state.isSisterTaxaLoaded = true;
-}
 type TaxonTypeSpecimen = {
   id: number;
   type_type__value: string;
@@ -1162,7 +1119,6 @@ const distributionSamples = ref<TaxonDistributionSample[]>([]);
 const distributionConop = ref<TaxonConop[]>([]);
 
 if (taxon.value.rank__rank_en !== "Species") {
-  // await searchSpecies();
   const { data: speciesRes } = await useApiFetch<{
     count: number;
     results?: Species[];
@@ -1239,16 +1195,6 @@ const dateAdded = computed(() => {
 const dateChanged = computed(() => {
   return dayjs(taxon.value?.date_changed).format("YYYY-MM-DD");
 });
-const hierarchyData = computed(() => {
-  return {
-    sortedSisters: sortedSisters.value,
-    parent: parent.value,
-    taxon: taxon.value,
-    hierarchy: state.hierarchy,
-    sortedSiblings: sortedSiblings.value,
-    sortedSistersWithoutCurrentTaxon: sortedSistersWithoutCurrentTaxon.value,
-  };
-});
 const taxonTitle = computed(() => {
   let lang = locale.value;
   if (taxonPage.value && taxonPage.value.title) return taxonPage.value.title;
@@ -1258,18 +1204,7 @@ const taxonTitle = computed(() => {
 
   if (activeCommonName.length > 0) return activeCommonName[0].name;
 });
-const invalidTaxonName = computed(() => {
-  return filter(opinions.value, function (o) {
-    return o.opinion_type__invalid === true && o.is_preferred === true;
-  });
-});
-const referencesCombined = computed(() => {
-  if (!references2.value && !references.value) return [];
-  let refs = references.value.concat(references2.value);
-  let uniqueRefs = uniqBy(refs, "reference");
-  if (uniqueRefs.length < 4) state.accordion.showAccordionReferences = true;
-  return orderBy(uniqueRefs, "reference__year", ["desc"]);
-});
+
 const filteredCommonNames = computed(function () {
   let lang = locale.value;
   return filter(commonNames.value, function (o) {
@@ -1279,19 +1214,6 @@ const filteredCommonNames = computed(function () {
 
 const sortedSiblings = computed(function () {
   return orderBy(children.value, "taxon");
-});
-const sortedSisters = computed(function () {
-  return orderBy(sisterTaxa.value, "taxon");
-});
-const sortedSistersWithoutCurrentTaxon = computed(function () {
-  return excludeCurrentTaxon(
-    sortedSisters.value,
-    taxon.value?.id.toString() ?? ""
-  );
-});
-
-const isTaxonomicTreeIsLoaded = computed(() => {
-  return state.isSisterTaxaLoaded && state.isHierarchyLoaded;
 });
 
 const commonNamesStrings = computed(() => {
@@ -1312,49 +1234,9 @@ const meta = computed(() => {
 const isNumberOfLocalitiesOnMapOver1000 = computed(() => {
   return cntLocalities.value !== undefined && cntLocalities.value > 1000;
 });
-const computedOpinions = computed(() => {
-  return opinions.value.filter((item) => {
-    return (
-      isDefinedAndNotNull(item.other_taxon) &&
-      item.is_preferred === true &&
-      item.opinion_type__invalid === true
-    );
-  });
-});
 onMounted(() => {
   window.addEventListener("scroll", handleScroll);
-  getImages();
 });
-
-function handleImageResponse(response: { results: any[] }) {
-  state.images = composeImageRequest(response.results);
-  state.imagesLoading = false;
-}
-async function getImages() {
-  state.imagesLoading = true;
-  const selectedImagesRes = await $apiFetch<{ results: any[] }>("/taxon/", {
-    query: {
-      sql: "get_taxon_selected_images",
-      keyword: taxon.value?.id,
-      page: 1,
-      paginateBy: 10,
-      format: "json",
-    },
-  });
-  handleImageResponse(selectedImagesRes);
-  if (selectedImagesRes.results.length < 10) {
-    const imagesRes = await $apiFetch<{ results: any[] }>("/taxon/", {
-      query: {
-        sql: "get_taxon_images",
-        keyword: taxon.value?.hierarchy_string,
-        page: 1,
-        paginateBy: 10 - selectedImagesRes.results.length,
-        format: "json",
-      },
-    });
-    handleImageResponse(imagesRes);
-  }
-}
 
 function isDifferentName(obj: any) {
   let localizedName = locale.value === "et" ? obj["et"] : obj["en"];
@@ -1417,53 +1299,43 @@ function calculateSpeciesIdx(idx: number) {
     store.searchParameters.species.paginateBy
   );
 }
-function excludeCurrentTaxon(list: any[], itemID: string) {
-  return list.filter((val) => {
-    return itemID.indexOf(val.id) === -1;
-  });
-}
 function convertToTwoDecimal(value: number) {
   return value.toFixed(1);
-}
-function formatHierarchyString(value: string | undefined) {
-  return value ? value.replace(/-/g, ",") : value;
 }
 
 function topNavigation() {
   location.href = "#top";
 }
-function setFancyBoxCaption(el: any) {
+function setFancyBoxCaption(el: any, type: string) {
   let text = "",
     infoBtn = "",
     imgBtn = "",
     additionalInfo: any = {};
-  switch (el.type) {
+  switch (type) {
     case "selected_image":
       additionalInfo = {
-        imageName: el.link_taxon,
-        infoId: el.specimen_id,
-        imageId: el.attachment_id,
-        navigateId: el.link_id,
+        imageName: el.taxon_name,
+        infoId: el.specimen,
+        imageId: el.id,
+        navigateId: el.taxon,
       };
       break;
     case "non_higher_taxon":
       additionalInfo = {
-        imageName: el.specimen__specimen_id
-          ? el.database__acronym + " " + el.specimen__specimen_id
+        imageName: el.specimen
+          ? el.database__acronym + " " + el.specimen
           : el.database__acronym + " " + el.id,
-        infoId: el.specimen_id,
+        infoId: el.specimen,
         imageId: el.id ? el.id : el.specimen_image_id,
-        navigateId: el.link
-          ? el.link
-          : el.specimen__specimenidentification__taxon__id,
+        navigateId: el.link ? el.link : el.taxon,
       };
       break;
     case "higher_taxon":
       additionalInfo = {
-        imageName: el.taxon,
-        infoId: el.specimen_id,
-        imageId: el.attachment_id,
-        navigateId: el.taxon_id,
+        imageName: el.taxon_name,
+        infoId: el.specimen,
+        imageId: el.id,
+        navigateId: el.taxon,
       };
     default:
       break;
@@ -1501,67 +1373,82 @@ function setFancyBoxCaption(el: any) {
   return text;
 }
 
-function composeImageRequest(taxonImages: any[]) {
-  if (taxonImages === undefined || taxonImages.length === 0) return [];
-  if (taxonImages.length > 0) {
-    taxonImages.forEach(function (el) {
-      function setImageType(el: any) {
-        if (el.specimen_image_id || el.specimen_image_id === null) {
-          return "non_higher_taxon";
-        } else if (el.link_id || el.link_id === null) {
-          return "selected_image";
-        }
-        return "higher_taxon";
-      }
-
-      function setImageSrc(el: any) {
-        if (el.type === "higher_taxon") {
-          el.thumbnail =
-            state.fileUrl +
-            "/small/" +
-            el.filename.substring(0, 2) +
-            "/" +
-            el.filename.substring(2, 4) +
-            "/" +
-            el.filename;
-          el.src =
-            state.fileUrl +
-            "/large/" +
-            el.filename.substring(0, 2) +
-            "/" +
-            el.filename.substring(2, 4) +
-            "/" +
-            el.filename;
-        } else if (el.type === "non_higher_taxon") {
-          el.thumbnail =
-            state.fileUrl +
-            "/small/" +
-            el.uuid_filename.substring(0, 2) +
-            "/" +
-            el.uuid_filename.substring(2, 4) +
-            "/" +
-            el.uuid_filename;
-          el.src =
-            state.fileUrl +
-            "/large/" +
-            el.uuid_filename.substring(0, 2) +
-            "/" +
-            el.uuid_filename.substring(2, 4) +
-            "/" +
-            el.uuid_filename;
-        } else if (el.type === "selected_image") {
-          el.thumbnail = el.preview_url;
-          el.src = el.image_url;
-        }
-        return el;
-      }
-      el.type = setImageType(el);
-      el = setImageSrc(el);
-      el.caption = setFancyBoxCaption(el);
-    });
-    return taxonImages;
+function setImageType(el: any) {
+  if (el.specimen_image_id || el.specimen_image_id === null) {
+    return "non_higher_taxon";
+  } else if (el.link_id || el.link_id === null) {
+    return "selected_image";
   }
-  return [];
+  return "higher_taxon";
+}
+
+function setImageSrc(el: any, type: string) {
+  const res = { thumbnail: null as string | null, src: null as string | null };
+  if (type === "higher_taxon") {
+    res.thumbnail =
+      state.fileUrl +
+      "/small/" +
+      el.filename.substring(0, 2) +
+      "/" +
+      el.filename.substring(2, 4) +
+      "/" +
+      el.filename;
+    res.src =
+      state.fileUrl +
+      "/large/" +
+      el.filename.substring(0, 2) +
+      "/" +
+      el.filename.substring(2, 4) +
+      "/" +
+      el.filename;
+  } else if (type === "non_higher_taxon") {
+    res.thumbnail =
+      state.fileUrl +
+      "/small/" +
+      el.uuid_filename.substring(0, 2) +
+      "/" +
+      el.uuid_filename.substring(2, 4) +
+      "/" +
+      el.uuid_filename;
+    res.src =
+      state.fileUrl +
+      "/large/" +
+      el.uuid_filename.substring(0, 2) +
+      "/" +
+      el.uuid_filename.substring(2, 4) +
+      "/" +
+      el.uuid_filename;
+  } else if (type === "selected_image") {
+    res.thumbnail =
+      state.fileUrl +
+      "/small/" +
+      el.filename.substring(0, 2) +
+      "/" +
+      el.filename.substring(2, 4) +
+      "/" +
+      el.filename;
+    res.src =
+      state.fileUrl +
+      "/large/" +
+      el.filename.substring(0, 2) +
+      "/" +
+      el.filename.substring(2, 4) +
+      "/" +
+      el.filename;
+  }
+  return res;
+}
+function buildGalleryImages(taxonImages: any[]) {
+  if (taxonImages.length === 0) return [];
+  return taxonImages.map((el) => {
+    const type = setImageType(el);
+    return {
+      ...el,
+      type,
+      caption: setFancyBoxCaption(el, type),
+      ...setImageSrc(el, type),
+    };
+  });
 }
 
 type Species = {

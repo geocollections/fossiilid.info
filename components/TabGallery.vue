@@ -29,9 +29,9 @@
             </a>
           </div>
         </div>
-        <div id="bottomOfGallery"></div>
-        <div v-if="state.imagesLoading">
-          <spinner :show="state.imagesLoading"></spinner>
+        <div ref="bottom"></div>
+        <div v-if="state.loading">
+          <spinner :show="state.loading"></spinner>
           <span class="p-2">{{ $t("messages.pageLoading") }}</span>
         </div>
       </div>
@@ -53,32 +53,32 @@ const state = reactive({
   kividUrl: "http://www.kivid.info",
   fileUrl: "https://files.geocollections.info",
   images: [] as any[],
-  bottom: false,
-  imagesLoading: false,
+  loading: false,
   noMoreResults: false,
-  selectedImagesPage: 1,
-  imagesPage: 1,
-  paginateBy: 40,
+  paginateBy: 25,
+  page: 0,
 });
 const store = useRootStore();
-const { $apiFetch } = useNuxtApp();
-onMounted(async () => {
-  window.addEventListener("scroll", () => {
-    state.bottom = bottomVisible();
-  });
-  await loadMoreImages();
+const { $apiFetchNew } = useNuxtApp();
 
-  if (state.images.length < 10) {
-    loadMoreImages();
+const bottom = ref();
+const bottomIsVisible = useElementVisibility(bottom);
+
+onMounted(async () => {
+  await loadMoreImagesNew();
+  if (bottomIsVisible.value) {
+    await loadMoreImagesNew();
   }
 });
+
 watch(
-  () => state.bottom,
-  (bottom) => {
-    if (!bottom) return;
-    loadMoreImages();
+  () => bottomIsVisible.value,
+  (isVisible) => {
+    if (!isVisible) return;
+    loadMoreImagesNew();
   }
 );
+
 function setImageType(el: any) {
   if (el.specimen_image_id || el.specimen_image_id === null) {
     return "non_higher_taxon";
@@ -136,10 +136,10 @@ function setFancyBoxCaption(el: any) {
   switch (el.type) {
     case "selected_image":
       additionalInfo = {
-        imageName: el.link_taxon,
-        infoId: el.specimen_id,
-        imageId: el.attachment_id,
-        navigateId: el.link_id,
+        imageName: el.taxon_name,
+        infoId: el.specimen,
+        imageId: el.id,
+        navigateId: el.taxon,
       };
       break;
     case "non_higher_taxon":
@@ -156,10 +156,10 @@ function setFancyBoxCaption(el: any) {
       break;
     case "higher_taxon":
       additionalInfo = {
-        imageName: el.taxon,
-        infoId: el.specimen_id,
-        imageId: el.attachment_id,
-        navigateId: el.taxon_id,
+        imageName: el.taxon_name,
+        infoId: el.specimen,
+        imageId: el.id,
+        navigateId: el.taxon,
       };
     default:
       break;
@@ -208,47 +208,30 @@ function composeImageRequest(taxonImages: any[]) {
   }
   return [];
 }
-function bottomVisible() {
-  const visible = document.documentElement.clientHeight;
-  const bottomEl = document.getElementById("bottomOfGallery");
-  return bottomEl === null
-    ? false
-    : bottomEl.getBoundingClientRect().bottom - 100 <= visible;
-}
-async function loadMoreImages() {
-  if (state.imagesLoading) return;
-  state.imagesLoading = true;
-  if (!store.searchParameters.images.allowPaging || state.noMoreResults) {
-    state.imagesLoading = false;
+
+async function loadMoreImagesNew() {
+  if (state.loading) return;
+  state.loading = true;
+  if (state.noMoreResults) {
+    state.loading = false;
     return;
   }
-  let response;
-  if (store.searchParameters.selectedImages.allowPaging) {
-    response = await $apiFetch<{ results: any[] }>(
-      `/taxon/?sql=get_taxon_selected_images&keyword=${props.taxon.id}&page=${state.selectedImagesPage}&paginate_by=${state.paginateBy}&format=json`
-    );
 
-    if (response.results.length < 1) {
-      store.searchParameters.selectedImages.allowPaging = false;
-      state.imagesLoading = false;
-      loadMoreImages();
-    } else {
-      state.images = state.images.concat(composeImageRequest(response.results));
-      state.selectedImagesPage = state.selectedImagesPage + 1;
+  const response = await $apiFetchNew<{ results: any[]; next: string | null }>(
+    `/taxa/${props.taxon.id}/images/`,
+    {
+      query: {
+        limit: state.paginateBy,
+        offset: state.page * state.paginateBy,
+      },
     }
-  } else if (store.searchParameters.images.allowPaging) {
-    response = await $apiFetch<{ results: any[] }>(
-      `/taxon/?sql=get_taxon_images&keyword=${props.taxon.hierarchy_string}&page=${state.imagesPage}&paginate_by=${state.paginateBy}&format=json`
-    );
-    if (response.results.length < 1) {
-      state.noMoreResults = true;
-    } else {
-      state.images = state.images.concat(composeImageRequest(response.results));
-      state.imagesPage = state.imagesPage + 1;
-    }
+  );
+  state.images = state.images.concat(composeImageRequest(response.results));
+  state.page += 1;
+  if (!response.next) {
+    state.noMoreResults = true;
   }
-
-  state.imagesLoading = false;
+  state.loading = false;
 }
 </script>
 

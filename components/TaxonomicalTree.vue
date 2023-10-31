@@ -1,223 +1,95 @@
 <template>
-  <ul style="padding-left: 0 !important">
-    <li style="list-style-type: none">
-      <table v-if="ranks.length > 0">
+  <div class="card rounded-0">
+    <div class="card-header">
+      {{ $t("header.fossils_classification") }}
+    </div>
+    <div class="card-body" style="font-size: 0.8em">
+      <table>
         <tbody class="hierarchy_tree">
-          <tr v-for="(item, idx) in taxonomicTree.nodes" :key="`node-${idx}`">
+          <tr
+            style="list-style-type: none"
+            v-for="(node, idx) in hierarchy"
+            :key="node.id"
+          >
             <td
-              v-if="isHigherRank(item.rank_en) || item.id === taxon.id"
+              v-if="idx === 0 || node.rank !== hierarchy?.[idx - 1].rank"
               align="right"
               valign="top"
               style="color: #999"
-              v-translate="{ et: item.rank, en: item.rank_en }"
-            ></td>
-            <td v-else></td>
-            <td :class="isHigherTaxon(item.rank_en) ? '' : 'fst-italic'">
-              <span v-for="i in convertToNumber(item.i)">&ensp;</span>
-              <NuxtLink
-                :to="{ path: `/${item.id}` }"
-                v-if="item.id !== taxon.id"
-              >
-                {{ item.label }}
-              </NuxtLink>
-              <span class="node_in_tree_selected" v-if="item.id === taxon.id">
-                {{ item.label }}
+            >
+              <span v-if="node.rank">
+                {{ $translate({ et: node.rank_name, en: node.rank_name_en }) }}
               </span>
-              <ul
-                v-for="(sibling, siblingIdx) in item.siblings"
-                :key="`sibling-${siblingIdx}`"
+              <span class="fst-italic" style="font-weight: lighter" v-else>
+                {{ t("unranked") }}
+              </span>
+            </td>
+            <td
+              style="color: #999; border-right: 1px solid #999"
+              align="right"
+              valign="top"
+              v-else
+            ></td>
+            <td
+              class="ps-2"
+              :class="{ 'fst-italic': !isHigherTaxon(node.rank_name_en) }"
+            >
+              <span
+                class="node_in_tree_selected"
+                :style="{ 'margin-left': `${0.75 * node.level}rem` }"
+                v-if="node.id === props.id"
               >
-                <li style="list-style-type: none">
-                  <span v-for="j in convertToNumber(item.i) - 2">&ensp;</span>
-                  <NuxtLink :to="{ path: `/${sibling.id}` }">
-                    {{ sibling.label }}
-                  </NuxtLink>
-                </li>
-              </ul>
+                {{ node.taxon }}
+              </span>
+              <NuxtLink
+                v-else
+                :style="{ 'margin-left': `${0.75 * node.level}rem` }"
+                :to="{ path: `/${node.id}` }"
+              >
+                {{ node.taxon }}
+              </NuxtLink>
             </td>
           </tr>
         </tbody>
       </table>
-    </li>
-  </ul>
+    </div>
+  </div>
 </template>
 
-<script>
-import { useRootStore } from "~/stores/root";
-import { mapState } from "pinia";
-import _ from "lodash";
+<script setup lang="ts">
+import { useNewApiFetch } from "~/composables/useApiFetch";
+const props = defineProps<{ id: number }>();
 
-export default defineNuxtComponent({
-  name: "TaxonomicalTree",
-  props: {
-    lists: {
-      type: Object,
-      required: true,
-    },
-    hierarchyData: {
-      type: Object,
-      required: true,
-    },
-  },
-  data() {
-    return {
-      parent: {},
-      sortedSisters: {},
-      sortedSistersWithoutCurrentTaxon: {},
-      taxon: {},
-      taxonomicTree: { nodes: [] },
-      ranks: [],
-    };
-  },
+const { t } = useI18n({ useScope: "local" });
 
-  watch: {
-    hierarchyData: {
-      handler() {
-        this.waitUntilParentComponentDataComputed();
-      },
-    },
-  },
-  computed: {
-    ...mapState(useRootStore, ["mode"]),
-    nodes() {
-      return this.taxonomicTree.nodes;
-    },
-  },
-  created() {
-    this.composeData();
-    this.composeTaxonomicTree_();
-  },
+type HierarchyNode = {
+  id: number;
+  taxon: string;
+  rank: number;
+  rank_name: string;
+  rank_name_en: string;
+  level: number;
+};
 
-  methods: {
-    waitUntilParentComponentDataComputed: function () {
-      this.composeData();
-      this.composeTaxonomicTree_();
-    },
-    composeData: function () {
-      this.taxonomicTree = { nodes: [] };
-      this.sortedSisters = this.hierarchyData.sortedSisters;
-      this.parent = this.hierarchyData.parent;
-      this.taxon = this.hierarchyData.taxon;
-      this.hierarchy = this.hierarchyData.hierarchy;
-      this.sortedSiblings = this.hierarchyData.sortedSiblings;
-      this.taxon = this.hierarchyData.taxon;
-      this.ranks = this.getHigherRanks(this.hierarchyData.taxon.rank__rank_en);
-      this.sortedSistersWithoutCurrentTaxon =
-        this.hierarchyData.sortedSistersWithoutCurrentTaxon;
-    },
-    addHierarchy: function (filteredList, sisterIds) {
-      for (let idx in filteredList) {
-        let node = {
-          i: idx,
-          rank: filteredList[idx].rank__rank,
-          rank_en: filteredList[idx].rank__rank_en,
-          label: filteredList[idx].taxon,
-          id: filteredList[idx].id,
-          siblings: [],
-        };
-        if (!(sisterIds.indexOf(filteredList[idx].id) >= 0))
-          // if(!sisterIds.includes(filteredList[idx].id))
-          this.taxonomicTree.nodes.push(node);
-      }
-    },
-    addSisters: function (level) {
-      for (let idx in this.sortedSisters) {
-        let node = {
-          i: level,
-          rank: this.sortedSisters[idx].rank__rank,
-          rank_en: this.sortedSisters[idx].rank__rank_en,
-          label: this.formatName(this.sortedSisters[idx], this.parent),
-          id: this.sortedSisters[idx].id,
-          siblings: [],
-        };
-        if (this.sortedSisters[idx].id === this.taxon.id) {
-          this.addSiblingsIfExists(node);
-        }
-        this.taxonomicTree.nodes.push(node);
-      }
-    },
-    //reorder hierarchy according to hierarchy string
-    reorderHierarchy: function () {
-      if (this.taxon.hierarchy_string === undefined) return;
-      let newArr = [];
-      let hierarchyIds = this.taxon.hierarchy_string.split("-");
-      for (let i in hierarchyIds) {
-        for (let idx in this.hierarchy) {
-          if (
-            this.convertToNumber(hierarchyIds[i]) === this.hierarchy[idx].id
-          ) {
-            newArr.push(this.hierarchy[idx]);
-          }
-        }
-      }
-      return newArr;
-    },
-    composeTaxonomicTree_: function () {
-      let hierarchy = this.reorderHierarchy();
-      if (hierarchy === undefined) return;
-      let level = hierarchy.length;
-      let sisterIds = Array.from(this.sortedSisters.map((item) => item.id));
-      this.addHierarchy(hierarchy, sisterIds);
-      this.addSisters(level);
-      this.tableUpdated = true;
-    },
+const { data: hierarchy } = useNewApiFetch<HierarchyNode[]>(
+  `/taxa/${props.id}/hierarchy/`
+);
 
-    formatName: function (taxon, parent) {
-      if (parent.label)
-        return _.includes(taxon.taxon, taxon.parent__taxon) &&
-          taxon.taxon.split(" ").length > 1
-          ? taxon.taxon.replace(taxon.parent__taxon, "")
-          : taxon.taxon;
-      return _.includes(taxon.taxon, parent.taxon) &&
-        taxon.taxon.split(" ").length > 1
-        ? taxon.taxon.replace(parent.taxon, "")
-        : taxon.taxon;
-    },
-    addSiblingsIfExists: function (parent_node) {
-      if (this.isDefinedAndNotEmpty(this.sortedSiblings)) {
-        for (let idx1 in this.sortedSiblings) {
-          if (parent_node.id === this.sortedSiblings[idx1].parent_id) {
-            parent_node.siblings.push({
-              j: idx1,
-              rank: this.sortedSiblings[idx1].rank__rank,
-              rank_en: this.sortedSiblings[idx1].rank__rank_en,
-              label: this.formatName(this.sortedSiblings[idx1], parent_node),
-              id: this.sortedSiblings[idx1].id,
-            });
-          }
-        }
-      }
-    },
-
-    convertToNumber: function (str) {
-      return parseInt(str);
-    },
-    isDefinedAndNotEmpty(value) {
-      return !!value && value.length > 0;
-    },
-    getHigherRanks(currentTaxonRank) {
-      let rank_ = _.find(this.lists.ranks, function (o) {
-        return currentTaxonRank === o.rank_en;
-      });
-      return _.map(
-        _.filter(this.lists.ranks, function (o) {
-          return rank_.sort > o.sort;
-        }),
-        "rank_en"
-      );
-    },
-    isHigherTaxon(rank) {
-      // return !['Species','Subspecies','Genus','Supergenus','Subgenus'].includes(rank)
-      return !(
-        ["Species", "Subspecies", "Genus", "Supergenus", "Subgenus"].indexOf(
-          rank
-        ) >= 0
-      );
-    },
-    isHigherRank(rank) {
-      return this.ranks.indexOf(rank) >= 0;
-      // return this.ranks.includes(rank)
-    },
-  },
-});
+function isHigherTaxon(rank: string) {
+  return !(
+    ["Species", "Subspecies", "Genus", "Supergenus", "Subgenus"].indexOf(
+      rank
+    ) >= 0
+  );
+}
 </script>
+<i18n lang="json">
+{
+  "en": {
+    "unranked": "unranked"
+  },
+  "et": {
+    "unranked": "määratlemata"
+  }
+}
+</i18n>

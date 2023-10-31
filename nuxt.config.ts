@@ -42,6 +42,7 @@ export default defineNuxtConfig({
     "@nuxtjs/i18n",
     "@bootstrap-vue-next/nuxt",
     "@nuxtjs/google-fonts",
+    "@vueuse/nuxt",
   ],
   i18n: {
     locales: [
