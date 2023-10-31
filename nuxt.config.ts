@@ -26,6 +26,7 @@ export default defineNuxtConfig({
         {
           src: "https://unpkg.com/@fancyapps/fancybox@3.4.2/dist/jquery.fancybox.min.js",
         },
+        { src: "/js/matomo.js" },
       ],
       link: [
         {
