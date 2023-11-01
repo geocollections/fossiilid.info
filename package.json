@@ -26,7 +26,6 @@
     "bootstrap-vue-next": "^0.14.8",
     "nuxt": "^3.8.0",
     "sass": "^1.69.0",
-    "stylus": "^0.60.0",
     "vue": "^3.3.4",
     "vue-router": "^4.2.5"
   },
