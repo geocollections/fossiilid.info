@@ -11,12 +11,12 @@ type MapSearchResult = {
 };
 export function useLeafletMap(map: Ref<Map | undefined>) {
   const { t, locale } = useI18n();
-  const { mode } = useRootStore();
+  const store = useRootStore();
   const { $L } = useNuxtApp();
   const state = reactive({
     groupsInitialized: false,
     groupedLayers: null,
-    layersNew: {
+    layers: {
       1: {
         active: true,
         name: "Specimen",
@@ -36,9 +36,9 @@ export function useLeafletMap(map: Ref<Map | undefined>) {
   });
 
   function initGroups() {
-    state.layersNew[1].layerGroup = $L.layerGroup([]);
-    state.layersNew[2].layerGroup = $L.layerGroup([]);
-    state.layersNew[3].layerGroup = $L.layerGroup([]);
+    state.layers[1].layerGroup = $L.layerGroup([]);
+    state.layers[2].layerGroup = $L.layerGroup([]);
+    state.layers[3].layerGroup = $L.layerGroup([]);
     state.groupsInitialized = true;
   }
 
@@ -77,23 +77,23 @@ export function useLeafletMap(map: Ref<Map | undefined>) {
   const groupedOverlays = computed(() => {
     return {
       [t("map.overlay_title")]: {
-        [t("map.overlay_specimens")]: state.layersNew[1].layerGroup,
-        [t("map.overlay_literature_based")]: state.layersNew[2].layerGroup,
-        [t("map.overlay_in_samples")]: state.layersNew[3].layerGroup,
+        [t("map.overlay_specimens")]: state.layers[1].layerGroup,
+        [t("map.overlay_literature_based")]: state.layers[2].layerGroup,
+        [t("map.overlay_in_samples")]: state.layers[3].layerGroup,
       },
     };
   });
   function setDefaultOverlays() {
     if (!map.value) return;
-    state.layersNew[1].layerGroup?.addTo(map.value);
-    state.layersNew[2].layerGroup?.addTo(map.value);
-    state.layersNew[3].layerGroup?.addTo(map.value);
+    state.layers[1].layerGroup?.addTo(map.value);
+    state.layers[2].layerGroup?.addTo(map.value);
+    state.layers[3].layerGroup?.addTo(map.value);
   }
   function setView() {
     if (!map.value) return;
-    if (mode) {
-      if (mode === "in_global") map.value.setView([58.5, 20.5], 1);
-      else if (mode === "in_estonia") map.value.setView([58.5, 25.5], 6);
+    if (store.mode) {
+      if (store.mode === "in_global") map.value.setView([58.5, 20.5], 1);
+      else if (store.mode === "in_estonia") map.value.setView([58.5, 25.5], 6);
       else map.value.setView([58.5, 25.5], 5);
     }
   }
@@ -114,7 +114,7 @@ export function useLeafletMap(map: Ref<Map | undefined>) {
           id: index,
           coords: getCoords(element.latlong),
           type: element.src,
-          name: locale.value === "ee" ? element.locality : element.locality_en,
+          name: locale.value === "et" ? element.locality : element.locality_en,
           locid: element.locality_id,
         };
         const layer = $L
@@ -128,14 +128,14 @@ export function useLeafletMap(map: Ref<Map | undefined>) {
             { className: "custom-popup-text" }
           );
 
-        state.layersNew[element.src as 1 | 2 | 3].layerGroup?.addLayer(layer);
+        state.layers[element.src as 1 | 2 | 3].layerGroup?.addLayer(layer);
       }
     });
   }
   function resetLayerGroups() {
-    state.layersNew[1].layerGroup?.clearLayers();
-    state.layersNew[2].layerGroup?.clearLayers();
-    state.layersNew[3].layerGroup?.clearLayers();
+    state.layers[1].layerGroup?.clearLayers();
+    state.layers[2].layerGroup?.clearLayers();
+    state.layers[3].layerGroup?.clearLayers();
   }
   return {
     ...toRefs(state),

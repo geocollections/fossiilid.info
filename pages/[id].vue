@@ -715,14 +715,14 @@
           </div>
         </div>
         <div class="col-lg-4">
-          <b-row class="m-1" v-if="map !== undefined && map.length > 0">
+          <b-row class="m-1" v-if="map.length > 0">
             <div class="card px-0 rounded-0" style="width: 100%">
               <div class="card-header">
                 {{ $t("header.f_distribution_map") }}
               </div>
               <div class="card-body no-padding">
                 <ClientOnly>
-                  <map-component :map-data="map"></map-component>
+                  <MapComponent :map-data="map"></MapComponent>
                   <template #fallback>
                     <div
                       style="

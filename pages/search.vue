@@ -604,7 +604,7 @@ const state = reactive({
   numberOfResults: 0,
 });
 
-const map = ref<L.Map>();
+const map = ref<Map>();
 const {
   populateLayerGroups,
   initGroups,
