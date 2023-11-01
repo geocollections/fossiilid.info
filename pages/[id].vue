@@ -1005,20 +1005,17 @@ const [
     results: any[];
     count: number;
   }>("/solr/taxon_search/", {
-    query: {
-      q: computed(
-        () =>
-          `taxon_hierarchy:${taxon.value?.hierarchy_string}*${
-            store.mode === "in_global" ? `` : ` AND ${store.mode}:1`
-          }`
-      ),
+    query: computed(() => ({
+      q: `taxon_hierarchy:${taxon.value?.hierarchy_string}*${
+        store.mode === "in_global" ? `` : ` AND ${store.mode}:1`
+      }`,
       fq: ["{!collapse field--locality}", "rank:[14 TO 17]"],
       sort: "fossil_group asc,taxon asc",
       rows: 1000,
       start: 0,
       fl: "src,locality,locality_en,locality_id,latlong",
       format: "json",
-    },
+    })),
   }),
   useApiFetch<{ results?: any[] }>("/taxon_opinion/", {
     query: {
