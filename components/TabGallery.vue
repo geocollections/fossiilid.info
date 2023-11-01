@@ -30,8 +30,8 @@
           </div>
         </div>
         <div ref="bottom"></div>
-        <div v-if="state.loading">
-          <spinner :show="state.loading"></spinner>
+        <div v-if="state.loading" class="d-flex align-center">
+          <BSpinner variant="warning" style="width: 44px; height: 44px" />
           <span class="p-2">{{ $t("messages.pageLoading") }}</span>
         </div>
       </div>

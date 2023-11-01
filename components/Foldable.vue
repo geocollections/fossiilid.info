@@ -200,47 +200,63 @@ function onElementHeightChange({ el, callback, timeout }) {
 }
 </script>
 
-<style lang="stylus">
-.vue-foldable
-  position relative
-
-  .vue-foldable-container
-    overflow hidden
-
-  .vue-foldable-mask
-    position absolute
-    bottom 30px /* view-more's height */
-    height:50px
-    width 100%
-    background transparent
-    pointer-events none
-    &.collapsed
-      opacity 1
-      left 0
-      background -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, rgba(255, 255, 225, 0)), color-stop(100%, #FFFFFF));
-      background -moz-linear-gradient(rgba(255, 255, 255, 0), #FFFFFF)
-      background -webkit-linear-gradient(to bottom, rgba(255, 255, 255, 0), #FFFFFF)
-      background linear-gradient(to bottom, rgba(255, 255, 255, 0), #FFFFFF)
-
-    &:not(.collapsed)
-      opacity 0
-
-  .vue-foldable-view-more
-    width 100%
-    text-align center
-    height 30px
-    line-height 30px
-    cursor pointer
-    color #eb3812
-    font-weight bolder
-    .vue-foldable-icon
-      width 22px
-      transform rotate(180deg)
-      transition transform 0.3s
-      vertical-align middle
-    .vue-foldable-text
-      vertical-align middle
-    &.collapsed
-      .vue-foldable-icon
-        transform rotate(0deg)
+<style lang="scss">
+.vue-foldable {
+  position: relative;
+  .vue-foldable-container {
+    overflow: hidden;
+  }
+  .vue-foldable-mask {
+    position: absolute;
+    bottom: 30px;
+    height: 50px;
+    width: 100%;
+    background: transparent;
+    pointer-events: none;
+    &.collapsed {
+      opacity: 1;
+      left: 0;
+      background: -webkit-gradient(
+        linear,
+        50% 0%,
+        50% 100%,
+        color-stop(0%, rgba(255, 255, 225, 0)),
+        color-stop(100%, #fff)
+      );
+      background: -moz-linear-gradient(rgba(255, 255, 255, 0), #fff);
+      background: -webkit-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0),
+        #fff
+      );
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #fff);
+    }
+    &:not(.collapsed) {
+      opacity: 0;
+    }
+  }
+  .vue-foldable-view-more {
+    width: 100%;
+    text-align: center;
+    height: 30px;
+    line-height: 30px;
+    cursor: pointer;
+    color: #eb3812;
+    font-weight: bolder;
+    .vue-foldable-icon {
+      width: 22px;
+      transform: rotate(180deg);
+      transition: transform 0.3s;
+      vertical-align: middle;
+    }
+    .vue-foldable-text {
+      vertical-align: middle;
+    }
+    &.collapsed {
+      .vue-foldable-icon {
+        transform: rotate(0deg);
+      }
+    }
+  }
+}
 </style>

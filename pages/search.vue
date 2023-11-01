@@ -220,7 +220,7 @@
 
         <b-col md="12" v-if="!state.initialMessage">
           <b-row v-if="state.isLoadingResults">
-            <spinner :show="state.isLoadingResults"></spinner>
+            <BSpinner variant="warning" style="width: 44px; height: 44px" />
             <span class="p-2">{{ $t("messages.pageLoading") }}</span>
           </b-row>
           <div class="card rounded-0">
