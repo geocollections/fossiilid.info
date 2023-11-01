@@ -971,12 +971,12 @@ const [
     },
   }),
   useApiFetch<{ results?: any[] }>("/taxon_page/", {
-    query: {
-      taxon: taxon.value.id,
+    query: computed(() => ({
+      taxon: taxon.value?.id,
       language: locale.value,
       fields: "content,author_txt,date_txt,link_wikipedia,title",
       format: "json",
-    },
+    })),
   }),
   useApiFetch<{ results?: any[] }>("/taxon_occurrence/", {
     query: {
@@ -1044,7 +1044,7 @@ const [
 ]);
 
 const commonNames = ref(commonNamesRes.value?.results?.[0]);
-const taxonPage = ref(pageRes.value?.results?.[0]);
+const taxonPage = computed(() => pageRes.value?.results?.[0]);
 const taxonOccurrence = ref(occurenceRes.value?.results ?? []);
 const references = ref(referenceRes.value?.results ?? []);
 const children = computed(() => childrenRes.value?.results ?? []);
