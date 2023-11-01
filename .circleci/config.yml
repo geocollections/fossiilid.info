@@ -33,6 +33,6 @@ jobs:
 workflows:
   build_deploy_nuxt3:
     when:
-      equal: [refactor/nuxt3, << pipeline.git.branch >>]
+      equal: [master, << pipeline.git.branch >>]
     jobs:
       - build_run_image
