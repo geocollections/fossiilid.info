@@ -14,7 +14,7 @@ body {
 }
 
 body {
-  font-family: "Merriweather", "Helvetica Neue", Arial, sans-serif;
+  font-family: "Merriweather", Georgia, serif;
   overflow-x: hidden;
   height: 100%;
   -webkit-overflow-scrolling: touch;
