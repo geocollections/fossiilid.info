@@ -1,21 +1,16 @@
 <template>
-  <section>
-    <div class="col-lg-12" v-if="errorMessage">
-      <div role="alert" class="alert alert-warning">
-        <span v-html="errorMessage"></span>
-      </div>
-    </div>
-    <div
-      id="fossilgroups_box"
-      style="max-width: 1280px !important; text-align: center"
-      v-if="frontPage"
-    >
+  <section class="container mx-auto">
+    <div id="fossilgroups_box" class="flex flex-wrap" v-if="frontPage">
       <div
-        class="fossilgroup_box"
         v-for="(item, idx) in frontPage.results"
         :key="idx"
+        class="text-center"
       >
-        <NuxtLink :to="{ path: `/${item.taxon}` }" :title="item.taxon__taxon">
+        <NuxtLink
+          class="text-primary"
+          :to="{ path: `/${item.taxon}` }"
+          :title="item.taxon__taxon"
+        >
           <img
             :src="`https://files.geocollections.info/img/fossiilid/fossilgroups/${item.taxon}.png`"
             :alt="item.frontpage + ' (' + item.taxon__taxon + ')'"
@@ -30,9 +25,6 @@
 </template>
 
 <script setup lang="ts">
-import { useRootStore } from "~/stores/root";
-
-const { errorMessage } = useRootStore();
 const { locale } = useI18n();
 
 type ApiListResponse<T> = {
@@ -55,7 +47,7 @@ const { data: frontPage } = await useApiFetch<ApiListResponse<TaxonPage>>(
       order_by: "frontpage_order",
       format: "json",
     },
-  }
+  },
 );
 </script>
 

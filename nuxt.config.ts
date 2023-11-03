@@ -3,10 +3,10 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   css: [
     "~/assets/scss/main.scss",
-    "~/assets/css/mainpage.css",
+    // "~/assets/css/mainpage.css",
     // "~assest/css/vue-multiselect.min.css",
-    "~/assets/css/creative.css",
-    "~/assets/css/fonts.css",
+    // "~/assets/css/creative.css",
+    // "~/assets/css/fonts.css",
     "@fortawesome/fontawesome-free/css/fontawesome.css",
     "@fortawesome/fontawesome-free/css/brands.css",
     "@fortawesome/fontawesome-free/css/solid.css",
@@ -44,9 +44,12 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@pinia-plugin-persistedstate/nuxt",
     "@nuxtjs/i18n",
+    "@nuxt/ui",
     "@bootstrap-vue-next/nuxt",
     "@nuxtjs/google-fonts",
+    "@nuxtjs/tailwindcss",
     "@vueuse/nuxt",
+    "@nuxtjs/color-mode",
   ],
   i18n: {
     locales: [
@@ -71,5 +74,8 @@ export default defineNuxtConfig({
         ital: [300, 400, 600, 700, 800],
       },
     },
+  },
+  colorMode: {
+    classSuffix: "",
   },
 });
