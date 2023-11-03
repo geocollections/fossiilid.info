@@ -1,6 +1,6 @@
 <template>
   <header
-    class="sticky bg-gray-50/95 backdrop-blur border-b dark:bg-gray-800/95 top-0 z-10 dark:border-gray-800"
+    class="sticky bg-gray-50/95 backdrop-blur border-b dark:bg-gray-900/95 top-0 z-10 dark:border-gray-800"
     :class="{ 'shadow-lg': state.scroll }"
   >
     <div class="container mx-auto">
@@ -70,7 +70,6 @@ const router = useRoute();
 const { setLocale, locale, t } = useI18n();
 const { $apiFetch } = useNuxtApp();
 const colorMode = useColorMode();
-console.log(colorMode);
 
 const langCode = computed(() => {
   let code = "ENG";

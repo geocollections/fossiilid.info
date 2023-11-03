@@ -1,17 +1,13 @@
 <template>
-  <div
-    id="#tab-gallery"
-    class="tab-pane"
-    :class="{ active: store.activeTab === 'gallery' }"
-    role="tabpanel"
-  >
+  <div id="#tab-gallery" role="tabpanel">
     <transition name="fade">
       <div class="row m-1">
-        <div class="col-lg-12 photogallery" style="width: 100%">
+        <div
+          class="inline-block space-x-2 space-y-2 bg-gray-100 dark:bg-gray-800 space-2 p-2 rounded"
+        >
           <div
             v-for="(image, index) in state.images"
-            style="float: left; position: relative"
-            class="image_highlight"
+            class="float-left"
             :key="index"
           >
             <a
@@ -76,7 +72,7 @@ watch(
   (isVisible) => {
     if (!isVisible) return;
     loadMoreImagesNew();
-  }
+  },
 );
 
 function setImageType(el: any) {
@@ -224,7 +220,7 @@ async function loadMoreImagesNew() {
         limit: state.paginateBy,
         offset: state.page * state.paginateBy,
       },
-    }
+    },
   );
   state.images = state.images.concat(composeImageRequest(response.results));
   state.page += 1;
