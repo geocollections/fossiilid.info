@@ -3,9 +3,9 @@ var _paq = _paq || [];
     be called before "trackPageView" */ _paq.push(["trackPageView"]);
 _paq.push(["enableLinkTracking"]);
 (function () {
-  var u = "https://geocollections.info/statistikat/";
+  var u = "https://matomo.geoloogia.info/";
   _paq.push(["setTrackerUrl", u + "piwik.php"]);
-  _paq.push(["setSiteId", "13"]);
+  _paq.push(["setSiteId", "10"]);
   var d = document,
     g = d.createElement("script"),
     s = d.getElementsByTagName("script")[0];
