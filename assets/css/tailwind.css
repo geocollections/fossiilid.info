@@ -11,7 +11,7 @@
     @apply text-primary;
   }
 
-  #taxonPageContent {
+  #content {
     p {
       @apply mb-5;
     }

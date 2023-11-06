@@ -45,7 +45,7 @@ export default defineNuxtConfig({
     "@pinia-plugin-persistedstate/nuxt",
     "@nuxtjs/i18n",
     "@nuxt/ui",
-    "@bootstrap-vue-next/nuxt",
+    // "@bootstrap-vue-next/nuxt",
     "@nuxtjs/google-fonts",
     "@nuxtjs/tailwindcss",
     "@vueuse/nuxt",

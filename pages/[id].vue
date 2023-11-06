@@ -9,30 +9,6 @@
     />
   </Head>
   <section v-if="taxon" class="container">
-    <!-- <div class="m-md-3 text-center" v-if="!taxon"> -->
-    <!--   <div class="css-loader" style="margin: auto"></div> -->
-    <!--   <h5 class="mt-3">{{ $t("messages.pageLoading") }}</h5> -->
-    <!-- </div> -->
-    <!-- <div class="row mt-3" v-show="state.scroll"> -->
-    <!--   <span class="ml-auto"> -->
-    <!--     <button -->
-    <!--       @click="topNavigation()" -->
-    <!--       type="button" -->
-    <!--       style="height: 3.5rem; width: 3.5rem" -->
-    <!--       class="rounded-circle btn btn-primary fixed-bottom p-0 m-md-2" -->
-    <!--       variant="primary" -->
-    <!--     > -->
-    <!--       <i -->
-    <!--         style=" -->
-    <!--           color: white !important; -->
-    <!--           font-weight: bolder !important; -->
-    <!--           font-size: 1.5em !important; -->
-    <!--         " -->
-    <!--         class="fas fa-arrow-up" -->
-    <!--       ></i> -->
-    <!--     </button> -->
-    <!--   </span> -->
-    <!-- </div> -->
     <div class="flex items-center gap-x-2 mb-4">
       <NuxtLink
         :href="'/' + taxon.fossil_group__id"
@@ -73,164 +49,178 @@
       </div>
     </div>
     <UTabs :items="tabs">
+      <template #default="{ item }">
+        <span class="mr-1">
+          {{ item.label }}
+        </span>
+        <UBadge v-if="item.count" variant="subtle">
+          {{ item.count }}
+        </UBadge>
+      </template>
       <template #info>
         <div class="grid grid-cols-3 gap-x-2">
           <div class="col-span-2 space-y-2">
-            <!-- <div class="row m-1" v-if="opinions.length > 0"> -->
-            <!--   <div class="alert alert-danger" style="width: 100%"> -->
-            <!--     <div v-for="(item, index) in opinions" :key="index"> -->
-            <!--       {{ $t("header.f_name_is_invalid") }} -->
-            <!--       <NuxtLink :href="`/${item.other_taxon}`"> -->
-            <!--         {{ item.other_taxon__taxon }} -->
-            <!--       </NuxtLink> -->
-            <!--     </div> -->
-            <!--   </div> -->
-            <!--   <div class="card px-0 rounded-0" style="width: 100%"> -->
-            <!--     <div class="card-body"> -->
-            <!--       <div -->
-            <!--         style="font-size: small; color: #666; padding: 0 0 6px 0" -->
-            <!--       > -->
-            <!--         Taxon ID: -->
-            <!--         <strong>{{ taxon.id }}</strong> -->
-            <!--         <span v-if="taxon.date_added"> -->
-            <!--           | -->
-            <!--           {{ dateAdded }} -->
-            <!--         </span> -->
-            <!--         <span v-if="taxon.date_changed"> -->
-            <!--           / -->
-            <!--           {{ dateChanged }} -->
-            <!--         </span> -->
-            <!--       </div> -->
-            <!---->
-            <!--       <div -->
-            <!--         v-if=" -->
-            <!--           taxon.fossil_group__id && -->
-            <!--           taxon.fossil_group__id !== taxon.id -->
-            <!--         " -->
-            <!--       > -->
-            <!--         {{ $t("header.f_fossil_group") }}: -->
-            <!--         <NuxtLink :href="`/${taxon.fossil_group__id}`"> -->
-            <!--           {{ taxon.fossil_group__taxon }} -->
-            <!--         </NuxtLink> -->
-            <!--       </div> -->
-            <!--       <div v-if="taxon.id !== 29"> -->
-            <!--         {{ $t("header.f_belongs_to") }}: -->
-            <!--         <NuxtLink -->
-            <!--           :class=" -->
-            <!--             isHigherTaxon(taxon.rank__rank_en) ? '' : 'fst-italic' -->
-            <!--           " -->
-            <!--           :href="`/${taxon.parent}`" -->
-            <!--         > -->
-            <!--           {{ taxon.parent__taxon }} -->
-            <!--         </NuxtLink> -->
-            <!--       </div> -->
-            <!--       <div -->
-            <!--         v-if="opinions.length > 0" -->
-            <!--         style="font-size: 0.9rem !important" -->
-            <!--       > -->
-            <!--         1 {{ $t("header.f_other_names") }}: -->
-            <!--         <span v-for="(item, idx) in opinions" :key="idx"> -->
-            <!--           <span v-if="isDefinedAndNotNull(item.other_taxon)"> -->
-            <!--             <NuxtLink :href="`/${item.other_taxon}`"> -->
-            <!--               {{ item.other_taxon__taxon }} -->
-            <!--             </NuxtLink> -->
-            <!--             <span v-if="idx !== opinions.length - 1">,</span> -->
-            <!--           </span> -->
-            <!--         </span> -->
-            <!--       </div> -->
-            <!---->
-            <!--       <div -->
-            <!--         v-if="filteredCommonNames && filteredCommonNames.length > 0" -->
-            <!--       > -->
-            <!--         <span v-for="item in filteredCommonNames"> -->
-            <!--           {{ item.language }}: -->
-            <!--           <strong>{{ item.name }}</strong> -->
-            <!--           ;&ensp; -->
-            <!--         </span> -->
-            <!--       </div> -->
-            <!--       <div -->
-            <!--         v-if=" -->
-            <!--           taxon.stratigraphy_base__stratigraphy || -->
-            <!--           taxon.stratigraphy_top__stratigraphy -->
-            <!--         " -->
-            <!--       > -->
-            <!--         {{ $t("header.f_stratigraphical_distribution") }}: -->
-            <!---->
-            <!--         <a -->
-            <!--           href="#" -->
-            <!--           v-if="taxon.stratigraphy_base_id" -->
-            <!--           @click=" -->
-            <!--             openUrl({ -->
-            <!--               parent_url: state.geocollectionUrl + '/stratigraphy', -->
-            <!--               object: taxon.stratigraphy_base_id.toString(), -->
-            <!--               width: 500, -->
-            <!--               height: 500, -->
-            <!--             }) -->
-            <!--           " -->
-            <!--         > -->
-            <!--           {{ taxon.stratigraphy_base__stratigraphy }} -->
-            <!--         </a> -->
-            <!--         <span -->
-            <!--           v-if=" -->
-            <!--             taxon.stratigraphy_top__stratigraphy !== -->
-            <!--               taxon.stratigraphy_base__stratigraphy && -->
-            <!--             taxon.stratigraphy_base__stratigraphy -->
-            <!--           " -->
-            <!--         > -->
-            <!--           &rarr; -->
-            <!--         </span> -->
-            <!--         <a -->
-            <!--           href="#" -->
-            <!--           v-if=" -->
-            <!--             taxon.stratigraphy_top_id && -->
-            <!--             taxon.stratigraphy_base_id !== taxon.stratigraphy_top_id -->
-            <!--           " -->
-            <!--           @click=" -->
-            <!--             openUrl({ -->
-            <!--               parent_url: state.geocollectionUrl + '/stratigraphy', -->
-            <!--               object: taxon.stratigraphy_top_id.toString(), -->
-            <!--               width: 500, -->
-            <!--               height: 500, -->
-            <!--             }) -->
-            <!--           " -->
-            <!--         > -->
-            <!--           {{ taxon.stratigraphy_top__stratigraphy }} -->
-            <!--         </a> -->
-            <!--         <span v-if="taxon.stratigraphy_base__age_base"> -->
-            <!--           ({{ $t("header.f_taxon_age_within") }} -->
-            <!--           {{ -->
-            <!--             convertToTwoDecimal(taxon.stratigraphy_base__age_base) -->
-            <!--           }} -->
-            <!--         </span> -->
-            <!--         <span v-if="taxon.stratigraphy_top__age_top"> -->
-            <!--           &ndash;{{ -->
-            <!--             convertToTwoDecimal(taxon.stratigraphy_top__age_top) -->
-            <!--           }} -->
-            <!--           {{ $t("header.f_taxon_age_within_unit") }}) -->
-            <!--         </span> -->
-            <!--         <br /> -->
-            <!--       </div> -->
-            <!--       <div -->
-            <!--         v-if=" -->
-            <!--           taxon.rank__rank_en && taxon.rank__rank_en !== 'Species' -->
-            <!--         " -->
-            <!--       > -->
-            <!--         <span v-if="store.mode === 'in_baltoscandia'"> -->
-            <!--           {{ $t("header.f_baltic_species") }} -->
-            <!--         </span> -->
-            <!--         <span v-else-if="store.mode === 'in_estonia'"> -->
-            <!--           {{ $t("header.f_estonian_species") }} -->
-            <!--         </span> -->
-            <!--         <span v-else>{{ $t("header.f_global_species") }}</span> -->
-            <!--         <strong> -->
-            <!--           <a href="#species" v-if="state.numberOfSpecimen"> -->
-            <!--             {{ state.numberOfSpecimen }} -->
-            <!--           </a> -->
-            <!--         </strong> -->
-            <!--       </div> -->
-            <!--     </div> -->
-            <!--   </div> -->
-            <!-- </div> -->
+            <div class="space-y-2" v-if="opinions.length > 0">
+              <UAlert
+                :title="$t('header.f_name_is_invalid')"
+                :ui="{ title: 'text-red-800 dark:text-red-200' }"
+                color="red"
+                variant="subtle"
+                style="width: 100%"
+              >
+                <template #title="{ title }">
+                  {{ title }}
+                  <span v-for="(item, index) in opinions" :key="index">
+                    <NuxtLink :href="`/${item.other_taxon}`">
+                      {{ item.other_taxon__taxon }}
+                    </NuxtLink>
+                  </span>
+                </template>
+              </UAlert>
+              <div
+                class="border rounded-lg p-4 bg-white dark:bg-gray-800"
+                style="width: 100%"
+              >
+                <div class="card-body">
+                  <div class="text-sm text-gray-500 pb-2">
+                    Taxon ID:
+                    <strong>{{ taxon.id }}</strong>
+                    <span v-if="taxon.date_added">
+                      |
+                      {{ dateAdded }}
+                    </span>
+                    <span v-if="taxon.date_changed">
+                      /
+                      {{ dateChanged }}
+                    </span>
+                  </div>
+
+                  <div
+                    v-if="
+                      taxon.fossil_group__id &&
+                      taxon.fossil_group__id !== taxon.id
+                    "
+                  >
+                    {{ $t("header.f_fossil_group") }}:
+                    <NuxtLink :href="`/${taxon.fossil_group__id}`">
+                      {{ taxon.fossil_group__taxon }}
+                    </NuxtLink>
+                  </div>
+                  <div v-if="taxon.id !== 29">
+                    {{ $t("header.f_belongs_to") }}:
+                    <NuxtLink
+                      :class="
+                        isHigherTaxon(taxon.rank__rank_en) ? '' : 'italic'
+                      "
+                      :href="`/${taxon.parent}`"
+                    >
+                      {{ taxon.parent__taxon }}
+                    </NuxtLink>
+                  </div>
+                  <div v-if="opinions.length > 0">
+                    1 {{ $t("header.f_other_names") }}:
+                    <span v-for="(item, idx) in opinions" :key="idx">
+                      <span v-if="isDefinedAndNotNull(item.other_taxon)">
+                        <NuxtLink :href="`/${item.other_taxon}`">
+                          {{ item.other_taxon__taxon }}
+                        </NuxtLink>
+                        <span v-if="idx !== opinions.length - 1">,</span>
+                      </span>
+                    </span>
+                  </div>
+
+                  <div
+                    v-if="filteredCommonNames && filteredCommonNames.length > 0"
+                  >
+                    <span v-for="item in filteredCommonNames">
+                      {{ item.language }}:
+                      <strong>{{ item.name }}</strong>
+                      ;&ensp;
+                    </span>
+                  </div>
+                  <div
+                    v-if="
+                      taxon.stratigraphy_base__stratigraphy ||
+                      taxon.stratigraphy_top__stratigraphy
+                    "
+                  >
+                    {{ $t("header.f_stratigraphical_distribution") }}:
+
+                    <a
+                      href="#"
+                      v-if="taxon.stratigraphy_base_id"
+                      @click="
+                        openUrl({
+                          parent_url: state.geocollectionUrl + '/stratigraphy',
+                          object: taxon.stratigraphy_base_id.toString(),
+                          width: 500,
+                          height: 500,
+                        })
+                      "
+                    >
+                      {{ taxon.stratigraphy_base__stratigraphy }}
+                    </a>
+                    <span
+                      v-if="
+                        taxon.stratigraphy_top__stratigraphy !==
+                          taxon.stratigraphy_base__stratigraphy &&
+                        taxon.stratigraphy_base__stratigraphy
+                      "
+                    >
+                      &rarr;
+                    </span>
+                    <a
+                      href="#"
+                      v-if="
+                        taxon.stratigraphy_top_id &&
+                        taxon.stratigraphy_base_id !== taxon.stratigraphy_top_id
+                      "
+                      @click="
+                        openUrl({
+                          parent_url: state.geocollectionUrl + '/stratigraphy',
+                          object: taxon.stratigraphy_top_id.toString(),
+                          width: 500,
+                          height: 500,
+                        })
+                      "
+                    >
+                      {{ taxon.stratigraphy_top__stratigraphy }}
+                    </a>
+                    <span v-if="taxon.stratigraphy_base__age_base">
+                      ({{ $t("header.f_taxon_age_within") }}
+                      {{
+                        convertToTwoDecimal(taxon.stratigraphy_base__age_base)
+                      }}
+                    </span>
+                    <span v-if="taxon.stratigraphy_top__age_top">
+                      &ndash;{{
+                        convertToTwoDecimal(taxon.stratigraphy_top__age_top)
+                      }}
+                      {{ $t("header.f_taxon_age_within_unit") }})
+                    </span>
+                    <br />
+                  </div>
+                  <div
+                    v-if="
+                      taxon.rank__rank_en && taxon.rank__rank_en !== 'Species'
+                    "
+                  >
+                    <span v-if="store.mode === 'in_baltoscandia'">
+                      {{ $t("header.f_baltic_species") }}
+                    </span>
+                    <span v-else-if="store.mode === 'in_estonia'">
+                      {{ $t("header.f_estonian_species") }}
+                    </span>
+                    <span v-else>{{ $t("header.f_global_species") }}</span>
+                    <strong>
+                      <a href="#species" v-if="state.numberOfSpecimen">
+                        {{ state.numberOfSpecimen }}
+                      </a>
+                    </strong>
+                  </div>
+                </div>
+              </div>
+            </div>
             <lingallery
               style="width: 100%"
               v-if="images.length > 0"
@@ -245,7 +235,7 @@
               </template>
               <foldable>
                 <div
-                  id="taxonPageContent"
+                  id="content"
                   class="text-justify"
                   v-html="taxonPage.content"
                 ></div>
@@ -677,15 +667,13 @@
                   </div>
                 </template>
               </ClientOnly>
-              <b-alert
-                style="width: 100%; font-size: 0.8rem"
-                class="mb-0"
-                :model-value="true"
-                variant="info"
-                v-if="isNumberOfLocalitiesOnMapOver1000"
-              ></b-alert>
             </UCard>
-            <UAlert variant="subtle" color="blue" title="">
+            <UAlert
+              v-if="isNumberOfLocalitiesOnMapOver1000"
+              variant="subtle"
+              color="blue"
+              title=""
+            >
               <template #title>
                 Map shows only the first
                 <strong style="font-size: 0.9rem">1000</strong>
@@ -848,7 +836,7 @@ const state = reactive({
 });
 const route = useRoute();
 const store = useRootStore();
-const { locale } = useI18n();
+const { t, locale } = useI18n();
 
 type Taxon = {
   id: number;
@@ -903,12 +891,6 @@ if (!taxon.value) {
   });
 }
 
-const tabs = computed(() => [
-  { slot: "info", label: "Info" },
-  { slot: "images", label: "Images" },
-  { slot: "specimens", label: "Specimens" },
-]);
-
 const [
   { data: commonNamesRes },
   { data: pageRes },
@@ -919,7 +901,7 @@ const [
   { data: opinionRes },
   { data: cntSpecimenCollectionRes },
   { data: referenceRes },
-  { data: imagesNewRes },
+  { data: imagesRes },
 ] = await Promise.all([
   useApiFetch<{ results?: any[] }>("/taxon_common_name/", {
     query: {
@@ -1011,9 +993,24 @@ const description = ref(descriptionRes.value?.results ?? []);
 const map = computed(() => speciesMapRes.value?.results ?? []);
 const cntLocalities = ref(speciesMapRes.value?.count);
 const opinions = ref(opinionRes.value?.results ?? []);
-const images = ref(buildGalleryImages(imagesNewRes.value?.results ?? []));
+const images = ref(buildGalleryImages(imagesRes.value?.results ?? []));
 state.specimenCollectionCnt = cntSpecimenCollectionRes.value?.count ?? 0;
 
+const tabs = computed(() => [
+  { slot: "info", label: t("tabs.overview") },
+  {
+    slot: "images",
+    label: t("tabs.gallery"),
+    count: imagesRes.value?.count ?? 0,
+    disabled: (imagesRes.value?.count ?? 0) < 1,
+  },
+  {
+    slot: "specimens",
+    label: t("tabs.specimens"),
+    count: state.specimenCollectionCnt,
+    disabled: state.specimenCollectionCnt < 1,
+  },
+]);
 function getModeQueryParam(mode: string) {
   if (mode === "in_baltoscandia") {
     return { in_baltoscandia: 1 };
@@ -1259,9 +1256,6 @@ function convertToTwoDecimal(value: number) {
   return value.toFixed(1);
 }
 
-function topNavigation() {
-  location.href = "#top";
-}
 function setFancyBoxCaption(el: any, type: string) {
   let text = "",
     infoBtn = "",

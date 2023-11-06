@@ -5,8 +5,8 @@
     </Title>
     <Meta vmid="keywords" name="keywords" :content="meta" />
   </Head>
-  <section class="container-fluid">
-    <div class="card" v-if="page">
+  <section class="container border rounded bg-white dark:bg-gray-800 p-4">
+    <div class="text-justify" id="content" v-if="page">
       <span class="card-body" v-html="currentContent"></span>
     </div>
   </section>
@@ -48,3 +48,14 @@ const currentContent = computed(() => {
     : page.value?.content_en;
 });
 </script>
+
+<style>
+h1 {
+  @apply pb-4;
+  font-size: 2.5rem;
+}
+h3 {
+  @apply pt-4;
+  font-size: 1.75rem;
+}
+</style>

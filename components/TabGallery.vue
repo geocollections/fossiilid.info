@@ -1,37 +1,33 @@
 <template>
   <div id="#tab-gallery" role="tabpanel">
-    <transition name="fade">
-      <div class="row m-1">
-        <div
-          class="inline-block space-x-2 space-y-2 bg-gray-100 dark:bg-gray-800 space-2 p-2 rounded"
+    <div
+      class="inline-block space-x-2 space-y-2 bg-gray-200 dark:bg-gray-800 space-2 p-2 rounded"
+    >
+      <div
+        v-for="(image, index) in state.images"
+        class="float-left"
+        :key="index"
+      >
+        <a
+          v-if="image.src"
+          data-fancybox="gallery2"
+          :href="image.src"
+          :data-caption="image.caption"
         >
-          <div
-            v-for="(image, index) in state.images"
-            class="float-left"
-            :key="index"
-          >
-            <a
-              v-if="image.src"
-              data-fancybox="gallery2"
-              :href="image.src"
-              :data-caption="image.caption"
-            >
-              <img
-                :alt="image.caption"
-                style="height: 200px"
-                :src="image.thumbnail"
-                onerror="this.style.display='none'"
-              />
-            </a>
-          </div>
-        </div>
-        <div ref="bottom"></div>
-        <div v-if="state.loading" class="d-flex align-center">
-          <BSpinner variant="warning" style="width: 44px; height: 44px" />
-          <span class="p-2">{{ $t("messages.pageLoading") }}</span>
-        </div>
+          <img
+            :alt="image.caption"
+            style="height: 200px"
+            :src="image.thumbnail"
+            onerror="this.style.display='none'"
+          />
+        </a>
       </div>
-    </transition>
+    </div>
+    <div ref="bottom"></div>
+    <div v-if="state.loading" class="d-flex align-center">
+      <BSpinner variant="warning" style="width: 44px; height: 44px" />
+      <span class="p-2">{{ $t("messages.pageLoading") }}</span>
+    </div>
   </div>
 </template>
 

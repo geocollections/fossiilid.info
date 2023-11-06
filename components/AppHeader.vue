@@ -4,7 +4,7 @@
     :class="{ 'shadow-lg': state.scroll }"
   >
     <div class="container mx-auto">
-      <nav class="py-2 px-4 h-14 gap-x-2 flex items-center">
+      <nav class="py-2 h-14 gap-x-2 flex items-center">
         <NuxtLink class="uppercase font-bold text-2xl text-tomato" to="/">
           {{ $t("header.title") }}
         </NuxtLink>
@@ -35,22 +35,15 @@
           icon="i-heroicons-language-20-solid"
           @update:model-value="(newLocale: string) => setLocale(newLocale)"
         />
+        <ColorModeSwitch />
         <UDropdown :items="pageItems">
           <UButton
             :label="$t('menu.more')"
-            variant="outline"
             size="md"
+            color="white"
             trailing-icon="i-heroicons-chevron-down-20-solid"
           />
         </UDropdown>
-        <select
-          v-model="$colorMode.preference"
-          class="border w-24 h-8 dark:bg-gray-900 dark:text-white dark:border-gray-700"
-        >
-          <option value="system">System</option>
-          <option value="light">Light</option>
-          <option value="dark">Dark</option>
-        </select>
       </nav>
     </div>
   </header>
@@ -66,28 +59,8 @@ const state = reactive({
   selectedTaxon: null,
 });
 const store = useRootStore();
-const router = useRoute();
 const { setLocale, locale, t } = useI18n();
 const { $apiFetch } = useNuxtApp();
-const colorMode = useColorMode();
-
-const langCode = computed(() => {
-  let code = "ENG";
-  switch (locale.value) {
-    case "et":
-      code = "EST";
-      break;
-    case "se":
-      code = "SWE";
-      break;
-    case "fi":
-      code = "FIN";
-      break;
-    default:
-      break;
-  }
-  return code;
-});
 
 const modeOptions = computed(() => [
   {
@@ -132,26 +105,9 @@ const pageItems = computed(() => [
   ],
 ]);
 
-const modeText = computed(() => {
-  if (store.mode === "in_baltoscandia") return "header.in_baltoscandia_mode";
-  else if (store.mode === "in_estonia") return "header.in_estonia_mode";
-  else return "header.global_mode";
-});
 onBeforeMount(() => {
   window.addEventListener("scroll", handleScroll);
 });
-function simpleTaxonSearchApiCall(value: string) {
-  if (value.length < 3) state.searchResults = [];
-  if (value.length > 2) {
-    state.isLoading = true;
-    $apiFetch(
-      `/taxon/?sql=simple_taxon_search&keyword=${value}&format=json`,
-    ).then((response: any) => {
-      state.isLoading = false;
-      state.searchResults = response.results;
-    });
-  }
-}
 
 async function search(value: string) {
   if (value.length < 1) return [];
@@ -161,16 +117,6 @@ async function search(value: string) {
   return taxa.results;
 }
 
-function onSelect(value: any) {
-  state.selectedTaxon = null;
-  location.replace("/" + value.id);
-}
-function displayResults(item: any) {
-  return `${item.name}`;
-}
-function changeMode(mode: string) {
-  store.mode = mode;
-}
 function handleScroll() {
   state.scroll = document.documentElement.scrollTop > 1;
 }
