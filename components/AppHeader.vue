@@ -1,11 +1,14 @@
 <template>
   <header
-    class="sticky bg-gray-50/95 backdrop-blur border-b dark:bg-gray-900/95 top-0 z-10 dark:border-gray-800"
+    class="sticky bg-gray-50/95 backdrop-blur border-b px-2 dark:bg-gray-900/95 top-0 z-10 dark:border-gray-800"
     :class="{ 'shadow-lg': state.scroll }"
   >
     <div class="container mx-auto">
       <nav class="py-2 h-14 gap-x-2 flex items-center">
-        <NuxtLink class="uppercase font-bold text-2xl text-tomato" to="/">
+        <NuxtLink
+          class="uppercase font-bold text-lg md:text-2xl text-tomato"
+          to="/"
+        >
           {{ $t("header.title") }}
         </NuxtLink>
         <USelectMenu
@@ -22,28 +25,75 @@
             {{ taxa.name }}
           </template>
         </USelectMenu>
-        <USelect
-          v-model="store.mode"
-          size="md"
-          icon="i-heroicons-globe-europe-africa-20-solid"
-          :options="modeOptions"
-        />
-        <USelect
-          :modelValue="locale"
-          size="md"
-          :options="langOptions"
-          icon="i-heroicons-language-20-solid"
-          @update:model-value="(newLocale: string) => setLocale(newLocale)"
-        />
-        <ColorModeSwitch />
-        <UDropdown :items="pageItems">
-          <UButton
-            :label="$t('menu.more')"
+        <div class="space-x-2 hidden lg:flex">
+          <USelect
+            v-model="store.mode"
             size="md"
-            color="white"
-            trailing-icon="i-heroicons-chevron-down-20-solid"
+            icon="i-heroicons-globe-europe-africa-20-solid"
+            :options="modeOptions"
           />
-        </UDropdown>
+          <USelect
+            :modelValue="locale"
+            size="md"
+            :options="langOptions"
+            icon="i-heroicons-language-20-solid"
+            @update:model-value="(newLocale: string) => setLocale(newLocale)"
+          />
+          <ColorModeSwitch />
+          <UDropdown :items="pageItems">
+            <UButton
+              :label="$t('menu.more')"
+              size="md"
+              color="white"
+              trailing-icon="i-heroicons-chevron-down-20-solid"
+            />
+          </UDropdown>
+        </div>
+        <UButton
+          class="lg:hidden"
+          size="md"
+          variant="ghost"
+          color="gray"
+          trailing-icon="i-heroicons-bars-3"
+          @click="state.isOpen = true"
+        ></UButton>
+        <USlideover v-model="state.isOpen">
+          <div class="p-4 space-y-2 flex flex-col">
+            <UButton
+              class="lg:hidden ml-auto"
+              size="md"
+              variant="ghost"
+              color="gray"
+              trailing-icon="i-heroicons-x-mark"
+              @click="state.isOpen = false"
+            ></UButton>
+            <UDivider />
+            <div class="grid grid-cols-2 gap-x-2">
+              <USelect
+                class="col-span-1"
+                v-model="store.mode"
+                size="md"
+                icon="i-heroicons-globe-europe-africa-20-solid"
+                :options="modeOptions"
+              />
+              <USelect
+                class="col-span-1"
+                :modelValue="locale"
+                size="md"
+                :options="langOptions"
+                icon="i-heroicons-language-20-solid"
+                @update:model-value="
+                  (newLocale: string) => setLocale(newLocale)
+                "
+              />
+            </div>
+            <div class="ml-auto">
+              <ColorModeSwitch />
+            </div>
+            <UDivider />
+            <UVerticalNavigation :links="pageItems[0]" />
+          </div>
+        </USlideover>
       </nav>
     </div>
   </header>
@@ -57,6 +107,7 @@ const state = reactive({
   searchResults: [],
   isLoading: false,
   selectedTaxon: null,
+  isOpen: false,
 });
 const store = useRootStore();
 const { setLocale, locale, t } = useI18n();

@@ -65,34 +65,38 @@
           </tr>
         </tbody>
       </table>
-      <div class="flex justify-center" style="margin: 10px 0 10px 0">
-        <a href="http://geokogud.info">
-          <img
-            border="0"
-            style="height: 50px"
-            src="https://files.geocollections.info/img/sarv_logo.svg"
-            alt="SARV"
-            title="SARV: geokogude infosüsteem"
-          />
-        </a>
-        <a href="http://natarc.ut.ee">
-          <img
-            border="0"
-            style="height: 50px; margin-left: 25px"
-            src="https://elurikkus.ee/assets/images/natarc_logo_black.svg"
-            alt="Natural History Archives and Information Network (NATARC)"
-            title="SARV is part of national infrastructure Natural History Archives and Information Network (NATARC)"
-          />
-        </a>
-        <a href="http://struktuurifondid.ee">
-          <img
-            border="0"
-            style="height: 50px; margin-left: 25px"
-            src="https://files.geocollections.info/img/EL_mv.png"
-            alt="EU"
-            title="Euroopa Liit"
-          />
-        </a>
+      <div class="flex justify-center">
+        <div
+          class="gap-x-6 flex w-fit px-4 bg-gray-500 border dark:border-gray-400 py-4 rounded"
+        >
+          <a href="http://geokogud.info">
+            <img
+              border="0"
+              style="height: 50px"
+              src="https://files.geocollections.info/img/sarv_logo.svg"
+              alt="SARV"
+              title="SARV: geokogude infosüsteem"
+            />
+          </a>
+          <a href="http://natarc.ut.ee">
+            <img
+              border="0"
+              style="height: 50px"
+              src="https://elurikkus.ee/assets/images/natarc_logo_black.svg"
+              alt="Natural History Archives and Information Network (NATARC)"
+              title="SARV is part of national infrastructure Natural History Archives and Information Network (NATARC)"
+            />
+          </a>
+          <a href="http://struktuurifondid.ee">
+            <img
+              border="0"
+              style="height: 50px"
+              src="https://files.geocollections.info/img/EL_mv.png"
+              alt="EU"
+              title="Euroopa Liit"
+            />
+          </a>
+        </div>
       </div>
     </div>
   </footer>

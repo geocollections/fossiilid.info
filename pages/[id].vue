@@ -229,17 +229,13 @@
             />
             <UCard v-if="taxonPage?.content">
               <template #header>
-                <h3 class="">
-                  {{ $t("header.f_taxon_intro") }}
-                </h3>
+                {{ $t("header.f_taxon_intro") }}
               </template>
-              <foldable>
-                <div
-                  id="content"
-                  class="text-justify"
-                  v-html="taxonPage.content"
-                ></div>
-              </foldable>
+              <div
+                id="content"
+                class="text-justify"
+                v-html="taxonPage.content"
+              ></div>
               <template #footer>
                 <span class="text-sm italic">
                   {{ taxonPage.author_txt }} {{ taxonPage.date_txt }}
@@ -681,20 +677,18 @@
               </template>
             </UAlert>
             <TaxonomicalTree :id="taxon.id" />
-            <div class="m-1">
-              <SeeAlso
-                v-if="
-                  (taxonPage && taxonPage.link_wikipedia !== null) ||
-                  taxon.taxon_id_tol !== null ||
-                  taxon.taxon_id_eol !== null ||
-                  taxon.taxon_id_nrm !== null ||
-                  taxon.taxon_id_plutof !== null ||
-                  taxon.taxon_id_pbdb !== null
-                "
-                :taxon="taxon"
-                :taxon-page="taxonPage"
-              />
-            </div>
+            <SeeAlso
+              v-if="
+                (taxonPage && taxonPage.link_wikipedia) ||
+                taxon.taxon_id_tol ||
+                taxon.taxon_id_eol ||
+                taxon.taxon_id_nrm ||
+                taxon.taxon_id_plutof ||
+                taxon.taxon_id_pbdb
+              "
+              :taxon="taxon"
+              :taxon-page="taxonPage"
+            />
 
             <UCard
               v-if="
@@ -1293,7 +1287,7 @@ function setFancyBoxCaption(el: any, type: string) {
 
   // if(this.isHigherTaxon(this.taxon.rank__rank_en)) {}
   text +=
-    '<div><button type="button" class="btn btn-xs  btn-primary" onclick="window.open(\'' +
+    '<div><button type="button" class="bg-tomato-500 px-4 py-2 rounded-md text-lg font-bold" onclick="window.open(\'' +
     state.fossilsUrl +
     "/" +
     additionalInfo.navigateId +
@@ -1301,14 +1295,14 @@ function setFancyBoxCaption(el: any, type: string) {
 
   if (additionalInfo.infoId)
     infoBtn =
-      '<button type="button" class="btn btn-sm  btn-info" onclick="window.open(\'' +
+      '<button type="button" class="bg-blue-500 rounded-md px-4 py-2 font-bold" onclick="window.open(\'' +
       state.geocollectionUrl +
       "/specimen/" +
       additionalInfo.infoId +
       "')\">INFO</button>";
   if (additionalInfo.imageId)
     imgBtn =
-      ' <button type="button" class="btn btn-sm btn-secondary" onclick="window.open(\'' +
+      ' <button type="button" class="bg-gray-200 rounded-md px-4 py-2 text-black font-bold" onclick="window.open(\'' +
       state.geocollectionUrl +
       "/file/" +
       additionalInfo.imageId +

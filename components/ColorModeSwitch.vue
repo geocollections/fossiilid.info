@@ -23,11 +23,17 @@ function switchTheme() {
 </script>
 
 <template>
-  <UButton
-    :icon="icon"
-    color="gray"
-    variant="ghost"
-    aria-label="Theme"
-    @click="switchTheme"
-  />
+  <ClientOnly>
+    <UButton
+      :icon="icon"
+      color="gray"
+      variant="ghost"
+      size="md"
+      aria-label="Theme"
+      @click="switchTheme"
+    />
+    <template #fallback>
+      <div class="w-8 h-8"></div>
+    </template>
+  </ClientOnly>
 </template>

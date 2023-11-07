@@ -2,7 +2,7 @@
   <div class="flex flex-col min-h-screen">
     <AppHeader />
     <main>
-      <div class="py-10">
+      <div class="py-10 px-2">
         <slot ref="el" />
       </div>
     </main>

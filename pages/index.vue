@@ -1,6 +1,10 @@
 <template>
   <section class="container mx-auto">
-    <div id="fossilgroups_box" class="flex flex-wrap" v-if="frontPage">
+    <div
+      id="fossilgroups_box"
+      class="flex flex-wrap justify-center"
+      v-if="frontPage"
+    >
       <div
         v-for="(item, idx) in frontPage.results"
         :key="idx"
