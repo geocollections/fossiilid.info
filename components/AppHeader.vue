@@ -12,20 +12,39 @@
           {{ $t("header.title") }}
         </NuxtLink>
         <USelectMenu
-          class="w-80 mr-auto ml-2"
+          ref="quickSearch"
+          class="w-full lg:w-80 ml-2"
           :ui="{ width: 'w-80' }"
           :searchable="search"
           size="md"
           icon="i-heroicons-magnifying-glass-20-solid"
           :placeholder="$t('search.fossils_search')"
+          name="search"
           @update:model-value="(taxon) => $router.push(`/${taxon.id}`)"
           by="id"
         >
           <template #option="{ option: taxa }">
             {{ taxa.name }}
           </template>
+          <template #trailing>
+            <div class="flex items-center gap-0.5">
+              <UKbd>{{ metaSymbol }}</UKbd>
+              <UKbd>K</UKbd>
+            </div>
+          </template>
         </USelectMenu>
-        <div class="space-x-2 hidden lg:flex">
+        <UButton
+          class="hidden lg:flex"
+          size="md"
+          color="white"
+          icon="i-heroicons-adjustments-vertical-20-solid"
+          to="/search"
+        >
+          <span class="hidden xl:block">
+            {{ $t("menu.detail_search") }}
+          </span>
+        </UButton>
+        <div class="ml-auto space-x-2 hidden lg:flex">
           <USelect
             v-model="store.mode"
             size="md"
@@ -50,7 +69,7 @@
           </UDropdown>
         </div>
         <UButton
-          class="lg:hidden"
+          class="lg:hidden ml-auto"
           size="md"
           variant="ghost"
           color="gray"
@@ -91,6 +110,15 @@
               <ColorModeSwitch />
             </div>
             <UDivider />
+            <UButton
+              label="Advanced search"
+              size="md"
+              color="gray"
+              variant="ghost"
+              icon="i-heroicons-adjustments-vertical-20-solid"
+              to="/search"
+            />
+            <UDivider />
             <UVerticalNavigation :links="pageItems[0]" />
           </div>
         </USlideover>
@@ -112,6 +140,17 @@ const state = reactive({
 const store = useRootStore();
 const { setLocale, locale, t } = useI18n();
 const { $apiFetch } = useNuxtApp();
+const { metaSymbol } = useShortcuts();
+const quickSearch = ref();
+
+defineShortcuts({
+  meta_k: {
+    usingInput: true,
+    handler: () => {
+      quickSearch.value.trigger.el.click();
+    },
+  },
+});
 
 const modeOptions = computed(() => [
   {

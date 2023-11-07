@@ -19,9 +19,17 @@
             @click="toggle"
             v-if="reachThreshold"
           >
-            <button class="btn btn-small btn-outline-info vue-foldable-text">
+            <UButton
+              :icon="
+                collapsed
+                  ? 'i-heroicons-chevron-down'
+                  : 'i-heroicons-chevron-up'
+              "
+              variant="outline"
+              size="xl"
+            >
               {{ collapsed ? $t("main.btnViewMore") : $t("main.btnViewLess") }}
-            </button>
+            </UButton>
           </div>
         </slot>
         <slot />
@@ -42,9 +50,17 @@
           v-if="reachThreshold"
         >
           <span class="vue-foldable-text">
-            <button class="btn btn-small btn-outline-info vue-foldable-text">
+            <UButton
+              :icon="
+                collapsed
+                  ? 'i-heroicons-chevron-down'
+                  : 'i-heroicons-chevron-up'
+              "
+              variant="outline"
+              size="xl"
+            >
               {{ collapsed ? $t("main.btnViewMore") : $t("main.btnViewLess") }}
-            </button>
+            </UButton>
           </span>
         </div>
       </slot>
@@ -213,32 +229,10 @@ function onElementHeightChange({ el, callback, timeout }) {
     width: 100%;
     background: transparent;
     pointer-events: none;
-    &.collapsed {
-      opacity: 1;
-      left: 0;
-      background: -webkit-gradient(
-        linear,
-        50% 0%,
-        50% 100%,
-        color-stop(0%, rgba(255, 255, 225, 0)),
-        color-stop(100%, #fff)
-      );
-      background: -moz-linear-gradient(rgba(255, 255, 255, 0), #fff);
-      background: -webkit-linear-gradient(
-        to bottom,
-        rgba(255, 255, 255, 0),
-        #fff
-      );
-      background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #fff);
-    }
-    &:not(.collapsed) {
-      opacity: 0;
-    }
   }
   .vue-foldable-view-more {
     width: 100%;
     text-align: center;
-    height: 30px;
     line-height: 30px;
     cursor: pointer;
     color: #eb3812;

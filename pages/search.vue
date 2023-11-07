@@ -14,7 +14,18 @@
               :searchable="searchHigherTaxon"
               :loading="loadingHigherTaxaOptions"
               size="md"
-            ></USelectMenu>
+              :ui="{ icon: { trailing: { pointer: '' } } }"
+            >
+              <template v-if="searchFormState.higherTaxon" #trailing>
+                <UButton
+                  color="gray"
+                  variant="link"
+                  icon="i-heroicons-x-mark-20-solid"
+                  :padded="false"
+                  @click="searchFormState.higherTaxon = undefined"
+                />
+              </template>
+            </USelectMenu>
           </UFormGroup>
           <UFormGroup :label="$t('advancedsearch.species')">
             <UInput v-model="searchFormState.species"></UInput>
@@ -29,11 +40,31 @@
             <USelectMenu
               by="id"
               v-model="searchFormState.stratigraphy"
-              option-attribute="taxon"
               :searchable="searchStratigrahy"
               :loading="loadingStratigraphyOptions"
               size="md"
+              :ui="{ icon: { trailing: { pointer: '' } } }"
             >
+              <template v-if="searchFormState.stratigraphy" #trailing>
+                <UButton
+                  color="gray"
+                  variant="link"
+                  icon="i-heroicons-x-mark-20-solid"
+                  :padded="false"
+                  @click="searchFormState.stratigraphy = undefined"
+                />
+              </template>
+              <template #label>
+                <span v-if="!searchFormState.stratigraphy">&nbsp;</span>
+                <span v-else>
+                  {{
+                    $translate({
+                      et: searchFormState.stratigraphy.stratigraphy,
+                      en: searchFormState.stratigraphy.stratigraphy_en,
+                    })
+                  }}
+                </span>
+              </template>
               <template #option="{ option: stratigraphy }">
                 {{
                   $translate({
@@ -74,7 +105,7 @@
         </UForm>
       </div>
       <div class="col-span-1 border rounded dark:border-gray-700">
-        <div id="map" class="h-full" style="cursor: default"></div>
+        <div id="map" class="h-full z-0" style="cursor: default"></div>
       </div>
     </div>
     <div>
