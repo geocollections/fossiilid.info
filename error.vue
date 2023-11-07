@@ -1,11 +1,15 @@
 <template>
   <NuxtLayout>
-    <div class="text-center py-5">
-      <h2>This page does not exist</h2>
-      <button class="btn btn-secondary" @click="handleError">
+    <div class="pt-10 text-center space-y-5">
+      <div class="text-tomato">Error 404</div>
+      <h1 class="text-3xl">{{ $t("header.page_not_found") }}</h1>
+      <UButton
+        trailing-icon="i-heroicons-arrow-right"
+        size="lg"
+        @click="handleError"
+      >
         {{ $t("main.backToLanding") }}
-        <i class="fas fa-arrow-right ms-1"></i>
-      </button>
+      </UButton>
     </div>
   </NuxtLayout>
 </template>
