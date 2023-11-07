@@ -1,13 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: false },
-  css: [
-    "~/assets/scss/main.scss",
-    "@fortawesome/fontawesome-free/css/fontawesome.css",
-    "@fortawesome/fontawesome-free/css/brands.css",
-    "@fortawesome/fontawesome-free/css/solid.css",
-    "vue-multiselect/dist/vue-multiselect.css",
-  ],
+  css: ["~/assets/scss/main.scss", "vue-multiselect/dist/vue-multiselect.css"],
   app: {
     head: {
       title: "Fossiilid.info",
