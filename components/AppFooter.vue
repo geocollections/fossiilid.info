@@ -67,7 +67,7 @@
       </table>
       <div class="flex justify-center">
         <div
-          class="gap-x-6 flex w-fit px-4 bg-gray-500 border dark:border-gray-400 py-4 rounded"
+          class="gap-x-6 flex w-fit px-4 dark:bg-gray-500 border dark:border-gray-400 py-4 rounded"
         >
           <a href="http://geokogud.info">
             <img
