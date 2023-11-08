@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: false },
-  css: ["~/assets/scss/main.scss", "vue-multiselect/dist/vue-multiselect.css"],
+  css: ["~/assets/scss/main.scss"],
   app: {
     head: {
       title: "Fossiilid.info",
