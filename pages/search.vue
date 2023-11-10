@@ -83,12 +83,16 @@
             v-model="searchFormState.isNearMe"
             :label="$t('advancedsearch.showNearMeField')"
           />
-          <URange
+          <UFormGroup
             v-if="searchFormState.isNearMe"
-            v-model="searchFormState.nearMeRange"
-            :min="0"
-            :max="20"
-          />
+            :label="`Radius ${searchFormState.nearMeRange} km`"
+          >
+            <URange v-model="searchFormState.nearMeRange" :min="0" :max="20" />
+            <div class="flex justify-between">
+              <span>0</span>
+              <span>20</span>
+            </div>
+          </UFormGroup>
           <div class="justify-end space-x-2 flex items-center">
             <UButton
               variant="outline"
@@ -220,6 +224,8 @@ const searchFormState = reactive({
   isOutcrop: false,
   isNearMe: false,
   nearMeRange: 5,
+  nearMeLatLng: null as { lat: number; lng: number } | null,
+  selectedArea: null as Circle | Rectangle | Polygon | null,
 });
 
 type TaxonOption = {
@@ -389,11 +395,9 @@ async function search() {
   if (searchFormState.isNearMe) {
     const nearMeArea = getFilterQueryForCircle(state.circle as Circle);
     fq.push(nearMeArea);
-  } else if (state.searchForm.selectedArea) {
+  } else if (searchFormState.selectedArea) {
     fq.push(
-      getGeoParam(
-        state.searchForm.selectedArea as Circle | Rectangle | Polygon,
-      ),
+      getGeoParam(searchFormState.selectedArea as Circle | Rectangle | Polygon),
     );
   }
   const res = await $apiFetch<{ results: SearchResult[]; count: number }>(
@@ -435,11 +439,9 @@ async function fetchMapData() {
   if (searchFormState.isNearMe) {
     const nearMeArea = getFilterQueryForCircle(state.circle as Circle);
     fq.push(nearMeArea);
-  } else if (state.searchForm.selectedArea) {
+  } else if (searchFormState.selectedArea) {
     fq.push(
-      getGeoParam(
-        state.searchForm.selectedArea as Circle | Rectangle | Polygon,
-      ),
+      getGeoParam(searchFormState.selectedArea as Circle | Rectangle | Polygon),
     );
   }
   const res = await $apiFetch<{ results: MapSearchResult[]; count: number }>(
@@ -513,7 +515,7 @@ watch(
       state.circle?.remove();
       map.value?.closePopup();
       searchFormState.nearMeRange = 5;
-      state.searchForm.latlng = null;
+      searchFormState.nearMeLatLng = null;
     }
   },
 );
@@ -522,10 +524,10 @@ watch(
   () => {
     if (!searchFormState.isNearMe) return;
     drawAreaNearMe();
-    if (!state.searchForm.latlng) return;
+    if (!searchFormState.nearMeLatLng) return;
     map.value?.setView(
-      [state.searchForm.latlng.lat, state.searchForm.latlng.lng],
-      12 - state.searchForm.radius * 0.15,
+      [searchFormState.nearMeLatLng.lat, searchFormState.nearMeLatLng.lng],
+      12 - searchFormState.nearMeRange * 0.15,
     );
   },
   { deep: true },
@@ -534,7 +536,7 @@ watch(
 function showRecordsInSelectedArea(layer: Circle | Rectangle | Polygon) {
   resetDrawnItemsColor();
   layer.setStyle({ color: "#ff2a12" });
-  state.searchForm.selectedArea = layer;
+  searchFormState.selectedArea = layer;
 }
 function generatePopup(
   layer: Circle | Polygon | Rectangle,
@@ -748,6 +750,8 @@ function resetSearchForm() {
   searchFormState.isNearMe = false;
   searchFormState.isOutcrop = false;
   searchFormState.nearMeRange = 5;
+  searchFormState.nearMeLatLng = null;
+  searchFormState.selectedArea = null;
 }
 
 function clearSearch() {
@@ -804,13 +808,13 @@ function getLocation() {
     function (position) {
       if (!map.value) return;
 
-      state.searchForm.latlng = {
+      searchFormState.nearMeLatLng = {
         lat: position.coords.latitude,
         lng: position.coords.longitude,
       };
       drawAreaNearMe();
       map.value.setView(
-        [state.searchForm.latlng.lat, state.searchForm.latlng.lng],
+        [searchFormState.nearMeLatLng.lat, searchFormState.nearMeLatLng.lng],
         12 - searchFormState.nearMeRange * 0.15,
       );
       // this_.applySearch();
@@ -828,11 +832,11 @@ function drawAreaNearMe() {
     state.circle.remove();
     map.value.closePopup();
   }
-  if (!state.searchForm.latlng) return;
+  if (!searchFormState.nearMeLatLng) return;
 
-  state.circle = $L.circle(state.searchForm.latlng, {
+  state.circle = $L.circle(searchFormState.nearMeLatLng, {
     color: "#bada55",
-    radius: state.searchForm.radius * 1000,
+    radius: searchFormState.nearMeRange * 1000,
     dashArray: "4",
   });
   state.circle.on("add", ({ target }) => {
@@ -842,3 +846,60 @@ function drawAreaNearMe() {
   state.circle.addTo(map.value);
 }
 </script>
+
+<style scoped>
+#rangeInput {
+  width: 400px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+#rangeInput span {
+  position: relative;
+  margin: 15px -5px 0 -5px;
+  flex-basis: 0;
+  flex-grow: 1;
+  text-align: center;
+  font-size: 0.85em;
+  user-select: none;
+}
+#rangeInput span::after {
+  content: "";
+  position: absolute;
+  width: 1px;
+  height: 8px;
+  left: 0;
+  right: 0;
+  margin: auto;
+  top: -12px;
+  background-color: #ccc;
+}
+#rangeInput input {
+  width: 100%;
+  margin: 5px 10px;
+  position: relative;
+  background-color: #ccc;
+  border-radius: 99px;
+  z-index: 10;
+  height: 7px;
+  -webkit-appearance: none;
+}
+#rangeInput input::-moz-range-thumb {
+  border: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 99px;
+  background: #35b0f2;
+  cursor: pointer;
+}
+#rangeInput input::-webkit-slider-thumb {
+  box-shadow: none;
+  border: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 99px;
+  background-color: #35b0f2;
+  cursor: pointer;
+  -webkit-appearance: none;
+}
+</style>
