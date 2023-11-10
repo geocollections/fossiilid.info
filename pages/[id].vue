@@ -59,7 +59,7 @@
       </template>
       <template #info>
         <div class="grid grid-cols-3 gap-x-2">
-          <div class="col-span-2 space-y-2">
+          <div class="col-span-full lg:col-span-2 space-y-2">
             <div class="space-y-2" v-if="opinions.length > 0">
               <UAlert
                 :title="$t('header.f_name_is_invalid')"
@@ -637,7 +637,7 @@
               </div>
             </div>
           </div>
-          <div class="col-span-1 space-y-2">
+          <div class="col-span-full lg:col-span-1 space-y-2">
             <UCard
               v-if="map.length > 0"
               class="p-0"
