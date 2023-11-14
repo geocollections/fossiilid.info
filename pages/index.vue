@@ -1,5 +1,10 @@
 <template>
-  <section class="container mx-auto">
+  <section class="container mx-auto space-y-10">
+    <h1
+      class="text-3xl sm:text-4xl md:text-5xl text-center uppercase text-gray-500 dark:text-gray-300"
+    >
+      fossiilid.info
+    </h1>
     <div
       id="fossilgroups_box"
       class="flex flex-wrap justify-center"

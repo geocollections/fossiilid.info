@@ -6,10 +6,11 @@
     <div class="container mx-auto">
       <nav class="py-2 h-14 gap-x-2 flex items-center">
         <NuxtLink
-          class="uppercase font-bold text-lg md:text-2xl text-tomato"
+          class="uppercase font-bold text-base md:text-lg text-tomato"
           to="/"
         >
-          {{ $t("header.title") }}
+          <div>fossiilid</div>
+          <div class="text-xs text-right -mt-2">.info</div>
         </NuxtLink>
         <USelectMenu
           ref="quickSearch"
