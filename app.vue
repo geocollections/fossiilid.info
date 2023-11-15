@@ -11,6 +11,7 @@ const store = useRootStore();
 const { locale, setLocale } = useI18n();
 const router = useRouter();
 const route = useRoute();
+useHead({ bodyAttrs: { class: "bg-gray-50 dark:bg-gray-900" } });
 
 watch(
   () => store.mode,
@@ -18,7 +19,7 @@ watch(
     router.replace({
       query: { ...route.query, mode },
     });
-  }
+  },
 );
 watch(
   () => locale.value,
@@ -26,7 +27,7 @@ watch(
     router.replace({
       query: { ...route.query, lang: locale },
     });
-  }
+  },
 );
 onMounted(() => {
   setLangAndMode();

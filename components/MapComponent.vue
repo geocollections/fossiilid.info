@@ -1,5 +1,5 @@
 <template>
-  <div v-if="mapData" id="map" style="height: 300px"></div>
+  <div v-if="mapData" class="z-0" id="map" style="height: 300px"></div>
 </template>
 
 <script setup lang="ts">
@@ -47,13 +47,13 @@ watch(
     resetLayerGroups();
     populateLayerGroups(newMapData);
   },
-  { deep: true }
+  { deep: true },
 );
 watch(
   () => store.mode,
   () => {
     setView();
-  }
+  },
 );
 
 const { locale } = useI18n();
@@ -67,7 +67,7 @@ watch(
       .groupedLayers({}, groupedOverlays.value, {})
       .addTo(map.value);
   },
-  { immediate: false }
+  { immediate: false },
 );
 
 function loadMap() {
@@ -82,7 +82,7 @@ function loadMap() {
       maxZoom: 18,
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    }
+    },
   );
   state.tileLayer.addTo(map.value);
 }

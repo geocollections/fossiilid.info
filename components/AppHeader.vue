@@ -1,198 +1,134 @@
 <template>
-  <header class="border-bottom">
-    <span id="top"></span>
-    <div class="container-fluid">
-      <nav
-        id="mainNav"
-        class="navbar navbar-expand-md navbar-light border-bottom fixed-top px-3"
-      >
+  <header
+    class="sticky transition-shadow bg-gray-50/95 backdrop-blur border-b px-2 dark:bg-gray-900/95 top-0 z-10 dark:border-gray-800"
+    :class="{ 'shadow-lg': state.scroll }"
+  >
+    <div class="container mx-auto">
+      <nav class="py-2 h-14 gap-x-2 flex items-center">
         <NuxtLink
-          class="navbar-brand"
-          :style="{
-            color: state.scroll ? '#eb3812' : '',
-            // 'letter-spacing': scroll ? '0px':'2px',
-            'font-size': state.scroll ? '18px' : 'larger',
-            'text-transform': 'uppercase',
-            'font-weight': '700 !important',
-          }"
+          class="uppercase font-bold text-base md:text-lg text-tomato"
           to="/"
         >
-          {{ $t("header.title") }}
+          <div>fossiilid</div>
+          <div class="text-xs text-right -mt-2">.info</div>
         </NuxtLink>
-        <button
-          class="mb-2 mt-2 navbar-toggler"
-          data-bs-toggle="collapse"
-          data-bs-target="#nav_collapse"
-          aria-expanded="false"
+        <USelectMenu
+          ref="quickSearch"
+          class="w-full lg:w-80 ml-2"
+          :ui="{ width: 'w-80' }"
+          :searchable="search"
+          size="md"
+          icon="i-heroicons-magnifying-glass-20-solid"
+          :placeholder="$t('search.fossils_search')"
+          name="search"
+          @update:model-value="(taxon) => $router.push(`/${taxon.id}`)"
+          by="id"
         >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="nav_collapse">
-          <ul class="navbar-nav ms-auto">
-            <form class="d-flex my-lg-0 me-5">
-              <vue-multiselect
-                class="align-middle"
-                style="width: 20em !important"
-                id="search"
-                :custom-label="displayResults"
-                track-by="code"
-                :placeholder="$t('search.fossils_search')"
-                :options="state.searchResults"
-                :searchable="true"
-                :loading="state.isLoading"
-                :max-height="600"
-                :show-no-results="false"
-                :show-labels="false"
-                @select="onSelect"
-                @search-change="simpleTaxonSearchApiCall"
-              >
-                <template slot="noResult"><b>NoRes</b></template>
-              </vue-multiselect>
-              &ensp;
-              <a href="/search" class="nav-link">
-                <i class="fas fa-search-plus"></i>
-              </a>
-            </form>
-            <li class="nav-item dropdown" right>
-              <a
-                class="nav-link dropdown-toggle"
-                data-bs-toggle="dropdown"
-                href="#"
-                role="button"
-                aria-expanded="false"
-              >
-                {{ $t(modeText) }}
-              </a>
-              <ul class="dropdown-menu">
-                <button
-                  class="dropdown-item"
-                  @click="changeMode('in_estonia')"
-                  :class="store.mode === 'in_estonia' ? 'fw-bold' : ''"
-                >
-                  {{ $t("header.in_estonia_mode") }}
-                </button>
-                <button
-                  class="dropdown-item"
-                  @click="changeMode('in_baltoscandia')"
-                  :class="store.mode === 'in_baltoscandia' ? 'fw-bold' : ''"
-                >
-                  {{ $t("header.in_baltoscandia_mode") }}
-                </button>
-                <button
-                  class="dropdown-item"
-                  @click="changeMode('in_global')"
-                  :class="store.mode === 'in_global' ? 'fw-bold' : ''"
-                >
-                  {{ $t("header.global_mode") }}
-                </button>
-              </ul>
-            </li>
-            <li class="nav-item dropdown" right>
-              <a
-                class="nav-link dropdown-toggle"
-                data-bs-toggle="dropdown"
-                href="#"
-                role="button"
-                aria-expanded="false"
-              >
-                {{ langCode }}
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end">
-                <li>
-                  <button
-                    class="dropdown-item p-2"
-                    @click="setLocale('et')"
-                    :class="locale === 'et' ? 'fw-bold' : ''"
-                  >
-                    EST &nbsp;
-                    <span
-                      class="flag-icon flag-icon-ee flag-icon-squared circle-flag"
-                    ></span>
-                  </button>
-                </li>
-                <li>
-                  <button
-                    @click="setLocale('en')"
-                    :class="locale === 'en' ? 'fw-bold' : ''"
-                    class="dropdown-item p-2"
-                  >
-                    ENG &nbsp;
-                    <span
-                      class="flag-icon flag-icon-gb flag-icon-squared circle-flag"
-                    ></span>
-                  </button>
-                </li>
-                <li>
-                  <button
-                    @click="setLocale('fi')"
-                    :class="locale === 'fi' ? 'fw-bold' : ''"
-                    class="dropdown-item p-2"
-                  >
-                    FIN &nbsp;
-                    <span
-                      class="flag-icon flag-icon-fi flag-icon-squared circle-flag"
-                    ></span>
-                  </button>
-                </li>
-                <li>
-                  <button
-                    @click="setLocale('se')"
-                    :class="locale === 'se' ? 'fw-bold' : ''"
-                    class="dropdown-item p-2"
-                  >
-                    SWE &nbsp;
-                    <span
-                      class="flag-icon flag-icon-se flag-icon-squared circle-flag"
-                    ></span>
-                  </button>
-                </li>
-              </ul>
-            </li>
-            <li class="nav-item dropdown" right>
-              <a
-                class="nav-link dropdown-toggle"
-                data-bs-toggle="dropdown"
-                href="#"
-                role="button"
-                aria-expanded="false"
-              >
-                {{ $t("menu.more") }}
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end">
-                <li>
-                  <NuxtLink to="/page/28" class="dropdown-item">
-                    {{ $t("menu.fossils") }}
-                  </NuxtLink>
-                </li>
-                <li>
-                  <NuxtLink to="/page/29" class="dropdown-item">
-                    {{ $t("menu.collecting") }}
-                  </NuxtLink>
-                </li>
-                <li>
-                  <NuxtLink to="/page/30" class="dropdown-item">
-                    {{ $t("menu.identifying") }}
-                  </NuxtLink>
-                </li>
-                <li>
-                  <NuxtLink
-                    to="https://geocollections.info"
-                    class="dropdown-item"
-                  >
-                    {{ $t("menu.geocollections") }}
-                  </NuxtLink>
-                </li>
-              </ul>
-            </li>
-          </ul>
+          <template #option="{ option: taxa }">
+            {{ taxa.name }}
+          </template>
+          <template #trailing>
+            <div class="flex items-center gap-0.5">
+              <UKbd>{{ metaSymbol }}</UKbd>
+              <UKbd>K</UKbd>
+            </div>
+          </template>
+        </USelectMenu>
+        <UButton
+          class="hidden lg:flex"
+          size="md"
+          color="white"
+          icon="i-heroicons-adjustments-vertical-20-solid"
+          to="/search"
+        >
+          <span class="hidden xl:block">
+            {{ $t("menu.detail_search") }}
+          </span>
+        </UButton>
+        <div class="ml-auto space-x-2 hidden lg:flex">
+          <USelect
+            v-model="store.mode"
+            size="md"
+            icon="i-heroicons-globe-europe-africa-20-solid"
+            :options="modeOptions"
+          />
+          <USelect
+            :modelValue="locale"
+            size="md"
+            :options="langOptions"
+            icon="i-heroicons-language-20-solid"
+            @update:model-value="(newLocale: string) => setLocale(newLocale)"
+          />
+          <ColorModeSwitch />
+          <UDropdown :items="pageItems">
+            <UButton
+              :label="$t('menu.more')"
+              size="md"
+              color="white"
+              trailing-icon="i-heroicons-chevron-down-20-solid"
+            />
+          </UDropdown>
         </div>
+        <UButton
+          class="lg:hidden ml-auto"
+          size="md"
+          variant="ghost"
+          color="gray"
+          trailing-icon="i-heroicons-bars-3"
+          @click="state.isOpen = true"
+        ></UButton>
+        <USlideover v-model="state.isOpen">
+          <div class="p-4 space-y-2 flex flex-col">
+            <UButton
+              class="lg:hidden ml-auto"
+              size="md"
+              variant="ghost"
+              color="gray"
+              trailing-icon="i-heroicons-x-mark"
+              @click="state.isOpen = false"
+            ></UButton>
+            <UDivider />
+            <div class="grid grid-cols-2 gap-x-2">
+              <USelect
+                class="col-span-1"
+                v-model="store.mode"
+                size="md"
+                icon="i-heroicons-globe-europe-africa-20-solid"
+                :options="modeOptions"
+              />
+              <USelect
+                class="col-span-1"
+                :modelValue="locale"
+                size="md"
+                :options="langOptions"
+                icon="i-heroicons-language-20-solid"
+                @update:model-value="
+                  (newLocale: string) => setLocale(newLocale)
+                "
+              />
+            </div>
+            <div class="ml-auto">
+              <ColorModeSwitch />
+            </div>
+            <UDivider />
+            <UButton
+              label="Advanced search"
+              size="md"
+              color="gray"
+              variant="ghost"
+              icon="i-heroicons-adjustments-vertical-20-solid"
+              to="/search"
+            />
+            <UDivider />
+            <UVerticalNavigation :links="pageItems[0]" />
+          </div>
+        </USlideover>
       </nav>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
-import VueMultiselect from "vue-multiselect";
 import { useRootStore } from "../stores/root";
 
 const state = reactive({
@@ -200,58 +136,78 @@ const state = reactive({
   searchResults: [],
   isLoading: false,
   selectedTaxon: null,
+  isOpen: false,
 });
 const store = useRootStore();
-const { setLocale, locale } = useI18n();
+const { setLocale, locale, t } = useI18n();
 const { $apiFetch } = useNuxtApp();
+const { metaSymbol } = useShortcuts();
+const quickSearch = ref();
 
-const langCode = computed(() => {
-  let code = "ENG";
-  switch (locale.value) {
-    case "et":
-      code = "EST";
-      break;
-    case "se":
-      code = "SWE";
-      break;
-    case "fi":
-      code = "FIN";
-      break;
-    default:
-      break;
-  }
-  return code;
+defineShortcuts({
+  meta_k: {
+    usingInput: true,
+    handler: () => {
+      quickSearch.value.trigger.el.click();
+    },
+  },
 });
-const modeText = computed(() => {
-  if (store.mode === "in_baltoscandia") return "header.in_baltoscandia_mode";
-  else if (store.mode === "in_estonia") return "header.in_estonia_mode";
-  else return "header.global_mode";
-});
+
+const modeOptions = computed(() => [
+  {
+    label: t("header.in_estonia_mode"),
+    value: "in_estonia",
+  },
+  {
+    label: t("header.in_baltoscandia_mode"),
+    value: "in_baltoscandia",
+  },
+  {
+    label: t("header.global_mode"),
+    value: "in_global",
+  },
+]);
+
+const langOptions = computed(() => [
+  {
+    label: "EST",
+    value: "et",
+  },
+  {
+    label: "ENG",
+    value: "en",
+  },
+  {
+    label: "FIN",
+    value: "fi",
+  },
+  {
+    label: "SWE",
+    value: "se",
+  },
+]);
+
+const pageItems = computed(() => [
+  [
+    { label: t("menu.fossils"), to: "/page/28" },
+    { label: t("menu.collecting"), to: "/page/29" },
+    { label: t("menu.identifying"), to: "/page/30" },
+    { label: t("menu.geocollections"), to: "https://geocollections.info" },
+  ],
+]);
+
 onBeforeMount(() => {
   window.addEventListener("scroll", handleScroll);
 });
-function simpleTaxonSearchApiCall(value: string) {
-  if (value.length < 3) state.searchResults = [];
-  if (value.length > 2) {
-    state.isLoading = true;
-    $apiFetch(
-      `/taxon/?sql=simple_taxon_search&keyword=${value}&format=json`
-    ).then((response: any) => {
-      state.isLoading = false;
-      state.searchResults = response.results;
-    });
-  }
+
+async function search(value: string) {
+  if (value.length < 1) return [];
+  const taxa = await $apiFetch<{ results: any[] }>(
+    `/taxon/?sql=simple_taxon_search&keyword=${value}&format=json`,
+  );
+  return taxa.results;
 }
-function onSelect(value: any) {
-  state.selectedTaxon = null;
-  location.replace("/" + value.id);
-}
-function displayResults(item: any) {
-  return `${item.name}`;
-}
-function changeMode(mode: string) {
-  store.mode = mode;
-}
+
 function handleScroll() {
   state.scroll = document.documentElement.scrollTop > 1;
 }

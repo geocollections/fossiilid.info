@@ -1,9 +1,9 @@
 <template>
-  <div class="card rounded-0">
-    <div class="card-header">
+  <UCard>
+    <template #header>
       {{ $t("header.fossils_classification") }}
-    </div>
-    <div class="card-body" style="font-size: 0.8em">
+    </template>
+    <div style="font-size: 0.8em">
       <table>
         <tbody class="hierarchy_tree">
           <tr
@@ -53,7 +53,7 @@
         </tbody>
       </table>
     </div>
-  </div>
+  </UCard>
 </template>
 
 <script setup lang="ts">
@@ -72,13 +72,13 @@ type HierarchyNode = {
 };
 
 const { data: hierarchy } = useNewApiFetch<HierarchyNode[]>(
-  `/taxa/${props.id}/hierarchy/`
+  `/taxa/${props.id}/hierarchy/`,
 );
 
 function isHigherTaxon(rank: string) {
   return !(
     ["Species", "Subspecies", "Genus", "Supergenus", "Subgenus"].indexOf(
-      rank
+      rank,
     ) >= 0
   );
 }

@@ -1,54 +1,24 @@
 <template>
-  <div id="lingallery" :style="lingalleryStyle">
-    <figure
-      v-if="currentImage && false"
-      itemprop="associatedMedia"
-      itemscope
-      itemtype="http://schema.org/ImageObject"
-      :style="figureStyle"
-    >
-      <div id="lingallery_spinner">
-        <div v-if="isLoading">Loading</div>
-        <!--<half-circle-spinner :animation-duration="1000" :size="60" :color="accentColor" v-if="isLoading"/>-->
-      </div>
-      <a
-        aria-label="image"
-        data-fancybox="gallery"
-        :href="currentImage.image_url"
-        :data-caption="currentImage.caption"
-      >
-        <img :src="currentImage" />
-      </a>
-      <a class="control left" @click="showPreviousImage">&#9664;</a>
-      <a class="control right" @click="showNextImage">&#9654;</a>
-    </figure>
-    <div class="lingallery_thumbnails" v-if="showThumbnails">
-      <div class="lingallery_thumbnails_content">
-        <div
-          v-for="(item, index) in items"
-          class="lingallery_thumbnails_content_elem"
-          :key="index"
-        >
+  <div id="lingallery">
+    <div class="lingallery_thumbnails overflow-x-auto" v-if="showThumbnails">
+      <div class="lingallery_thumbnails_content whitespace-nowrap space-x-1">
+        <template v-for="(item, index) in items" :key="index">
           <a
+            class="inline-block"
             :aria-label="'image' + index"
             data-fancybox="gallery"
             :href="item.src"
             :data-caption="item.caption"
           >
             <img
+              class="border rounded"
               :alt="item.src"
               style="height: 200px"
               :src="item.thumbnail"
-              v-on="
-                currentIndex !== index
-                  ? { click: () => handleImageClick(index) }
-                  : {}
-              "
-              :style="thumbnailStyle(index)"
             />
             <!--<img :alt="item.src" class="lazy"  data-sizes="(min-width: 20em) 35vw, 100vw" style="height: 200px;" :data-src="item.thumbnail" v-on="currentIndex !== index ? { click: () => handleImageClick(index) } : {}" :style="thumbnailStyle(index)">-->
           </a>
-        </div>
+        </template>
       </div>
     </div>
   </div>
@@ -57,15 +27,6 @@
 <script>
 export default defineNuxtComponent({
   name: "Lingallery",
-  data() {
-    return {
-      currentImage: null,
-      currentIndex: 0,
-      currentCaption: "",
-      windowWidth: 0,
-      isLoading: true,
-    };
-  },
   props: {
     items: {
       default: [
@@ -109,189 +70,10 @@ export default defineNuxtComponent({
       default: true,
     },
   },
-
-  computed: {
-    lingalleryStyle() {
-      return this.windowWidth > this.width && !this.responsive
-        ? "width:" + this.width + "px"
-        : "width:100%";
-    },
-    figureStyle() {
-      if (this.currentImage) {
-        return this.getImageSize(this.currentImage)
-          .then((result) => {
-            let heightValue = "height:auto";
-
-            // Hide Loader
-            this.handleLoader(false);
-
-            if (result.widthValue < result.heightValue) {
-              heightValue = "height:" + this.height + "px";
-            }
-            return this.windowWidth > this.width && !this.responsive
-              ? "width:" + this.width + "px;height:" + this.height + "px"
-              : "width:100%;" + heightValue;
-          })
-          .catch((err) => console.log(err));
-      } else
-        return this.windowWidth > this.width && !this.responsive
-          ? "width:" + this.width + "px;height:" + this.height + "px"
-          : "width:100%;height:auto";
-    },
-  },
-  methods: {
-    handleImageClick(index) {
-      this.currentIndex = index;
-      this.pickImage(index);
-    },
-    getImageSize(src) {
-      let image = this.getImage(src);
-      return new Promise((resolve, reject) => {
-        let result = {
-          widthValue: image.naturalWidth,
-          heightValue: image.naturalHeight,
-        };
-        resolve(result);
-      });
-    },
-    getImage(src) {
-      return new Promise((resolve, reject) => {
-        let img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = reject;
-        img.src = src;
-      }).catch(() => {
-        console.log("error");
-      });
-    },
-    handleLoader(isLoading) {
-      this.isLoading = isLoading;
-    },
-    pickImage(index) {
-      // Show Loader
-      this.handleLoader(true);
-      this.$emit("currentIndex", index);
-      this.currentImage = this.items[index].src;
-      this.currentCaption = this.items[index].caption;
-    },
-    thumbnailStyle(index) {
-      let color =
-        this.currentIndex === index ? this.accentColor : this.baseColor;
-      return "border-color:" + color;
-    },
-    showNextImage() {
-      // Show Loader
-      this.handleLoader(true);
-
-      if (this.items.length > this.currentIndex + 1) {
-        this.currentIndex = this.currentIndex + 1;
-      } else {
-        this.currentIndex = 0;
-      }
-
-      this.pickImage(this.currentIndex);
-    },
-    showPreviousImage() {
-      // Show Loader
-      this.handleLoader(true);
-
-      if (this.currentIndex !== 0) {
-        this.currentIndex = this.currentIndex - 1;
-      } else {
-        this.currentIndex = this.items.length - 1;
-      }
-
-      this.pickImage(this.currentIndex);
-    },
-  },
-  mounted() {
-    this.currentImage = this.items[this.startImage].src;
-    this.currentCaption = this.items[this.startImage].caption;
-    this.currentIndex = this.startImage;
-    this.windowWidth = window.innerWidth;
-    // var myLazyLoad = new LazyLoad({
-    //     elements_selector: ".lazy"
-    // });
-  },
 });
 </script>
 
 <style scoped>
-#lingallery {
-  max-width: 100%;
-}
-figure {
-  position: relative;
-  margin: 0;
-  padding: 0;
-  max-width: 100%;
-  text-align: center;
-  cursor: pointer;
-}
-figure img {
-  max-width: 100%;
-  max-height: 100%;
-  transition: opacity 0.25s ease;
-}
-figure img.loading {
-  opacity: 0.25;
-  min-height: 200px;
-  transition: opcacity 0.25s ease;
-}
-figure a.control {
-  position: absolute;
-  top: calc(50% - 12px);
-  display: none;
-  font-size: 20px;
-  color: #fff;
-  cursor: pointer;
-  text-shadow: 0 0 20px rgba(0, 0, 0, 0.75);
-}
-figure a.control.left {
-  left: 5px;
-}
-figure a.control.right {
-  right: 5px;
-}
-figure:hover a.control {
-  display: block;
-}
-.lingallery_caption {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  padding: 4px 0;
-  width: 100%;
-  background-color: rgba(255, 255, 255, 0.75);
-  font-size: 1em;
-}
-.lingallery_thumbnails {
-  overflow-x: auto;
-  width: 100%;
-}
-.lingallery_thumbnails_content {
-  margin-top: 2px;
-  width: auto;
-  white-space: nowrap;
-}
-.lingallery_thumbnails .lingallery_thumbnails_content_elem {
-  display: inline-block;
-}
-.lingallery_thumbnails .lingallery_thumbnails_content_elem img {
-  border: 2px solid #fff;
-  cursor: pointer;
-}
-#lingallery_spinner {
-  position: absolute;
-  left: 50%;
-  top: calc(50% - 32px);
-}
-#lingallery_spinner > div {
-  z-index: 9999;
-  position: relative;
-  left: -50%;
-}
-
 /*
      * Scrollbar styling
      */

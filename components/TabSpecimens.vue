@@ -1,319 +1,168 @@
 <template>
-  <div
-    id="#tab-specimens"
-    class="tab-pane"
-    :class="{ active: store.activeTab === 'specimens' }"
-    role="tabpanel"
+  <UPagination
+    :ui="{ base: 'ml-auto mb-2' }"
+    v-model="store.searchParameters.specimens.page"
+    :total="specimenRes.count"
+    :page-count="store.searchParameters.specimens.paginateBy"
+  />
+  <UTable
+    class="bg-white rounded border"
+    :columns="columns"
+    :rows="specimenRes.results"
+    v-model:sort="sort"
   >
-    <div v-if="state.loading" class="d-flex align-center">
-      <BSpinner variant="warning" style="width: 44px; height: 44px" />
-      <span class="p-2">{{ $t("messages.pageLoading") }}</span>
-    </div>
-    <div
-      class="row m-1 table-responsive"
-      v-else-if="isDefinedAndNotEmpty(state.response.results)"
-    >
-      <div class="col-xs-12 pagination-center">
-        <b-pagination
-          size="sm"
-          align="end"
-          :limit="5"
-          :hide-ellipsis="true"
-          :total-rows="state.response.count"
-          v-model="store.searchParameters.specimens.page"
-          :per-page="store.searchParameters.specimens.paginateBy"
-        ></b-pagination>
-      </div>
-      <table
-        class="table table-bordered table-hover mobile-padding-fix"
-        style="font-size: smaller"
-        id="table-search"
+    <template #specimen_number-data="{ row }">
+      <a
+        href="#"
+        @click="
+          openUrl({
+            parent_url: state.geocollectionUrl + '/specimen',
+            object: row.id,
+            width: 500,
+            height: 500,
+          })
+        "
       >
-        <thead class="thead-default">
-          <tr>
-            <th>
-              <sort-field
-                value="specimen_number"
-                name="search.specimen.number"
-              ></sort-field>
-            </th>
-            <!--<th><sort-field value = "specimen_number_old" name="search.specimen.old_specimen_number"></sort-field></th>-->
-            <th>
-              <sort-field
-                value="taxon"
-                name="search.specimen.name_part_element"
-              ></sort-field>
-            </th>
-            <th>
-              <sort-field
-                value="locality,locality_en"
-                name="search.specimen.locality"
-              ></sort-field>
-            </th>
-            <th>
-              <sort-field
-                value="depth"
-                name="search.specimen.depth_m"
-              ></sort-field>
-            </th>
-            <th>
-              <sort-field
-                value="stratigraphy,stratigraphy_en"
-                name="search.specimen.stratigraphy"
-              />
-              <!--|-->
-              <!--<em>-->
-              <!--<sort-field value="lithostratigraphy,lithostratigraphy_en" name="search.specimen.lithostratigraphy"/>-->
-              <!--</em>-->
-            </th>
-            <!--<th><sort-field value = "collector_full_name" name="search.specimen.collector"></sort-field></th>-->
-            <th>
-              <sort-field
-                value="original_status,original_status_en"
-                name="search.specimen.status"
-              ></sort-field>
-            </th>
-            <th>{{ $t("search.specimen.images") }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in state.response.results">
-            <td class="text-nowrap">
-              <a
-                href="#"
-                @click="
-                  openUrl({
-                    parent_url: state.geocollectionUrl + '/specimen',
-                    object: item.id,
-                    width: 500,
-                    height: 500,
-                  })
-                "
-              >
-                {{ item.acronym }} {{ item.specimen_number }}
-              </a>
-            </td>
-            <!--<td class="text-nowrap">{{item.specimen_number_old}}</td>-->
-            <td>
-              <div>
-                <a :href="'/' + item.taxon_id">{{ item.taxon }}</a>
-                <span
-                  v-if="
-                    isDefinedAndNotNull(item.taxon_txt) &&
-                    isDefinedAndNotNull(item.taxon) &&
-                    item.taxon_txt != item.taxon
-                  "
-                >
-                  |
-                </span>
-                <span
-                  v-if="
-                    isDefinedAndNotNull(item.taxon_txt) &&
-                    item.taxon_txt != item.taxon
-                  "
-                >
-                  <i v-for="(txt, idx) in item.taxon_txt">
-                    {{ txt }}
-                    <span v-if="idx !== item.taxon_txt.length - 1">,</span>
-                  </i>
-                </span>
-              </div>
-              <!-- Currently both are links because rock__name is mostly null. -->
-              <div>
-                <a
-                  href="#"
-                  @click="
-                    openUrl({
-                      parent_url: state.kividUrl,
-                      object: item.rock_id,
-                      width: 500,
-                      height: 500,
-                    })
-                  "
-                >
-                  <span
-                    v-translate="{ et: item.rock, en: item.rock_en }"
-                  ></span>
-                </a>
-                <span
-                  v-if="
-                    isDefinedAndNotNull(item.rock) &&
-                    isDefinedAndNotNull(item.rock_txt)
-                  "
-                >
-                  |
-                </span>
-                <span
-                  v-if="
-                    (isDefinedAndNotNull(item.rock_txt) ||
-                      isDefinedAndNotNull(item.rock_txt_en)) &&
-                    (item.rock !== item.rock_txt ||
-                      item.rock_en !== item.rock_txt_en)
-                  "
-                >
-                  <i>
-                    <span
-                      v-translate="{ et: item.rock_txt, en: item.rock_txt_en }"
-                    ></span>
-                  </i>
-                </span>
-              </div>
-            </td>
-            <td
-              v-if="
-                !isSmallScreenDevice ||
-                (isSmallScreenDevice &&
-                  (isDefinedAndNotNull(item.locality) ||
-                    isDefinedAndNotNull(item.locality_en) ||
-                    isDefinedAndNotNull(item.locality_free)))
-              "
-            >
-              <div
-                v-if="
-                  isDefinedAndNotNull(item.locality) ||
-                  isDefinedAndNotNull(item.locality_en)
-                "
-              >
-                <a
-                  href="#"
-                  @click="
-                    openUrl({
-                      parent_url: state.geocollectionUrl + '/locality',
-                      object: item.locality_id,
-                      width: 500,
-                      height: 500,
-                    })
-                  "
-                >
-                  <span
-                    v-translate="{ et: item.locality, en: item.locality_en }"
-                  ></span>
-                </a>
-              </div>
-              <span v-if="isDefinedAndNotNull(item.locality_free)">
-                {{ item.locality_free }}
-              </span>
-            </td>
-            <td
-              v-if="
-                !isSmallScreenDevice ||
-                (isSmallScreenDevice &&
-                  (isDefinedAndNotNull(item.depth) ||
-                    isDefinedAndNotNull(item.depth_interval)))
-              "
-            >
-              {{ item.depth }}
-              <span v-if="item.depth_interval != null && item.depth_interval">
-                - {{ item.depth_interval }}
-              </span>
-            </td>
-            <td
-              v-if="
-                !isSmallScreenDevice ||
-                (isSmallScreenDevice &&
-                  (isDefinedAndNotNull(item.stratigraphy) ||
-                    isDefinedAndNotNull(item.stratigraphy_en))) ||
-                isDefinedAndNotNull(item.stratigraphy_txt)
-              "
-            >
-              <a
-                v-if="
-                  isDefinedAndNotNull(item.stratigraphy) ||
-                  isDefinedAndNotNull(item.stratigraphy_en)
-                "
-                href="#"
-                @click="
-                  openUrl({
-                    parent_url: state.geocollectionUrl + '/stratigraphy',
-                    object: item.stratigraphy_id,
-                    width: 500,
-                    height: 500,
-                  })
-                "
-              >
-                <span
-                  v-translate="{
-                    et: item.stratigraphy,
-                    en: item.stratigraphy_en,
-                  }"
-                ></span>
-              </a>
-
-              <span
-                v-if="
-                  (item.stratigraphy_en == null && item.stratigraphy == null) ||
-                  (item.lithostratigraphy_en == null &&
-                    item.lithostratigraphy == null)
-                "
-                v-for="(txt, idx) in item.stratigraphy_txt"
-              >
-                {{ txt }}
-                <span v-if="idx !== item.stratigraphy_txt.length - 1">,</span>
-              </span>
-
-              <!--<span v-if="item.stratigraphy != null && item.lithostratigraphy != null">|</span>-->
-
-              <!--<em v-if="isDefinedAndNotNull(item.lithostratigraphy) || isDefinedAndNotNull(item.lithostratigraphy_en)">-->
-              <!--<a href="#"-->
-              <!--@click="openUrl({parent_url:$parent.geocollectionUrl+'/stratigraphy',object:item.lithostratigraphy_id, width:500,height:500})">-->
-              <!--<span v-translate="{et:item.lithostratigraphy,en:item.lithostratigraphy_en}"></span></a>-->
-              <!--</em>-->
-            </td>
-            <!--<td>-->
-            <!--<div v-if="isDefinedAndNotNull(item.collector_full_name)">-->
-            <!--{{ item.collector_full_name }}-->
-            <!--</div>-->
-            <!--</td>-->
-
-            <td
-              v-if="
-                !isSmallScreenDevice ||
-                (isSmallScreenDevice &&
-                  (isDefinedAndNotNull(item.original_status) ||
-                    isDefinedAndNotNull(item.original_status_en)))
-              "
-            >
-              <span
-                v-if="
-                  isDefinedAndNotNull(item.original_status) ||
-                  isDefinedAndNotNull(item.original_status_en)
-                "
-                v-translate="{
-                  et: item.original_status,
-                  en: item.original_status_en,
-                }"
-              ></span>
-            </td>
-            <td v-if="isDefinedAndNotNull(item.image_preview_url)">
-              <a
-                data-fancybox="gallery3"
-                :href="item.image_url"
-                :data-caption="item.caption"
-              >
-                <img
-                  class="img-thumbnail previewImage"
-                  :src="item.image_preview_url"
-                  style="max-height: 6rem; max-width: 3rem"
-                />
-              </a>
-            </td>
-            <td v-else></td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="col-xs-12 pagination-center">
-        <b-pagination
-          size="sm"
-          align="end"
-          :limit="5"
-          :hide-ellipsis="true"
-          :total-rows="state.response.count"
-          v-model="store.searchParameters.specimens.page"
-          :per-page="store.searchParameters.specimens.paginateBy"
-        ></b-pagination>
+        {{ row.acronym }} {{ row.specimen_number }}
+      </a>
+    </template>
+    <template #taxon-data="{ row: item }">
+      <div>
+        <a :href="'/' + item.taxon_id">{{ item.taxon }}</a>
+        <span
+          v-if="
+            isDefinedAndNotNull(item.taxon_txt) &&
+            isDefinedAndNotNull(item.taxon) &&
+            item.taxon_txt != item.taxon
+          "
+        >
+          |
+        </span>
+        <span
+          v-if="
+            isDefinedAndNotNull(item.taxon_txt) && item.taxon_txt != item.taxon
+          "
+        >
+          <i v-for="(txt, idx) in item.taxon_txt">
+            {{ txt }}
+            <span v-if="idx !== item.taxon_txt.length - 1">,</span>
+          </i>
+        </span>
       </div>
-    </div>
-  </div>
+      <!-- Currently both are links because rock__name is mostly null. -->
+      <div>
+        <a
+          href="#"
+          @click="
+            openUrl({
+              parent_url: state.kividUrl,
+              object: item.rock_id,
+              width: 500,
+              height: 500,
+            })
+          "
+        >
+          {{ $translate({ et: item.rock, en: item.rock_en }) }}
+        </a>
+        <span
+          v-if="
+            isDefinedAndNotNull(item.rock) && isDefinedAndNotNull(item.rock_txt)
+          "
+        >
+          |
+        </span>
+        <span
+          v-if="
+            (isDefinedAndNotNull(item.rock_txt) ||
+              isDefinedAndNotNull(item.rock_txt_en)) &&
+            (item.rock !== item.rock_txt || item.rock_en !== item.rock_txt_en)
+          "
+        >
+          <i>
+            {{ $translate({ et: item.rock_txt, en: item.rock_txt_en }) }}
+          </i>
+        </span>
+      </div>
+    </template>
+    <template #locality-data="{ row: item }">
+      <div v-if="item.locality || item.locality_en">
+        <a
+          href="#"
+          @click="
+            openUrl({
+              parent_url: state.geocollectionUrl + '/locality',
+              object: item.locality_id,
+              width: 500,
+              height: 500,
+            })
+          "
+        >
+          {{ $translate({ et: item.locality, en: item.locality_en }) }}
+        </a>
+      </div>
+      <span v-if="item.locality_free">
+        {{ item.locality_free }}
+      </span>
+    </template>
+    <template #depth-data="{ row: item }">
+      {{ item.depth }}
+      <span v-if="item.depth_interval">- {{ item.depth_interval }}</span>
+    </template>
+    <template #stratigraphy-data="{ row: item }">
+      <a
+        v-if="item.stratigraphy || item.stratigraphy_en"
+        href="#"
+        @click="
+          openUrl({
+            parent_url: state.geocollectionUrl + '/stratigraphy',
+            object: item.stratigraphy_id,
+            width: 500,
+            height: 500,
+          })
+        "
+      >
+        {{ $translate({ et: item.stratigraphy, en: item.stratigraphy_en }) }}
+      </a>
+      <div v-else></div>
+
+      <span v-if="item.stratigraphy_txt">
+        |
+        <span v-for="(txt, idx) in item.stratigraphy_txt">
+          {{ txt }}
+          <span v-if="idx !== item.stratigraphy_txt.length - 1">,</span>
+        </span>
+      </span>
+    </template>
+    <template #status-data="{ row: item }">
+      {{
+        $translate({
+          et: item.original_status,
+          en: item.original_status_en,
+        })
+      }}
+    </template>
+    <template #image-data="{ row: item, getRowData }">
+      <a
+        v-if="getRowData(null)"
+        data-fancybox="gallery3"
+        :href="item.image_url"
+        :data-caption="item.caption"
+      >
+        <img
+          class="border rounded p-1"
+          :src="item.image_preview_url"
+          style="max-height: 6rem; max-width: 3rem"
+        />
+      </a>
+      <div v-else></div>
+    </template>
+  </UTable>
+  <UPagination
+    :ui="{ base: 'ml-auto mt-2' }"
+    v-model="store.searchParameters.specimens.page"
+    :total="specimenRes.count"
+    :page-count="store.searchParameters.specimens.paginateBy"
+  />
 </template>
 
 <script setup lang="ts">
@@ -326,67 +175,103 @@ const props = defineProps({
   },
 });
 const state = reactive({
-  loading: true,
-  clientWidth: 800,
-  response: {
-    count: 0,
-    results: [] as any[],
-  },
   geocollectionUrl: "http://geocollections.info",
-  fossilsUrl: "https://fossiilid.info",
   kividUrl: "http://www.kivid.info",
 });
+const sortKeyMap = {
+  specimen_number: "specimen_number",
+  taxon: "taxon",
+  locality: {
+    et: "locality",
+    en: "locality_en",
+  },
+  depth: "depth",
+  stratigraphy: {
+    et: "stratigraphy",
+    en: "stratigraphy_en",
+  },
+  status: {
+    et: "original_status",
+    en: "original_status_en",
+  },
+};
 const store = useRootStore();
 const { $apiFetch } = useNuxtApp();
 
-const isSmallScreenDevice = computed(() => {
-  return state.clientWidth < 439;
-});
 onMounted(() => {
   window.addEventListener("resize", () => {
     state.clientWidth = document.documentElement.clientWidth;
   });
-  getSpecimens();
 });
-function getSpecimens() {
-  state.loading = true;
-  fetchSpecimenCollection(
-    props.taxon.hierarchy_string,
-    store.searchParameters
-  ).then((response) => {
-    state.response = response;
-    state.loading = false;
-  });
-}
-function fetchSpecimenCollection(
-  hierarchy_string: string,
-  searchParameters: any
-) {
-  let start =
-    searchParameters.specimens.paginateBy *
-    (searchParameters.specimens.page - 1);
-  let orderBy =
-    searchParameters.specimens.order === "ASCENDING"
-      ? searchParameters.specimens.sortBy + " asc"
-      : searchParameters.specimens.sortBy + " desc";
-  return $apiFetch<{ count: number; results: any[] }>(`solr/specimen`, {
-    query: {
-      q: `hierarchy_string:(${hierarchy_string}*)`,
-      rows: searchParameters.specimens.paginateBy,
-      start: start,
-      sort: orderBy,
-      format: "json",
-    },
-  });
-}
+const sort = ref({
+  column: "specimen_number",
+  direction: "asc",
+});
+const { data: specimenRes, pending } = await useApiFetch("/solr/specimen/", {
+  query: computed(() => ({
+    q: `hierarchy_string:(${props.taxon.hierarchy_string}*)`,
+    rows: store.searchParameters.specimens.paginateBy,
+    start:
+      store.searchParameters.specimens.paginateBy *
+      (store.searchParameters.specimens.page - 1),
+    sort: `${getSortKey(sort.value.column)} ${sort.value.direction}`,
+    format: "json",
+  })),
+});
+const specimenCount = computed(() => specimenRes.count);
 
-watch(
-  () => store.searchParameters.specimens,
-  () => {
-    getSpecimens();
+function getSortKey(columnKey: string) {
+  if (typeof sortKeyMap[columnKey] === "string") {
+    return sortKeyMap[columnKey];
+  }
+  if (locale.value === "et") {
+    return sortKeyMap[columnKey].et;
+  }
+  return sortKeyMap[columnKey].en;
+}
+const { t, locale } = useI18n();
+const columns = computed(() => [
+  {
+    key: "specimen_number",
+    label: t("search.specimen.number"),
+    sortable: true,
+    sortKey: "specimen_number",
   },
-  { deep: true }
-);
+  {
+    key: "taxon",
+    label: t("search.specimen.name_part_element"),
+    sortable: true,
+    sortKey: "taxon",
+  },
+  {
+    key: "locality",
+    label: t("search.specimen.locality"),
+    sortable: true,
+    sortKey: "locality",
+  },
+  {
+    key: "depth",
+    label: t("search.specimen.depth_m"),
+    sortable: true,
+    sortKey: "depth",
+  },
+  {
+    key: "stratigraphy",
+    label: t("search.specimen.stratigraphy"),
+    sortable: true,
+    sortKey: "stratigraphy",
+  },
+  {
+    key: "status",
+    label: t("search.specimen.status"),
+    sortable: true,
+    sortKey: "status",
+  },
+  {
+    key: "image",
+    label: t("search.specimen.images"),
+  },
+]);
 </script>
 
 <style scoped>
