@@ -35,9 +35,7 @@ export default defineNuxtConfig({
     "@nuxtjs/i18n",
     "@nuxt/ui",
     "@nuxtjs/google-fonts",
-    "@nuxtjs/tailwindcss",
     "@vueuse/nuxt",
-    "@nuxtjs/color-mode",
   ],
   i18n: {
     locales: [
