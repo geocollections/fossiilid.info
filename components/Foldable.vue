@@ -1,6 +1,6 @@
 <template>
   <div>
-    <slot v-if="$props.elLength < 4" />
+    <slot v-if="elLength < 4" />
     <div class="vue-foldable" v-else>
       <div
         class="vue-foldable-container"

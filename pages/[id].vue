@@ -495,7 +495,7 @@
               <template #header>
                 {{ $t("header.f_taxon_references") }}
               </template>
-              <foldable :elLength="references.length">
+              <Foldable :elLength="references.length">
                 <div
                   :class="idx === references.length - 1 ? '' : 'my-3'"
                   v-for="(reference, idx) in references"
@@ -542,7 +542,7 @@
                     </a>
                   </span>
                 </div>
-              </foldable>
+              </Foldable>
             </UCard>
             <UCard v-if="state.allSpecies && state.allSpecies.length > 0">
               <template #header>
@@ -643,10 +643,6 @@
               class="p-0"
               :ui="{ body: { padding: '' } }"
             >
-              <!-- <template #header> -->
-              <!--   {{ $t("header.f_distribution_map") }} -->
-              <!-- </template> -->
-
               <ClientOnly>
                 <MapComponent :map-data="map"></MapComponent>
                 <template #fallback>
@@ -679,12 +675,12 @@
             <TaxonomicalTree :id="taxon.id" />
             <SeeAlso
               v-if="
-                (taxonPage && taxonPage.link_wikipedia) ||
                 taxon.taxon_id_tol ||
                 taxon.taxon_id_eol ||
                 taxon.taxon_id_nrm ||
                 taxon.taxon_id_plutof ||
-                taxon.taxon_id_pbdb
+                taxon.taxon_id_pbdb ||
+                taxonPage?.link_wikipedia
               "
               :taxon="taxon"
               :taxon-page="taxonPage"

@@ -6,11 +6,7 @@
     <div style="font-size: 0.8em">
       <table>
         <tbody class="hierarchy_tree">
-          <tr
-            style="list-style-type: none"
-            v-for="(node, idx) in hierarchy"
-            :key="node.id"
-          >
+          <tr v-for="(node, idx) in hierarchy" :key="node.id">
             <td
               v-if="idx === 0 || node.rank !== hierarchy?.[idx - 1].rank"
               align="right"
@@ -83,6 +79,7 @@ function isHigherTaxon(rank: string) {
   );
 }
 </script>
+
 <i18n lang="json">
 {
   "en": {
