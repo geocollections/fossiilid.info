@@ -1,9 +1,9 @@
 <template>
   <section class="container space-y-2">
     <h1 class="text-5xl text-center mb-4">{{ $t("menu.detail_search") }}</h1>
-    <div class="grid grid-cols-2 gap-x-2">
+    <div class="grid grid-cols-2 gap-2">
       <div
-        class="col-span-1 p-4 border bg-white dark:bg-gray-800 dark:border-gray-700 rounded"
+        class="col-span-full lg:col-span-1 p-4 border bg-white dark:bg-gray-800 dark:border-gray-700 rounded"
       >
         <UForm class="space-y-2" :state="searchFormState" @submit="search">
           <UFormGroup :label="$t('advancedsearch.hightaxon')">
@@ -108,8 +108,10 @@
           </div>
         </UForm>
       </div>
-      <div class="col-span-1 border rounded dark:border-gray-700">
-        <div id="map" class="h-full z-0" style="cursor: default"></div>
+      <div
+        class="col-span-full lg:col-span-1 border rounded dark:border-gray-700"
+      >
+        <div id="map" class="h-96 lg:h-full z-0" style="cursor: default"></div>
       </div>
     </div>
     <div>
