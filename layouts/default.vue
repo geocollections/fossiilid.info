@@ -1,9 +1,9 @@
 <template>
   <div class="flex flex-col min-h-screen">
     <AppHeader />
-    <main>
+    <main ref="el">
       <div class="py-10 px-2">
-        <slot ref="el" />
+        <slot />
       </div>
     </main>
     <AppFooter class="mt-auto" />

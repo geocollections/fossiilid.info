@@ -2,7 +2,7 @@
   <UCard>
     <template #header>See also</template>
     <ul>
-      <li v-if="taxonPage.link_wikipedia">
+      <li v-if="taxonPage?.link_wikipedia">
         <a :href="wikipediaUrl">
           {{ $t("header.f_link_wikipedia") }}
           <UIcon

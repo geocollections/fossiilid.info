@@ -3,52 +3,43 @@
     <template #header>
       {{ $t("header.fossils_classification") }}
     </template>
-    <div style="font-size: 0.8em">
-      <table>
-        <tbody class="hierarchy_tree">
-          <tr v-for="(node, idx) in hierarchy" :key="node.id">
-            <td
-              v-if="idx === 0 || node.rank !== hierarchy?.[idx - 1].rank"
-              align="right"
-              valign="top"
-              style="color: #999"
+    <table class="text-sm">
+      <tbody>
+        <tr v-for="(node, idx) in hierarchy" :key="node.id">
+          <td
+            v-if="idx === 0 || node.rank !== hierarchy?.[idx - 1].rank"
+            align="right"
+            class="text-gray-400"
+          >
+            <span v-if="node.rank">
+              {{ $translate({ et: node.rank_name, en: node.rank_name_en }) }}
+            </span>
+            <span class="italic font-light" v-else>
+              {{ t("unranked") }}
+            </span>
+          </td>
+          <td v-else class="border-r border-r-gray-400"></td>
+          <td
+            class="pl-2"
+            :class="{ italic: !isHigherTaxon(node.rank_name_en) }"
+          >
+            <span
+              :style="{ 'margin-left': `${0.75 * node.level}rem` }"
+              v-if="node.id === props.id"
             >
-              <span v-if="node.rank">
-                {{ $translate({ et: node.rank_name, en: node.rank_name_en }) }}
-              </span>
-              <span class="fst-italic" style="font-weight: lighter" v-else>
-                {{ t("unranked") }}
-              </span>
-            </td>
-            <td
-              style="color: #999; border-right: 1px solid #999"
-              align="right"
-              valign="top"
+              {{ node.taxon }}
+            </span>
+            <NuxtLink
               v-else
-            ></td>
-            <td
-              class="ps-2"
-              :class="{ 'fst-italic': !isHigherTaxon(node.rank_name_en) }"
+              :style="{ 'margin-left': `${0.75 * node.level}rem` }"
+              :to="{ path: `/${node.id}` }"
             >
-              <span
-                class="node_in_tree_selected"
-                :style="{ 'margin-left': `${0.75 * node.level}rem` }"
-                v-if="node.id === props.id"
-              >
-                {{ node.taxon }}
-              </span>
-              <NuxtLink
-                v-else
-                :style="{ 'margin-left': `${0.75 * node.level}rem` }"
-                :to="{ path: `/${node.id}` }"
-              >
-                {{ node.taxon }}
-              </NuxtLink>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+              {{ node.taxon }}
+            </NuxtLink>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </UCard>
 </template>
 

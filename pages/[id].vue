@@ -48,742 +48,738 @@
         </h2>
       </div>
     </div>
-    <UTabs :items="tabs">
-      <template #default="{ item }">
+    <div
+      class="relative bg-gray-100 dark:bg-gray-800 rounded-lg p-1 w-full h-10 inline-grid items-center mb-2"
+      style="grid-template-columns: repeat(3, minmax(0px, 1fr))"
+    >
+      <UButton
+        v-for="tab in tabs"
+        variant="ghost"
+        color="white"
+        :class="{
+          'bg-white dark:bg-gray-900': state.activeSection === tab.slot,
+        }"
+        :disabled="tab.disabled"
+        :ui="{
+          base: 'flex items-center justify-center text-sm h-8',
+          color: {
+            white: {
+              ghost: 'dark:hover:disabled:bg-inherit hover:disabled:bg-inherit',
+            },
+          },
+        }"
+        :tabindex="!tab.disabled ? '0' : '-1'"
+        @click="state.activeSection = tab.slot"
+      >
         <span class="mr-1">
-          {{ item.label }}
+          {{ tab.label }}
         </span>
-        <UBadge v-if="item.count" variant="subtle">
-          {{ item.count }}
+        <UBadge v-if="tab.count" variant="subtle">
+          {{ tab.count }}
         </UBadge>
-      </template>
-      <template #info>
-        <div class="grid grid-cols-3 gap-x-2">
-          <div class="col-span-full lg:col-span-2 space-y-2">
-            <div class="space-y-2" v-if="opinions.length > 0">
-              <UAlert
-                :title="$t('header.f_name_is_invalid')"
-                :ui="{ title: 'text-red-800 dark:text-red-200' }"
-                color="red"
-                variant="subtle"
-                style="width: 100%"
+      </UButton>
+    </div>
+    <div v-if="state.activeSection === 'info'" class="grid grid-cols-3 gap-x-2">
+      <div class="col-span-full lg:col-span-2 space-y-2">
+        <div class="space-y-2" v-if="opinions.length > 0">
+          <UAlert
+            :title="$t('header.f_name_is_invalid')"
+            :ui="{ title: 'text-red-800 dark:text-red-200' }"
+            color="red"
+            variant="subtle"
+            style="width: 100%"
+          >
+            <template #title="{ title }">
+              {{ title }}
+              <span v-for="(item, index) in opinions" :key="index">
+                <NuxtLink :href="`/${item.other_taxon}`">
+                  {{ item.other_taxon__taxon }}
+                </NuxtLink>
+              </span>
+            </template>
+          </UAlert>
+          <div
+            class="border rounded-lg p-4 bg-white dark:bg-gray-800"
+            style="width: 100%"
+          >
+            <div class="card-body">
+              <div class="text-sm text-gray-500 pb-2">
+                Taxon ID:
+                <strong>{{ taxon.id }}</strong>
+                <span v-if="taxon.date_added">
+                  |
+                  {{ dateAdded }}
+                </span>
+                <span v-if="taxon.date_changed">
+                  /
+                  {{ dateChanged }}
+                </span>
+              </div>
+
+              <div
+                v-if="
+                  taxon.fossil_group__id && taxon.fossil_group__id !== taxon.id
+                "
               >
-                <template #title="{ title }">
-                  {{ title }}
-                  <span v-for="(item, index) in opinions" :key="index">
+                {{ $t("header.f_fossil_group") }}:
+                <NuxtLink :href="`/${taxon.fossil_group__id}`">
+                  {{ taxon.fossil_group__taxon }}
+                </NuxtLink>
+              </div>
+              <div v-if="taxon.id !== 29">
+                {{ $t("header.f_belongs_to") }}:
+                <NuxtLink
+                  :class="isHigherTaxon(taxon.rank__rank_en) ? '' : 'italic'"
+                  :href="`/${taxon.parent}`"
+                >
+                  {{ taxon.parent__taxon }}
+                </NuxtLink>
+              </div>
+              <div v-if="opinions.length > 0">
+                1 {{ $t("header.f_other_names") }}:
+                <span v-for="(item, idx) in opinions" :key="idx">
+                  <span v-if="isDefinedAndNotNull(item.other_taxon)">
                     <NuxtLink :href="`/${item.other_taxon}`">
                       {{ item.other_taxon__taxon }}
                     </NuxtLink>
+                    <span v-if="idx !== opinions.length - 1">,</span>
                   </span>
-                </template>
-              </UAlert>
-              <div
-                class="border rounded-lg p-4 bg-white dark:bg-gray-800"
-                style="width: 100%"
-              >
-                <div class="card-body">
-                  <div class="text-sm text-gray-500 pb-2">
-                    Taxon ID:
-                    <strong>{{ taxon.id }}</strong>
-                    <span v-if="taxon.date_added">
-                      |
-                      {{ dateAdded }}
-                    </span>
-                    <span v-if="taxon.date_changed">
-                      /
-                      {{ dateChanged }}
-                    </span>
-                  </div>
-
-                  <div
-                    v-if="
-                      taxon.fossil_group__id &&
-                      taxon.fossil_group__id !== taxon.id
-                    "
-                  >
-                    {{ $t("header.f_fossil_group") }}:
-                    <NuxtLink :href="`/${taxon.fossil_group__id}`">
-                      {{ taxon.fossil_group__taxon }}
-                    </NuxtLink>
-                  </div>
-                  <div v-if="taxon.id !== 29">
-                    {{ $t("header.f_belongs_to") }}:
-                    <NuxtLink
-                      :class="
-                        isHigherTaxon(taxon.rank__rank_en) ? '' : 'italic'
-                      "
-                      :href="`/${taxon.parent}`"
-                    >
-                      {{ taxon.parent__taxon }}
-                    </NuxtLink>
-                  </div>
-                  <div v-if="opinions.length > 0">
-                    1 {{ $t("header.f_other_names") }}:
-                    <span v-for="(item, idx) in opinions" :key="idx">
-                      <span v-if="isDefinedAndNotNull(item.other_taxon)">
-                        <NuxtLink :href="`/${item.other_taxon}`">
-                          {{ item.other_taxon__taxon }}
-                        </NuxtLink>
-                        <span v-if="idx !== opinions.length - 1">,</span>
-                      </span>
-                    </span>
-                  </div>
-
-                  <div
-                    v-if="filteredCommonNames && filteredCommonNames.length > 0"
-                  >
-                    <span v-for="item in filteredCommonNames">
-                      {{ item.language }}:
-                      <strong>{{ item.name }}</strong>
-                      ;&ensp;
-                    </span>
-                  </div>
-                  <div
-                    v-if="
-                      taxon.stratigraphy_base__stratigraphy ||
-                      taxon.stratigraphy_top__stratigraphy
-                    "
-                  >
-                    {{ $t("header.f_stratigraphical_distribution") }}:
-
-                    <a
-                      href="#"
-                      v-if="taxon.stratigraphy_base_id"
-                      @click="
-                        openUrl({
-                          parent_url: state.geocollectionUrl + '/stratigraphy',
-                          object: taxon.stratigraphy_base_id.toString(),
-                          width: 500,
-                          height: 500,
-                        })
-                      "
-                    >
-                      {{ taxon.stratigraphy_base__stratigraphy }}
-                    </a>
-                    <span
-                      v-if="
-                        taxon.stratigraphy_top__stratigraphy !==
-                          taxon.stratigraphy_base__stratigraphy &&
-                        taxon.stratigraphy_base__stratigraphy
-                      "
-                    >
-                      &rarr;
-                    </span>
-                    <a
-                      href="#"
-                      v-if="
-                        taxon.stratigraphy_top_id &&
-                        taxon.stratigraphy_base_id !== taxon.stratigraphy_top_id
-                      "
-                      @click="
-                        openUrl({
-                          parent_url: state.geocollectionUrl + '/stratigraphy',
-                          object: taxon.stratigraphy_top_id.toString(),
-                          width: 500,
-                          height: 500,
-                        })
-                      "
-                    >
-                      {{ taxon.stratigraphy_top__stratigraphy }}
-                    </a>
-                    <span v-if="taxon.stratigraphy_base__age_base">
-                      ({{ $t("header.f_taxon_age_within") }}
-                      {{
-                        convertToTwoDecimal(taxon.stratigraphy_base__age_base)
-                      }}
-                    </span>
-                    <span v-if="taxon.stratigraphy_top__age_top">
-                      &ndash;{{
-                        convertToTwoDecimal(taxon.stratigraphy_top__age_top)
-                      }}
-                      {{ $t("header.f_taxon_age_within_unit") }})
-                    </span>
-                    <br />
-                  </div>
-                  <div
-                    v-if="
-                      taxon.rank__rank_en && taxon.rank__rank_en !== 'Species'
-                    "
-                  >
-                    <span v-if="store.mode === 'in_baltoscandia'">
-                      {{ $t("header.f_baltic_species") }}
-                    </span>
-                    <span v-else-if="store.mode === 'in_estonia'">
-                      {{ $t("header.f_estonian_species") }}
-                    </span>
-                    <span v-else>{{ $t("header.f_global_species") }}</span>
-                    <strong>
-                      <a href="#species" v-if="state.numberOfSpecimen">
-                        {{ state.numberOfSpecimen }}
-                      </a>
-                    </strong>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <lingallery
-              style="width: 100%"
-              v-if="images.length > 0"
-              :height="200"
-              :items="images"
-            />
-            <UCard v-if="taxonPage?.content">
-              <template #header>
-                {{ $t("header.f_taxon_intro") }}
-              </template>
-              <div
-                id="content"
-                class="text-justify"
-                v-html="taxonPage.content"
-              ></div>
-              <template #footer>
-                <span class="text-sm italic">
-                  {{ taxonPage.author_txt }} {{ taxonPage.date_txt }}
                 </span>
-              </template>
-            </UCard>
-            <UCard v-if="description.length > 0">
-              <template #header>
-                {{ $t("header.f_taxon_description_diagnosis") }}
-              </template>
-              <div v-for="item in description">
-                <h3 class="mb-3" v-if="item.description">
-                  <a
-                    href="#"
-                    @click="
-                      openUrl({
-                        parent_url: 'http://geocollections.info/reference',
-                        object: item.reference,
-                        width: 500,
-                        height: 500,
-                      })
-                    "
-                  >
-                    <strong>{{ item.reference }}</strong>
-                  </a>
-                </h3>
-                <div v-html="item.description"></div>
               </div>
-            </UCard>
-            <UCard v-if="typeSpecimens.length > 0">
-              <template #header>
-                {{ $t("header.f_species_type_data") }}
-              </template>
+
+              <div v-if="filteredCommonNames && filteredCommonNames.length > 0">
+                <span v-for="item in filteredCommonNames">
+                  {{ item.language }}:
+                  <strong>{{ item.name }}</strong>
+                  ;&ensp;
+                </span>
+              </div>
               <div
-                :class="
-                  idx === typeSpecimens.length - 1 ? '' : 'border-bottom my-3'
+                v-if="
+                  taxon.stratigraphy_base__stratigraphy ||
+                  taxon.stratigraphy_top__stratigraphy
                 "
-                v-for="(typeSpecimen, idx) in typeSpecimens"
               >
-                <span
-                  v-if="
-                    typeSpecimen.type_type__value ||
-                    typeSpecimen.type_type__value_en
-                  "
-                >
-                  <span>
-                    {{
-                      $translate({
-                        et: typeSpecimen.type_type__value,
-                        en: typeSpecimen.type_type__value_en,
-                      })
-                    }}
-                  </span>
-                  :
-                </span>
-                <span v-if="typeSpecimen.specimen === null">
-                  {{ typeSpecimen.repository }}
-                  {{ typeSpecimen.specimen_number }}
-                </span>
-                <span v-if="typeSpecimen.specimen">
-                  <a
-                    href="#"
-                    @click="
-                      openUrl({
-                        parent_url: 'http://geocollections.info/specimen',
-                        object: typeSpecimen.specimen.toString(),
-                        width: 500,
-                        height: 500,
-                      })
-                    "
-                  >
-                    {{ typeSpecimen.repository }}
-                    {{ typeSpecimen.specimen_number }}
-                  </a>
-                </span>
-                <span
-                  v-if="
-                    isAtLeastOneDefinedAndNotEmpty({
-                      common: [
-                        typeSpecimen.level,
-                        typeSpecimen.attachment__filename,
-                        typeSpecimen.remarks,
-                      ],
-                      et: [
-                        typeSpecimen.stratigraphy__stratigraphy,
-                        typeSpecimen.stratigraphy_free,
-                        typeSpecimen.locality__locality,
-                      ],
-                      en: [
-                        typeSpecimen.stratigraphy__stratigraphy_en,
-                        typeSpecimen.stratigraphy_free_en,
-                        typeSpecimen.locality__locality_en,
-                      ],
-                    })
-                  "
-                >
-                  ,
-                </span>
+                {{ $t("header.f_stratigraphical_distribution") }}:
+
                 <a
-                  @click="
-                    openUrl({
-                      parent_url: state.geocollectionUrl + '/locality',
-                      object: typeSpecimen.locality.toString(),
-                      width: 500,
-                      height: 500,
-                    })
-                  "
                   href="#"
-                  v-if="isDefinedAndNotNull(typeSpecimen.locality)"
-                >
-                  {{
-                    $translate({
-                      et: typeSpecimen.locality__locality,
-                      en: typeSpecimen.locality__locality_en,
-                    })
-                  }}
-                </a>
-                ,
-                <span
-                  v-if="
-                    isDifferentName({
-                      et: [
-                        typeSpecimen.locality__locality,
-                        typeSpecimen.locality_free,
-                      ],
-                      en: [
-                        typeSpecimen.locality__locality_en,
-                        typeSpecimen.locality_free_en,
-                      ],
-                    })
-                  "
-                >
-                  (
-                  <span>
-                    {{
-                      $translate({
-                        et: typeSpecimen.locality_free,
-                        en: typeSpecimen.locality_free_en,
-                      })
-                    }}
-                  </span>
-                  )
-                </span>
-                <span v-if="isDefinedAndNotNull(typeSpecimen.level)">
-                  {{ typeSpecimen.level }},
-                </span>
-                <a
+                  v-if="taxon.stratigraphy_base_id"
                   @click="
                     openUrl({
                       parent_url: state.geocollectionUrl + '/stratigraphy',
-                      object: typeSpecimen.stratigraphy.toString(),
+                      object: taxon.stratigraphy_base_id.toString(),
                       width: 500,
                       height: 500,
                     })
                   "
-                  href="#"
-                  v-if="isDefinedAndNotNull(typeSpecimen.stratigraphy)"
                 >
-                  {{
-                    $translate({
-                      et: typeSpecimen.stratigraphy__stratigraphy,
-                      en: typeSpecimen.stratigraphy__stratigraphy_en,
-                    })
-                  }}
+                  {{ taxon.stratigraphy_base__stratigraphy }}
                 </a>
                 <span
                   v-if="
-                    isDifferentName({
-                      et: [
-                        typeSpecimen.stratigraphy__stratigraphy,
-                        typeSpecimen.stratigraphy_free,
-                      ],
-                      en: [
-                        typeSpecimen.stratigraphy__stratigraphy_en,
-                        typeSpecimen.stratigraphy_free_en,
-                      ],
+                    taxon.stratigraphy_top__stratigraphy !==
+                      taxon.stratigraphy_base__stratigraphy &&
+                    taxon.stratigraphy_base__stratigraphy
+                  "
+                >
+                  &rarr;
+                </span>
+                <a
+                  href="#"
+                  v-if="
+                    taxon.stratigraphy_top_id &&
+                    taxon.stratigraphy_base_id !== taxon.stratigraphy_top_id
+                  "
+                  @click="
+                    openUrl({
+                      parent_url: state.geocollectionUrl + '/stratigraphy',
+                      object: taxon.stratigraphy_top_id.toString(),
+                      width: 500,
+                      height: 500,
                     })
                   "
                 >
-                  (
-                  <span>
-                    {{
-                      $translate({
-                        et: typeSpecimen.stratigraphy_free,
-                        en: typeSpecimen.stratigraphy_free_en,
-                      })
-                    }}
-                  </span>
-                  )
+                  {{ taxon.stratigraphy_top__stratigraphy }}
+                </a>
+                <span v-if="taxon.stratigraphy_base__age_base">
+                  ({{ $t("header.f_taxon_age_within") }}
+                  {{ convertToTwoDecimal(taxon.stratigraphy_base__age_base) }}
                 </span>
-                <span v-if="isDefinedAndNotNull(typeSpecimen.remarks)">
-                  {{ typeSpecimen.remarks }}
+                <span v-if="taxon.stratigraphy_top__age_top">
+                  &ndash;{{
+                    convertToTwoDecimal(taxon.stratigraphy_top__age_top)
+                  }}
+                  {{ $t("header.f_taxon_age_within_unit") }})
                 </span>
-                <span class="pl-3" v-if="typeSpecimen.attachment">
-                  <a
-                    @click="
-                      openUrl({
-                        parent_url: state.geocollectionUrl + '/file',
-                        object: typeSpecimen.attachment.toString(),
-                        width: 500,
-                        height: 500,
-                      })
-                    "
-                    href="#"
-                  >
-                    <img
-                      class="img-thumbnail previewImage"
-                      style="max-height: 80px"
-                      :src="
-                        composeImgUrl(typeSpecimen.attachment__filename, false)
-                      "
-                    />
-                  </a>
-                </span>
+                <br />
               </div>
-            </UCard>
-            <UCard v-if="synonyms.length > 0">
-              <template #header>
-                {{ $t("header.f_species_synonymy") }}
-              </template>
               <div
-                :class="idx === synonyms.length - 1 ? '' : 'border-bottom my-1'"
-                v-for="(synonym, idx) in synonyms"
+                v-if="taxon.rank__rank_en && taxon.rank__rank_en !== 'Species'"
               >
-                <span v-if="synonym.reference">
-                  <a
-                    href="#"
-                    @click="
-                      openUrl({
-                        parent_url: 'http://geocollections.info/reference',
-                        object: synonym.reference.toString(),
-                        width: 600,
-                        height: 600,
-                      })
-                    "
-                  >
-                    {{ synonym.year }}
-                  </a>
+                <span v-if="store.mode === 'in_baltoscandia'">
+                  {{ $t("header.f_baltic_species") }}
                 </span>
-                <span v-else="isDefinedAndNotNull(synonym.year)">
-                  {{ synonym.year }}
+                <span v-else-if="store.mode === 'in_estonia'">
+                  {{ $t("header.f_estonian_species") }}
                 </span>
-
-                &nbsp;&nbsp;&nbsp;
-
-                <em>{{ synonym.taxon_synonym }}</em>
-                &mdash; {{ synonym.author }}
-                <span v-if="isDefinedAndNotNull(synonym.pages)">
-                  , {{ $t("abbreviation.pp") }}. {{ synonym.pages }}
-                </span>
-                <span v-if="isDefinedAndNotNull(synonym.figures)">
-                  , {{ $t("abbreviation.fig") }}. {{ synonym.figures }}
-                </span>
-              </div>
-            </UCard>
-            <UCard v-if="references.length > 0">
-              <template #header>
-                {{ $t("header.f_taxon_references") }}
-              </template>
-              <Foldable :elLength="references.length">
-                <div
-                  :class="idx === references.length - 1 ? '' : 'my-3'"
-                  v-for="(reference, idx) in references"
-                  style="padding-left: 3em; text-indent: -3em"
-                >
-                  <a
-                    href="#"
-                    @click="
-                      openUrl({
-                        parent_url: 'http://geocollections.info/reference',
-                        object: reference.id,
-                        width: 500,
-                        height: 500,
-                      })
-                    "
-                  >
-                    {{ reference.author }}
-                    {{ reference.year }}.
+                <span v-else>{{ $t("header.f_global_species") }}</span>
+                <strong>
+                  <a href="#species" v-if="state.numberOfSpecimen">
+                    {{ state.numberOfSpecimen }}
                   </a>
-                  <span>{{ reference.title }}.</span>
-
-                  <span v-if="reference.journal_name">
-                    <em>{{ reference.journal_name }}</em>
-                    {{ " " }}
-                    <strong>{{ reference.volume }}</strong>
-                    ,
-                    <span v-if="reference.number">{{ reference.number }},</span>
-                    <span v-if="isDefinedAndNotNull(reference.pages)">
-                      {{ reference.pages }}.
-                    </span>
-                  </span>
-                  <span v-if="isDefinedAndNotNull(reference.book)">
-                    <em>{{ reference.book }}</em>
-                    , pp. {{ reference.pages }}.
-                  </span>
-
-                  <span v-if="reference.doi">
-                    <a
-                      :href="'https://doi.org/' + reference.doi"
-                      rel="noopener"
-                      target="_blank"
-                    >
-                      DOI:{{ reference.doi }}
-                    </a>
-                  </span>
-                </div>
-              </Foldable>
-            </UCard>
-            <UCard v-if="state.allSpecies && state.allSpecies.length > 0">
-              <template #header>
-                {{ $t("header.f_species_list") }}
-              </template>
-              <div>
-                <div v-for="(item, idx) in state.allSpecies">
-                  {{ calculateSpeciesIdx(idx) }}.
-                  <a :href="'/' + item.id">
-                    <em>{{ item.taxon }}</em>
-                    {{ item.author_year }}
-                  </a>
-                  <template
-                    v-if="
-                      item.stratigraphy_top__stratigraphy !==
-                      item.stratigraphy_base__stratigraphy
-                    "
-                  >
-                    |
-                    <span>
-                      {{
-                        $translate({
-                          et: item.stratigraphy_base__stratigraphy,
-                          en: item.stratigraphy_base__stratigraphy_en,
-                        })
-                      }}
-                    </span>
-                    <span v-if="item.stratigraphy_top__stratigraphy">→</span>
-                    <span>
-                      {{
-                        $translate({
-                          et: item.stratigraphy_top__stratigraphy,
-                          en: item.stratigraphy_top__stratigraphy_en,
-                        })
-                      }}
-                    </span>
-                  </template>
-                  <template
-                    v-else-if="
-                      item.stratigraphy_top__stratigraphy ===
-                        item.stratigraphy_base__stratigraphy &&
-                      item.stratigraphy_base__stratigraphy
-                    "
-                  >
-                    |
-                    <span>
-                      {{
-                        $translate({
-                          et: item.stratigraphy_base__stratigraphy,
-                          en: item.stratigraphy_base__stratigraphy_en,
-                        })
-                      }}
-                    </span>
-                  </template>
-                </div>
-              </div>
-              <UPagination
-                v-if="
-                  state.numberOfSpecimen >
-                  store.searchParameters.species.paginateBy
-                "
-                class="mt-2"
-                v-model="store.searchParameters.species.page"
-                :total="state.numberOfSpecimen"
-                :page-count="store.searchParameters.species.paginateBy"
-              />
-            </UCard>
-
-            <div class="row">
-              <div v-if="distributionConop.length > 0">
-                <h3>
-                  {{ $t("header.f_species_distribution_samples") }} (CONOP):
-                </h3>
-                <div
-                  :class="
-                    idx === distributionConop.length - 1
-                      ? ''
-                      : 'border-bottom my-3'
-                  "
-                  v-for="(conop, idx) in distributionConop"
-                >
-                  <a
-                    :href="
-                      'http://geocollection.info/locality/' + conop.locality_id
-                    "
-                    target="_blank"
-                  >
-                    {{ conop.locality_et }}
-                  </a>
-                  : {{ conop.num }} {{ $t("f_species_link_samples") }}
-                </div>
+                </strong>
               </div>
             </div>
           </div>
-          <div class="col-span-full lg:col-span-1 space-y-2">
-            <UCard
-              v-if="map.length > 0"
-              class="p-0"
-              :ui="{ body: { padding: '' } }"
-            >
-              <ClientOnly>
-                <MapComponent :map-data="map"></MapComponent>
-                <template #fallback>
-                  <div
-                    style="
-                      height: 300px;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      background-color: #d4dadc;
-                    "
-                  >
-                    Loading...
-                  </div>
-                </template>
-              </ClientOnly>
-            </UCard>
-            <UAlert
-              v-if="isNumberOfLocalitiesOnMapOver1000"
-              variant="subtle"
-              color="blue"
-              title=""
-            >
-              <template #title>
-                Map shows only the first
-                <strong style="font-size: 0.9rem">1000</strong>
-                localities
-              </template>
-            </UAlert>
-            <TaxonomicalTree :id="taxon.id" />
-            <SeeAlso
+        </div>
+        <lingallery
+          style="width: 100%"
+          v-if="images.length > 0"
+          :height="200"
+          :items="images"
+        />
+        <UCard v-if="taxonPage?.content">
+          <template #header>
+            {{ $t("header.f_taxon_intro") }}
+          </template>
+          <div
+            id="content"
+            class="text-justify"
+            v-html="taxonPage.content"
+          ></div>
+          <template #footer>
+            <span class="text-sm italic">
+              {{ taxonPage.author_txt }} {{ taxonPage.date_txt }}
+            </span>
+          </template>
+        </UCard>
+        <UCard v-if="description.length > 0">
+          <template #header>
+            {{ $t("header.f_taxon_description_diagnosis") }}
+          </template>
+          <div v-for="item in description">
+            <h3 class="mb-3" v-if="item.description">
+              <a
+                href="#"
+                @click="
+                  openUrl({
+                    parent_url: 'http://geocollections.info/reference',
+                    object: item.reference,
+                    width: 500,
+                    height: 500,
+                  })
+                "
+              >
+                <strong>{{ item.reference }}</strong>
+              </a>
+            </h3>
+            <div v-html="item.description"></div>
+          </div>
+        </UCard>
+        <UCard v-if="typeSpecimens.length > 0">
+          <template #header>
+            {{ $t("header.f_species_type_data") }}
+          </template>
+          <div
+            :class="
+              idx === typeSpecimens.length - 1 ? '' : 'border-bottom my-3'
+            "
+            v-for="(typeSpecimen, idx) in typeSpecimens"
+          >
+            <span
               v-if="
-                taxon.taxon_id_tol ||
-                taxon.taxon_id_eol ||
-                taxon.taxon_id_nrm ||
-                taxon.taxon_id_plutof ||
-                taxon.taxon_id_pbdb ||
-                taxonPage?.link_wikipedia
+                typeSpecimen.type_type__value ||
+                typeSpecimen.type_type__value_en
               "
-              :taxon="taxon"
-              :taxon-page="taxonPage"
-            />
+            >
+              <span>
+                {{
+                  $translate({
+                    et: typeSpecimen.type_type__value,
+                    en: typeSpecimen.type_type__value_en,
+                  })
+                }}
+              </span>
+              :
+            </span>
+            <span v-if="typeSpecimen.specimen === null">
+              {{ typeSpecimen.repository }}
+              {{ typeSpecimen.specimen_number }}
+            </span>
+            <span v-if="typeSpecimen.specimen">
+              <a
+                href="#"
+                @click="
+                  openUrl({
+                    parent_url: 'http://geocollections.info/specimen',
+                    object: typeSpecimen.specimen.toString(),
+                    width: 500,
+                    height: 500,
+                  })
+                "
+              >
+                {{ typeSpecimen.repository }}
+                {{ typeSpecimen.specimen_number }}
+              </a>
+            </span>
+            <span
+              v-if="
+                isAtLeastOneDefinedAndNotEmpty({
+                  common: [
+                    typeSpecimen.level,
+                    typeSpecimen.attachment__filename,
+                    typeSpecimen.remarks,
+                  ],
+                  et: [
+                    typeSpecimen.stratigraphy__stratigraphy,
+                    typeSpecimen.stratigraphy_free,
+                    typeSpecimen.locality__locality,
+                  ],
+                  en: [
+                    typeSpecimen.stratigraphy__stratigraphy_en,
+                    typeSpecimen.stratigraphy_free_en,
+                    typeSpecimen.locality__locality_en,
+                  ],
+                })
+              "
+            >
+              ,
+            </span>
+            <a
+              @click="
+                openUrl({
+                  parent_url: state.geocollectionUrl + '/locality',
+                  object: typeSpecimen.locality.toString(),
+                  width: 500,
+                  height: 500,
+                })
+              "
+              href="#"
+              v-if="isDefinedAndNotNull(typeSpecimen.locality)"
+            >
+              {{
+                $translate({
+                  et: typeSpecimen.locality__locality,
+                  en: typeSpecimen.locality__locality_en,
+                })
+              }}
+            </a>
+            ,
+            <span
+              v-if="
+                isDifferentName({
+                  et: [
+                    typeSpecimen.locality__locality,
+                    typeSpecimen.locality_free,
+                  ],
+                  en: [
+                    typeSpecimen.locality__locality_en,
+                    typeSpecimen.locality_free_en,
+                  ],
+                })
+              "
+            >
+              (
+              <span>
+                {{
+                  $translate({
+                    et: typeSpecimen.locality_free,
+                    en: typeSpecimen.locality_free_en,
+                  })
+                }}
+              </span>
+              )
+            </span>
+            <span v-if="isDefinedAndNotNull(typeSpecimen.level)">
+              {{ typeSpecimen.level }},
+            </span>
+            <a
+              @click="
+                openUrl({
+                  parent_url: state.geocollectionUrl + '/stratigraphy',
+                  object: typeSpecimen.stratigraphy.toString(),
+                  width: 500,
+                  height: 500,
+                })
+              "
+              href="#"
+              v-if="isDefinedAndNotNull(typeSpecimen.stratigraphy)"
+            >
+              {{
+                $translate({
+                  et: typeSpecimen.stratigraphy__stratigraphy,
+                  en: typeSpecimen.stratigraphy__stratigraphy_en,
+                })
+              }}
+            </a>
+            <span
+              v-if="
+                isDifferentName({
+                  et: [
+                    typeSpecimen.stratigraphy__stratigraphy,
+                    typeSpecimen.stratigraphy_free,
+                  ],
+                  en: [
+                    typeSpecimen.stratigraphy__stratigraphy_en,
+                    typeSpecimen.stratigraphy_free_en,
+                  ],
+                })
+              "
+            >
+              (
+              <span>
+                {{
+                  $translate({
+                    et: typeSpecimen.stratigraphy_free,
+                    en: typeSpecimen.stratigraphy_free_en,
+                  })
+                }}
+              </span>
+              )
+            </span>
+            <span v-if="isDefinedAndNotNull(typeSpecimen.remarks)">
+              {{ typeSpecimen.remarks }}
+            </span>
+            <span class="pl-3" v-if="typeSpecimen.attachment">
+              <a
+                @click="
+                  openUrl({
+                    parent_url: state.geocollectionUrl + '/file',
+                    object: typeSpecimen.attachment.toString(),
+                    width: 500,
+                    height: 500,
+                  })
+                "
+                href="#"
+              >
+                <img
+                  class="img-thumbnail previewImage"
+                  style="max-height: 80px"
+                  :src="composeImgUrl(typeSpecimen.attachment__filename, false)"
+                />
+              </a>
+            </span>
+          </div>
+        </UCard>
+        <UCard v-if="synonyms.length > 0">
+          <template #header>
+            {{ $t("header.f_species_synonymy") }}
+          </template>
+          <div
+            :class="idx === synonyms.length - 1 ? '' : 'border-bottom my-1'"
+            v-for="(synonym, idx) in synonyms"
+          >
+            <span v-if="synonym.reference">
+              <a
+                href="#"
+                @click="
+                  openUrl({
+                    parent_url: 'http://geocollections.info/reference',
+                    object: synonym.reference.toString(),
+                    width: 600,
+                    height: 600,
+                  })
+                "
+              >
+                {{ synonym.year }}
+              </a>
+            </span>
+            <span v-else="isDefinedAndNotNull(synonym.year)">
+              {{ synonym.year }}
+            </span>
 
-            <UCard
-              v-if="
-                !isHigherTaxon(taxon.rank__rank_en) &&
-                taxonOccurrence.length > 0
-              "
+            &nbsp;&nbsp;&nbsp;
+
+            <em>{{ synonym.taxon_synonym }}</em>
+            &mdash; {{ synonym.author }}
+            <span v-if="isDefinedAndNotNull(synonym.pages)">
+              , {{ $t("abbreviation.pp") }}. {{ synonym.pages }}
+            </span>
+            <span v-if="isDefinedAndNotNull(synonym.figures)">
+              , {{ $t("abbreviation.fig") }}. {{ synonym.figures }}
+            </span>
+          </div>
+        </UCard>
+        <UCard v-if="references.length > 0">
+          <template #header>
+            {{ $t("header.f_taxon_references") }}
+          </template>
+          <Foldable :elLength="references.length">
+            <div
+              :class="idx === references.length - 1 ? '' : 'my-3'"
+              v-for="(reference, idx) in references"
+              style="padding-left: 3em; text-indent: -3em"
             >
-              <template #header>
-                {{ $t("header.f_species_distribution_references") }}
-              </template>
-              <ul>
-                <li v-for="reference in taxonOccurrence">
-                  <em>
-                    <a
-                      href="#"
-                      @click="
-                        openUrl({
-                          parent_url: 'http://geocollections.info/reference',
-                          object: reference.reference,
-                          width: 500,
-                          height: 500,
-                        })
-                      "
-                    >
-                      <strong>{{ reference.reference }}</strong>
-                    </a>
-                    <span>
-                      {{
-                        $translate({
-                          et: reference.locality__locality,
-                          en: reference.locality__locality_en,
-                        })
-                      }}
-                    </span>
-                    <span v-if="reference.depth || reference.depth_interval">
-                      {{ reference.depth }} -
-                      {{ reference.depth_interval }}
-                    </span>
-                    <span>
-                      {{
-                        $translate({
-                          et: reference.stratigraphy_base__stratigraphy,
-                          en: reference.stratigraphy_base__stratigraphy_en,
-                        })
-                      }}
-                    </span>
-                  </em>
-                </li>
-              </ul>
-            </UCard>
-            <UCard v-if="distributionSamples.length > 0">
-              <template #header>
-                {{ $t("header.f_species_distribution_samples") }}
-              </template>
-              <div class="my-2" v-for="sample in distributionSamples">
-                <a
-                  :href="
-                    'http://geocollections.info/locality/' + sample.locality_id
-                  "
-                  target="_blank"
-                >
-                  <i>
-                    {{
-                      $translate({
-                        et: sample.locality_et,
-                        en: sample.locality_en,
-                      })
-                    }}
-                  </i>
-                </a>
-                <span>
-                  ({{ sample.depth_min }} ... {{ sample.depth_max }}):
+              <a
+                href="#"
+                @click="
+                  openUrl({
+                    parent_url: 'http://geocollections.info/reference',
+                    object: reference.id,
+                    width: 500,
+                    height: 500,
+                  })
+                "
+              >
+                {{ reference.author }}
+                {{ reference.year }}.
+              </a>
+              <span>{{ reference.title }}.</span>
+
+              <span v-if="reference.journal_name">
+                <em>{{ reference.journal_name }}</em>
+                {{ " " }}
+                <strong>{{ reference.volume }}</strong>
+                ,
+                <span v-if="reference.number">{{ reference.number }},</span>
+                <span v-if="isDefinedAndNotNull(reference.pages)">
+                  {{ reference.pages }}.
                 </span>
+              </span>
+              <span v-if="isDefinedAndNotNull(reference.book)">
+                <em>{{ reference.book }}</em>
+                , pp. {{ reference.pages }}.
+              </span>
+
+              <span v-if="reference.doi">
                 <a
+                  :href="'https://doi.org/' + reference.doi"
+                  rel="noopener"
                   target="_blank"
-                  :href="
-                    state.geocollectionUrl +
-                    '/specimen?taxon_1=1&taxon=' +
-                    taxon.taxon +
-                    '&taxon_2=1&locality_1=1&locality=' +
-                    sample.locality_en +
-                    '&locality_2=1&currentTable=sample&paginateBy=25&sort=id&sortdir=DESC'
-                  "
                 >
-                  {{ sample.num }}
-                  {{ $t("header.f_species_link_samples") }}
+                  DOI:{{ reference.doi }}
                 </a>
-              </div>
-            </UCard>
+              </span>
+            </div>
+          </Foldable>
+        </UCard>
+        <UCard v-if="state.allSpecies && state.allSpecies.length > 0">
+          <template #header>
+            {{ $t("header.f_species_list") }}
+          </template>
+          <div>
+            <div v-for="(item, idx) in state.allSpecies">
+              {{ calculateSpeciesIdx(idx) }}.
+              <a :href="'/' + item.id">
+                <em>{{ item.taxon }}</em>
+                {{ item.author_year }}
+              </a>
+              <template
+                v-if="
+                  item.stratigraphy_top__stratigraphy !==
+                  item.stratigraphy_base__stratigraphy
+                "
+              >
+                |
+                <span>
+                  {{
+                    $translate({
+                      et: item.stratigraphy_base__stratigraphy,
+                      en: item.stratigraphy_base__stratigraphy_en,
+                    })
+                  }}
+                </span>
+                <span v-if="item.stratigraphy_top__stratigraphy">→</span>
+                <span>
+                  {{
+                    $translate({
+                      et: item.stratigraphy_top__stratigraphy,
+                      en: item.stratigraphy_top__stratigraphy_en,
+                    })
+                  }}
+                </span>
+              </template>
+              <template
+                v-else-if="
+                  item.stratigraphy_top__stratigraphy ===
+                    item.stratigraphy_base__stratigraphy &&
+                  item.stratigraphy_base__stratigraphy
+                "
+              >
+                |
+                <span>
+                  {{
+                    $translate({
+                      et: item.stratigraphy_base__stratigraphy,
+                      en: item.stratigraphy_base__stratigraphy_en,
+                    })
+                  }}
+                </span>
+              </template>
+            </div>
+          </div>
+          <UPagination
+            v-if="
+              state.numberOfSpecimen > store.searchParameters.species.paginateBy
+            "
+            class="mt-2"
+            v-model="store.searchParameters.species.page"
+            :total="state.numberOfSpecimen"
+            :page-count="store.searchParameters.species.paginateBy"
+          />
+        </UCard>
+
+        <div class="row">
+          <div v-if="distributionConop.length > 0">
+            <h3>{{ $t("header.f_species_distribution_samples") }} (CONOP):</h3>
+            <div
+              :class="
+                idx === distributionConop.length - 1 ? '' : 'border-bottom my-3'
+              "
+              v-for="(conop, idx) in distributionConop"
+            >
+              <a
+                :href="
+                  'http://geocollection.info/locality/' + conop.locality_id
+                "
+                target="_blank"
+              >
+                {{ conop.locality_et }}
+              </a>
+              : {{ conop.num }} {{ $t("f_species_link_samples") }}
+            </div>
           </div>
         </div>
-      </template>
-      <template #images>
-        <TabGallery :taxon="taxon" />
-      </template>
-      <template #specimens>
-        <TabSpecimens :taxon="taxon" />
-      </template>
-    </UTabs>
+      </div>
+      <div class="col-span-full lg:col-span-1 space-y-2">
+        <UCard
+          v-if="map.length > 0"
+          class="p-0"
+          :ui="{ body: { padding: '' } }"
+        >
+          <ClientOnly>
+            <MapComponent :map-data="map"></MapComponent>
+            <template #fallback>
+              <div
+                style="
+                  height: 300px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  background-color: #d4dadc;
+                "
+              >
+                Loading...
+              </div>
+            </template>
+          </ClientOnly>
+        </UCard>
+        <UAlert
+          v-if="isNumberOfLocalitiesOnMapOver1000"
+          variant="subtle"
+          color="blue"
+          title=""
+        >
+          <template #title>
+            Map shows only the first
+            <strong style="font-size: 0.9rem">1000</strong>
+            localities
+          </template>
+        </UAlert>
+        <TaxonomicalTree :id="taxon.id" />
+        <SeeAlso
+          v-if="
+            taxon.taxon_id_tol ||
+            taxon.taxon_id_eol ||
+            taxon.taxon_id_nrm ||
+            taxon.taxon_id_plutof ||
+            taxon.taxon_id_pbdb ||
+            taxonPage?.link_wikipedia
+          "
+          :taxon="taxon"
+          :taxon-page="taxonPage"
+        />
+
+        <UCard
+          v-if="
+            !isHigherTaxon(taxon.rank__rank_en) && taxonOccurrence.length > 0
+          "
+        >
+          <template #header>
+            {{ $t("header.f_species_distribution_references") }}
+          </template>
+          <ul>
+            <li v-for="reference in taxonOccurrence">
+              <em>
+                <a
+                  href="#"
+                  @click="
+                    openUrl({
+                      parent_url: 'http://geocollections.info/reference',
+                      object: reference.reference,
+                      width: 500,
+                      height: 500,
+                    })
+                  "
+                >
+                  <strong>{{ reference.reference }}</strong>
+                </a>
+                <span>
+                  {{
+                    $translate({
+                      et: reference.locality__locality,
+                      en: reference.locality__locality_en,
+                    })
+                  }}
+                </span>
+                <span v-if="reference.depth || reference.depth_interval">
+                  {{ reference.depth }} -
+                  {{ reference.depth_interval }}
+                </span>
+                <span>
+                  {{
+                    $translate({
+                      et: reference.stratigraphy_base__stratigraphy,
+                      en: reference.stratigraphy_base__stratigraphy_en,
+                    })
+                  }}
+                </span>
+              </em>
+            </li>
+          </ul>
+        </UCard>
+        <UCard v-if="distributionSamples.length > 0">
+          <template #header>
+            {{ $t("header.f_species_distribution_samples") }}
+          </template>
+          <div class="my-2" v-for="sample in distributionSamples">
+            <a
+              :href="
+                'http://geocollections.info/locality/' + sample.locality_id
+              "
+              target="_blank"
+            >
+              <i>
+                {{
+                  $translate({
+                    et: sample.locality_et,
+                    en: sample.locality_en,
+                  })
+                }}
+              </i>
+            </a>
+            <span>({{ sample.depth_min }} ... {{ sample.depth_max }}):</span>
+            <a
+              target="_blank"
+              :href="
+                state.geocollectionUrl +
+                '/specimen?taxon_1=1&taxon=' +
+                taxon.taxon +
+                '&taxon_2=1&locality_1=1&locality=' +
+                sample.locality_en +
+                '&locality_2=1&currentTable=sample&paginateBy=25&sort=id&sortdir=DESC'
+              "
+            >
+              {{ sample.num }}
+              {{ $t("header.f_species_link_samples") }}
+            </a>
+          </div>
+        </UCard>
+      </div>
+    </div>
+    <TabGallery v-if="state.activeSection === 'images'" :taxon="taxon" />
+    <TabSpecimens v-if="state.activeSection === 'specimens'" :taxon="taxon" />
   </section>
 </template>
 
@@ -802,7 +798,7 @@ const state = reactive({
   fileUrl: "https://files.geocollections.info",
   isReferencesCollapsed: true,
   scroll: false,
-  activeSection: "overview",
+  activeSection: "info",
   specimenCollectionCnt: 0,
   loaders: {
     isSpecimenCollectionLoaded: false,
