@@ -1,11 +1,7 @@
 <template>
   <Head>
     <Title>{{ taxon?.taxon }}</Title>
-    <Meta
-      vmid="description"
-      name="description"
-      :content="description[0]?.description"
-    />
+    <Meta name="description" :content="description[0]?.description" />
   </Head>
   <section v-if="taxon" class="container">
     <div class="flex items-center gap-x-2 mb-4">

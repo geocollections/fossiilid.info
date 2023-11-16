@@ -1,4 +1,7 @@
 <template>
+  <Head>
+    <Meta name="description" :content="t('header.subtitle')" />
+  </Head>
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
@@ -8,10 +11,13 @@
 import { useRootStore } from "./stores/root";
 
 const store = useRootStore();
-const { locale, setLocale } = useI18n();
+const { locale, setLocale, t } = useI18n();
 const router = useRouter();
 const route = useRoute();
-useHead({ bodyAttrs: { class: "bg-gray-50 dark:bg-gray-900" } });
+useHead({
+  htmlAttrs: { lang: locale },
+  bodyAttrs: { class: "bg-gray-50 dark:bg-gray-900" },
+});
 
 watch(
   () => store.mode,
