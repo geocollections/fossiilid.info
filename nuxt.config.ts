@@ -36,6 +36,7 @@ export default defineNuxtConfig({
     "@nuxt/ui",
     "@nuxtjs/google-fonts",
     "@vueuse/nuxt",
+    "@nuxtseo/module",
   ],
   i18n: {
     locales: [
@@ -63,5 +64,9 @@ export default defineNuxtConfig({
   },
   colorMode: {
     classSuffix: "",
+  },
+  sitemap: {
+    sitemaps: true,
+    sources: ["/api/__sitemap__/urls"],
   },
 });
