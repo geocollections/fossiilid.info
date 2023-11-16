@@ -1,7 +1,6 @@
 <template>
   <Head>
     <Title>{{ taxon?.taxon }}</Title>
-    <Meta vmid="keywords" name="keywords" :content="meta" />
     <Meta
       vmid="description"
       name="description"
@@ -785,8 +784,6 @@
 
 <script setup lang="ts">
 import filter from "lodash/filter";
-import orderBy from "lodash/orderBy";
-import _map from "lodash/map";
 import { useRootStore } from "../stores/root";
 import dayjs from "dayjs";
 import { useNewApiFetch } from "~/composables/useApiFetch";
@@ -881,7 +878,6 @@ const [
   { data: commonNamesRes },
   { data: pageRes },
   { data: occurenceRes },
-  { data: childrenRes },
   { data: descriptionRes },
   { data: speciesMapRes },
   { data: opinionRes },
@@ -912,14 +908,6 @@ const [
         "reference,reference,locality__locality,locality__locality_en,depth_interval,depth,stratigraphy_base__stratigraphy,stratigraphy_base__stratigraphy_en",
       format: "json",
     },
-  }),
-  useApiFetch<{ results?: any[] }>("/taxon/", {
-    query: computed(() => ({
-      parent: taxon.value?.id,
-      ...getModeQueryParam(store.mode),
-      fields: "id,taxon,parent__taxon,parent_id,rank__rank_en,rank__rank",
-      format: "json",
-    })),
   }),
   useApiFetch<{ results?: any[] }>("/taxon_description/", {
     query: {
@@ -974,7 +962,6 @@ const commonNames = ref(commonNamesRes.value?.results?.[0]);
 const taxonPage = computed(() => pageRes.value?.results?.[0]);
 const taxonOccurrence = ref(occurenceRes.value?.results ?? []);
 const references = ref(referenceRes.value?.results ?? []);
-const children = computed(() => childrenRes.value?.results ?? []);
 const description = ref(descriptionRes.value?.results ?? []);
 const map = computed(() => speciesMapRes.value?.results ?? []);
 const cntLocalities = ref(speciesMapRes.value?.count);
@@ -1151,25 +1138,6 @@ const filteredCommonNames = computed(function () {
   });
 });
 
-const sortedSiblings = computed(function () {
-  return orderBy(children.value, "taxon");
-});
-
-const commonNamesStrings = computed(() => {
-  return _map(commonNames.value, "name");
-});
-const childrenStrings = computed(() => {
-  return _map(sortedSiblings.value, "taxon");
-});
-const meta = computed(() => {
-  return [
-    taxon.value?.parent__taxon,
-    taxon.value?.taxon,
-    taxon.value?.fossil_group__taxon,
-    commonNamesStrings.value,
-    childrenStrings.value,
-  ].join(", ");
-});
 const isNumberOfLocalitiesOnMapOver1000 = computed(() => {
   return cntLocalities.value !== undefined && cntLocalities.value > 1000;
 });
