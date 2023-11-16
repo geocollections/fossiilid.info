@@ -40,6 +40,7 @@
           color="white"
           icon="i-heroicons-adjustments-vertical-20-solid"
           to="/search"
+          :aria-label="$t('menu.detail_search')"
         >
           <span class="hidden xl:block">
             {{ $t("menu.detail_search") }}
@@ -63,6 +64,7 @@
           <UDropdown :items="pageItems">
             <UButton
               :label="$t('menu.more')"
+              :aria-label="$t('menu.more')"
               size="md"
               color="white"
               trailing-icon="i-heroicons-chevron-down-20-solid"
@@ -94,6 +96,7 @@
                 v-model="store.mode"
                 size="md"
                 icon="i-heroicons-globe-europe-africa-20-solid"
+                :aria-label="t('header.mode')"
                 :options="modeOptions"
               />
               <USelect
@@ -102,6 +105,7 @@
                 size="md"
                 :options="langOptions"
                 icon="i-heroicons-language-20-solid"
+                :aria-label="t('header.lang')"
                 @update:model-value="
                   (newLocale: string) => setLocale(newLocale)
                 "
