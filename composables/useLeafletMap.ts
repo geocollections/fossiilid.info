@@ -120,12 +120,10 @@ export function useLeafletMap(map: Ref<Map | undefined>) {
         const layer = $L
           .circle(feature.coords, setCustomSettings(feature.type))
           .bindPopup(
-            '<a target="_blank" href="http://geocollections.info/locality/' +
-              feature.locid +
-              '">' +
-              feature.name +
-              "</a>",
-            { className: "custom-popup-text" }
+            `<a target="_blank" href="http://geocollections.info/locality/${feature.locid}">
+              ${feature.name}
+            </a>`,
+            { className: "custom-popup-text" },
           );
 
         state.layers[element.src as 1 | 2 | 3].layerGroup?.addLayer(layer);

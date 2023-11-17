@@ -32,7 +32,7 @@
             <NuxtLink
               v-else
               :style="{ 'margin-left': `${0.75 * node.level}rem` }"
-              :to="{ path: `/${node.id}` }"
+              :to="stateRoute({ path: `/${node.id}` })"
             >
               {{ node.taxon }}
             </NuxtLink>
@@ -48,6 +48,7 @@ import { useNewApiFetch } from "~/composables/useApiFetch";
 const props = defineProps<{ id: number }>();
 
 const { t } = useI18n({ useScope: "local" });
+const stateRoute = useStateRoute();
 
 type HierarchyNode = {
   id: number;

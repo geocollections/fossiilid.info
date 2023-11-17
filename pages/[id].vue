@@ -10,8 +10,8 @@
   <section v-if="taxon" class="container">
     <div class="flex items-center gap-x-2 mb-4">
       <NuxtLink
-        :href="'/' + taxon.fossil_group__id"
-        v-if="taxon.fossil_group__id != null"
+        v-if="taxon.fossil_group__id"
+        :href="stateRoute(`/${taxon.fossil_group__id}`)"
       >
         <img
           class="taxon-img"
@@ -91,7 +91,7 @@
             <template #title="{ title }">
               {{ title }}
               <span v-for="(item, index) in opinions" :key="index">
-                <NuxtLink :href="`/${item.other_taxon}`">
+                <NuxtLink :href="stateRoute(`/${item.other_taxon}`)">
                   {{ item.other_taxon__taxon }}
                 </NuxtLink>
               </span>
@@ -121,7 +121,7 @@
                 "
               >
                 {{ $t("header.f_fossil_group") }}:
-                <NuxtLink :href="`/${taxon.fossil_group__id}`">
+                <NuxtLink :href="stateRoute(`/${taxon.fossil_group__id}`)">
                   {{ taxon.fossil_group__taxon }}
                 </NuxtLink>
               </div>
@@ -129,7 +129,7 @@
                 {{ $t("header.f_belongs_to") }}:
                 <NuxtLink
                   :class="isHigherTaxon(taxon.rank__rank_en) ? '' : 'italic'"
-                  :href="`/${taxon.parent}`"
+                  :href="stateRoute(`/${taxon.parent}`)"
                 >
                   {{ taxon.parent__taxon }}
                 </NuxtLink>
@@ -138,7 +138,7 @@
                 1 {{ $t("header.f_other_names") }}:
                 <span v-for="(item, idx) in opinions" :key="idx">
                   <span v-if="isDefinedAndNotNull(item.other_taxon)">
-                    <NuxtLink :href="`/${item.other_taxon}`">
+                    <NuxtLink :href="stateRoute(`/${item.other_taxon}`)">
                       {{ item.other_taxon__taxon }}
                     </NuxtLink>
                     <span v-if="idx !== opinions.length - 1">,</span>
@@ -820,6 +820,7 @@ const state = reactive({
 const route = useRoute();
 const store = useRootStore();
 const { t, locale } = useI18n();
+const stateRoute = useStateRoute();
 
 type Taxon = {
   id: number;
