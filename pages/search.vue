@@ -150,19 +150,22 @@
             height="70"
           />
           <h2 class="text-2xl">
-            <a v-if="group.fossil_group_id" :href="'/' + group.fossil_group_id">
+            <NuxtLink
+              v-if="group.fossil_group_id"
+              :href="stateRoute(`/${group.fossil_group_id}`)"
+            >
               {{ group.fossil_group }}
-            </a>
+            </NuxtLink>
             <span v-else>{{ group.fossil_group }}</span>
           </h2>
         </span>
         <div class="grid grid-cols-2 pl-4">
           <template v-for="species in group.node" v-bind:key="species.taxon_id">
             <div class="col-span-1">
-              <a :href="'/' + species.taxon_id">
+              <NuxtLink :href="stateRoute(`/${species.taxon_id}`)">
                 <em>{{ species.taxon }}</em>
                 {{ species.author_year }}
-              </a>
+              </NuxtLink>
             </div>
             <div
               v-if="species.fad && species.lad && species.fad !== species.lad"
@@ -216,6 +219,7 @@ import type {
 } from "leaflet";
 const { t, locale } = useI18n();
 const { $apiFetch, $L } = useNuxtApp();
+const stateRoute = useStateRoute();
 
 const searchFormState = reactive({
   higherTaxon: undefined as TaxonOption | undefined,
@@ -388,7 +392,7 @@ type SearchResult = {
 };
 
 async function search() {
-  let fl = `taxon,id,author_year,fossil_group,fossil_group_id,fad,fad_en,fad_id,lad,lad_en,lad_id,locality_en,locality_id,locality,latlong,src`;
+  let fl = `taxon_id,taxon,id,author_year,fossil_group,fossil_group_id,fad,fad_en,fad_id,lad,lad_en,lad_id,locality_en,locality_id,locality,latlong,src`;
   const fq = [
     ...buildSearchFilterQuery(),
     "{!collapse field--taxon}",
@@ -793,7 +797,7 @@ function resultsHandling() {
     }
     output[taxon.fossil_group_id].node.push({
       taxon: taxon.taxon,
-      taxon_id: taxon.id,
+      taxon_id: taxon.taxon_id,
       author_year: taxon.author_year,
       fad: taxon.fad,
       fad_en: taxon.fad_en,
