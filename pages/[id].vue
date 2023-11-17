@@ -984,6 +984,7 @@ const tabs = computed(() => [
     disabled: state.specimenCollectionCnt < 1,
   },
 ]);
+
 function getModeQueryParam(mode: string) {
   if (mode === "in_baltoscandia") {
     return { in_baltoscandia: 1 };
@@ -1140,9 +1141,6 @@ const filteredCommonNames = computed(function () {
 
 const isNumberOfLocalitiesOnMapOver1000 = computed(() => {
   return cntLocalities.value !== undefined && cntLocalities.value > 1000;
-});
-onMounted(() => {
-  window.addEventListener("scroll", handleScroll);
 });
 
 function isDifferentName(obj: any) {
@@ -1364,10 +1362,6 @@ type Species = {
   stratigraphy_top__stratigraphy_en?: string;
   stratigraphy_top__stratigraphy?: string;
 };
-
-function handleScroll() {
-  state.scroll = window.scrollY > 150;
-}
 </script>
 
 <style scoped>
