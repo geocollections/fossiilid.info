@@ -173,9 +173,14 @@
                     })
                   "
                 >
-                  {{ taxon.stratigraphy_base__stratigraphy }}
+                  {{
+                    $translate({
+                      et: taxon.stratigraphy_base__stratigraphy,
+                      en: taxon.stratigraphy_base__stratigraphy_en,
+                    })
+                  }}
                 </a>
-                <span
+                <template
                   v-if="
                     taxon.stratigraphy_top__stratigraphy !==
                       taxon.stratigraphy_base__stratigraphy &&
@@ -183,7 +188,7 @@
                   "
                 >
                   &rarr;
-                </span>
+                </template>
                 <a
                   href="#"
                   v-if="
@@ -199,16 +204,20 @@
                     })
                   "
                 >
-                  {{ taxon.stratigraphy_top__stratigraphy }}
+                  {{
+                    $translate({
+                      et: taxon.stratigraphy_top__stratigraphy,
+                      en: taxon.stratigraphy_top__stratigraphy_en,
+                    })
+                  }}
                 </a>
                 <span v-if="taxon.stratigraphy_base__age_base">
                   ({{ $t("header.f_taxon_age_within") }}
                   {{ convertToTwoDecimal(taxon.stratigraphy_base__age_base) }}
                 </span>
                 <span v-if="taxon.stratigraphy_top__age_top">
-                  &ndash;{{
-                    convertToTwoDecimal(taxon.stratigraphy_top__age_top)
-                  }}
+                  &ndash;
+                  {{ convertToTwoDecimal(taxon.stratigraphy_top__age_top) }}
                   {{ $t("header.f_taxon_age_within_unit") }})
                 </span>
                 <br />
@@ -270,7 +279,7 @@
                   })
                 "
               >
-                <strong>{{ item.reference }}</strong>
+                <strong>{{ item.reference__reference }}</strong>
               </a>
             </h3>
             <div v-html="item.description"></div>
@@ -619,15 +628,13 @@
           />
         </UCard>
 
-        <div class="row">
+        <UCard v-if="distributionConop.length > 0" class="row">
+          <template #header>
+            {{ $t("header.f_species_distribution_samples") }} (CONOP)
+          </template>
           <div v-if="distributionConop.length > 0">
-            <h3>{{ $t("header.f_species_distribution_samples") }} (CONOP):</h3>
-            <div
-              :class="
-                idx === distributionConop.length - 1 ? '' : 'border-bottom my-3'
-              "
-              v-for="(conop, idx) in distributionConop"
-            >
+            <div v-for="(conop, idx) in distributionConop">
+              <UDivider v-if="idx !== 0" class="my-1" />
               <a
                 :href="
                   'http://geocollection.info/locality/' + conop.locality_id
@@ -636,10 +643,10 @@
               >
                 {{ conop.locality_et }}
               </a>
-              : {{ conop.num }} {{ $t("f_species_link_samples") }}
+              : {{ conop.num }} {{ $t("header.f_species_link_samples") }}
             </div>
           </div>
-        </div>
+        </UCard>
       </div>
       <div class="col-span-full lg:col-span-1 space-y-2">
         <UCard
@@ -699,42 +706,43 @@
             {{ $t("header.f_species_distribution_references") }}
           </template>
           <ul>
-            <li v-for="reference in taxonOccurrence">
-              <em>
-                <a
-                  href="#"
-                  @click="
-                    openUrl({
-                      parent_url: 'http://geocollections.info/reference',
-                      object: reference.reference,
-                      width: 500,
-                      height: 500,
-                    })
-                  "
-                >
-                  <strong>{{ reference.reference }}</strong>
-                </a>
-                <span>
-                  {{
-                    $translate({
-                      et: reference.locality__locality,
-                      en: reference.locality__locality_en,
-                    })
-                  }}
-                </span>
-                <span v-if="reference.depth || reference.depth_interval">
-                  {{ reference.depth }} -
-                  {{ reference.depth_interval }}
-                </span>
-                <span>
-                  {{
-                    $translate({
-                      et: reference.stratigraphy_base__stratigraphy,
-                      en: reference.stratigraphy_base__stratigraphy_en,
-                    })
-                  }}
-                </span>
-              </em>
+            <li class="italic" v-for="reference in taxonOccurrence">
+              <a
+                href="#"
+                @click="
+                  openUrl({
+                    parent_url: 'https://geocollections.info/reference',
+                    object: reference.reference,
+                    width: 500,
+                    height: 500,
+                  })
+                "
+              >
+                <strong>{{ reference.reference__reference }}</strong>
+              </a>
+              <span>
+                &nbsp;
+                {{
+                  $translate({
+                    et: reference.locality__locality,
+                    en: reference.locality__locality_en,
+                  })
+                }}
+              </span>
+              <span v-if="reference.depth || reference.depth_interval">
+                &nbsp;
+                {{ reference.depth }} -
+                {{ reference.depth_interval }}
+              </span>
+              <span>
+                &nbsp;
+                {{
+                  $translate({
+                    et: reference.stratigraphy_base__stratigraphy,
+                    en: reference.stratigraphy_base__stratigraphy_en,
+                  })
+                }}
+              </span>
             </li>
           </ul>
         </UCard>
@@ -758,7 +766,9 @@
                 }}
               </i>
             </a>
-            <span>({{ sample.depth_min }} ... {{ sample.depth_max }}):</span>
+            <span>
+              &nbsp;({{ sample.depth_min }} ... {{ sample.depth_max }}):
+            </span>
             <a
               target="_blank"
               :href="
@@ -837,11 +847,13 @@ type Taxon = {
   date_added?: string;
   date_changed?: string;
   stratigraphy_base__stratigraphy?: string;
+  stratigraphy_base__stratigraphy_en?: string;
   stratigraphy_base_id?: number;
   stratigraphy_top_id?: number;
   stratigraphy_base__age_base?: number;
   stratigraphy_top__age_top?: number;
   stratigraphy_top__stratigraphy?: string;
+  stratigraphy_top__stratigraphy_en?: string;
   taxon_id_tol?: number;
   taxon_id_eol?: number;
   taxon_id_nrm?: string;
@@ -861,7 +873,7 @@ const taxonSearchParams = computed(() => {
 const { data: taxonRes } = await useApiFetch<{ results?: Taxon[] }>("/taxon/", {
   query: {
     ...taxonSearchParams.value,
-    fields: `id,taxon,parent,parent__taxon,rank__rank,rank__rank_en,fossil_group__id,is_fossil_group,fossil_group__taxon,hierarchy_string,author_year,date_added,date_changed,stratigraphy_base__stratigraphy,stratigraphy_base_id,stratigraphy_top_id,stratigraphy_base__age_base,stratigraphy_top__age_top,stratigraphy_top__stratigraphy,taxon_id_tol,taxon_id_eol,taxon_id_nrm,taxon_id_plutof,taxon_id_pbdb`,
+    fields: `id,taxon,parent,parent__taxon,rank__rank,rank__rank_en,fossil_group__id,is_fossil_group,fossil_group__taxon,hierarchy_string,author_year,date_added,date_changed,stratigraphy_base__stratigraphy,stratigraphy_base__stratigraphy_en,stratigraphy_base_id,stratigraphy_top_id,stratigraphy_base__age_base,stratigraphy_top__age_top,stratigraphy_top__stratigraphy,stratigraphy_top__stratigraphy_en,taxon_id_tol,taxon_id_eol,taxon_id_nrm,taxon_id_plutof,taxon_id_pbdb`,
     format: "json",
   },
 });
@@ -906,14 +918,14 @@ const [
     query: {
       taxon__taxon__icontains: taxon.value.taxon,
       fields:
-        "reference,reference,locality__locality,locality__locality_en,depth_interval,depth,stratigraphy_base__stratigraphy,stratigraphy_base__stratigraphy_en",
+        "reference,reference__reference,locality__locality,locality__locality_en,depth_interval,depth,stratigraphy_base__stratigraphy,stratigraphy_base__stratigraphy_en",
       format: "json",
     },
   }),
   useApiFetch<{ results?: any[] }>("/taxon_description/", {
     query: {
       taxon: taxon.value.id,
-      fields: "reference,reference,description",
+      fields: "reference,reference__reference,description",
       format: "json",
     },
   }),
