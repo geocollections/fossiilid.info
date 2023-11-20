@@ -1229,10 +1229,10 @@ function setFancyBoxCaption(el: any, type: string) {
   switch (type) {
     case "selected_image":
       additionalInfo = {
-        imageName: el.taxon_name,
+        imageName: el.taxon_names.split("|")[0],
         infoId: el.specimen,
         imageId: el.id,
-        navigateId: el.taxon,
+        navigateId: el.taxon_ids.split("|")[0],
       };
       break;
     case "non_higher_taxon":
@@ -1242,15 +1242,15 @@ function setFancyBoxCaption(el: any, type: string) {
           : el.database__acronym + " " + el.id,
         infoId: el.specimen,
         imageId: el.id ? el.id : el.specimen_image_id,
-        navigateId: el.link ? el.link : el.taxon,
+        navigateId: el.link ? el.link : el.taxon_ids.split("|")[0],
       };
       break;
     case "higher_taxon":
       additionalInfo = {
-        imageName: el.taxon_name,
+        imageName: el.taxon_names.split("|")[0],
         infoId: el.specimen,
         imageId: el.id,
-        navigateId: el.taxon,
+        navigateId: el.taxon_ids.split("|")[0],
       };
     default:
       break;
