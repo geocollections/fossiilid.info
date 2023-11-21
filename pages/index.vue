@@ -36,6 +36,7 @@
 <script setup lang="ts">
 const { locale } = useI18n();
 const stateRoute = useStateRoute();
+defineOgImageScreenshot();
 type ApiListResponse<T> = {
   count: number;
   results: T[];

@@ -13,13 +13,13 @@
             <td valign="top" align="center" style="width: 33%">
               <strong>{{ $t("footer.related") }}:</strong>
               <br />
-              <a href="http://elurikkus.ee">eElurikkus</a>
+              <a href="https://elurikkus.ee">eElurikkus</a>
               <br />
-              <a href="http://naturforskaren.se">Naturforskaren</a>
+              <a href="https://naturforskaren.se">Naturforskaren</a>
               <br />
-              <a href="http://www.geocase.eu">GeoCASe</a>
+              <a href="https://www.geocase.eu">GeoCASe</a>
               <br />
-              <a href="http://www.open-up.eu">OpenUp!</a>
+              <a href="https://open-up.eu">OpenUp!</a>
               <br />
             </td>
             <td
@@ -32,7 +32,7 @@
                 <br />
                 <a
                   class="cc-large"
-                  href="http://creativecommons.org/licences/by-nc/3.0/"
+                  href="https://creativecommons.org/licenses/by-nc/3.0/"
                 >
                   <img
                     width="88px"
@@ -52,11 +52,11 @@
                 {{ $t("footer.gi") }}
               </a>
               <br />
-              <a href="http://natmuseum.ut.ee">
+              <a href="https://natmuseum.ut.ee">
                 {{ $t("footer.ut") }}
               </a>
               <br />
-              <a href="http://loodusmuuseum.ee">
+              <a href="https://loodusmuuseum.ee">
                 {{ $t("footer.elm") }}
               </a>
               <br />
@@ -69,7 +69,7 @@
         <div
           class="flex w-fit gap-x-6 rounded border px-4 py-4 dark:border-gray-400 dark:bg-gray-500"
         >
-          <a href="http://geokogud.info">
+          <a href="https://geoloogia.info">
             <img
               border="0"
               style="height: 50px"
@@ -78,7 +78,7 @@
               title="SARV: geokogude infosüsteem"
             />
           </a>
-          <a href="http://natarc.ut.ee">
+          <a href="https://natarc.ut.ee">
             <img
               border="0"
               style="height: 50px"
@@ -87,7 +87,7 @@
               title="SARV is part of national infrastructure Natural History Archives and Information Network (NATARC)"
             />
           </a>
-          <a href="http://struktuurifondid.ee">
+          <a href="https://www.struktuurifondid.ee">
             <img
               border="0"
               style="height: 50px"
