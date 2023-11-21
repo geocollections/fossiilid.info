@@ -1,7 +1,7 @@
 <template>
   <div id="lingallery">
     <div class="lingallery_thumbnails overflow-x-auto" v-if="showThumbnails">
-      <div class="lingallery_thumbnails_content whitespace-nowrap space-x-1">
+      <div class="lingallery_thumbnails_content space-x-1 whitespace-nowrap">
         <template v-for="(item, index) in items" :key="index">
           <a
             class="inline-block"
@@ -11,7 +11,7 @@
             :data-caption="item.caption"
           >
             <img
-              class="border rounded"
+              class="rounded border"
               :alt="item.src"
               style="height: 200px"
               :src="item.thumbnail"

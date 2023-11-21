@@ -8,7 +8,7 @@
     />
   </Head>
   <section v-if="taxon" class="container">
-    <div class="flex items-center gap-x-2 mb-4">
+    <div class="mb-4 flex items-center gap-x-2">
       <NuxtLink
         v-if="taxon.fossil_group__id"
         :href="stateRoute(`/${taxon.fossil_group__id}`)"
@@ -33,7 +33,7 @@
           }}
         </div>
         <h1
-          class="font-bold inline text-5xl"
+          class="inline text-5xl font-bold"
           :class="isHigherTaxon(taxon.rank__rank_en) ? '' : 'italic'"
         >
           {{ taxon.taxon }}
@@ -48,7 +48,7 @@
       </div>
     </div>
     <div
-      class="relative bg-gray-100 dark:bg-gray-800 rounded-lg p-1 w-full h-10 inline-grid items-center mb-2"
+      class="relative mb-2 inline-grid h-10 w-full items-center rounded-lg bg-gray-100 p-1 dark:bg-gray-800"
       style="grid-template-columns: repeat(3, minmax(0px, 1fr))"
     >
       <UButton
@@ -79,7 +79,7 @@
       </UButton>
     </div>
     <div v-if="state.activeSection === 'info'" class="grid grid-cols-3 gap-x-2">
-      <div class="col-span-full lg:col-span-2 space-y-2">
+      <div class="col-span-full space-y-2 lg:col-span-2">
         <div class="space-y-2" v-if="opinions.length > 0">
           <UAlert
             :title="$t('header.f_name_is_invalid')"
@@ -98,11 +98,11 @@
             </template>
           </UAlert>
           <div
-            class="border rounded-lg p-4 bg-white dark:bg-gray-800"
+            class="rounded-lg border bg-white p-4 dark:bg-gray-800"
             style="width: 100%"
           >
             <div class="card-body">
-              <div class="text-sm text-gray-500 pb-2">
+              <div class="pb-2 text-sm text-gray-500">
                 Taxon ID:
                 <strong>{{ taxon.id }}</strong>
                 <span v-if="taxon.date_added">
@@ -648,7 +648,7 @@
           </div>
         </UCard>
       </div>
-      <div class="col-span-full lg:col-span-1 space-y-2">
+      <div class="col-span-full space-y-2 lg:col-span-1">
         <UCard
           v-if="map.length > 0"
           class="p-0"

@@ -6,7 +6,7 @@ export default defineSitemapEventHandler(async () => {
   }>("https://api.geoloogia.info/solr/taxon", {
     query: { fl: "id", rows: 1, q: "*" },
   });
-  console.log(taxaCount);
+
   const taxaRes = await $fetch<{
     response: { docs: { id: string; date_changed: string }[] };
   }>("https://api.geoloogia.info/solr/taxon", {

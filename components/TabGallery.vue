@@ -1,7 +1,7 @@
 <template>
   <div id="#tab-gallery" role="tabpanel">
     <div
-      class="inline-block space-x-2 space-y-2 bg-gray-200 dark:bg-gray-800 space-2 p-2 rounded"
+      class="space-2 inline-block space-x-2 space-y-2 rounded bg-gray-200 p-2 dark:bg-gray-800"
     >
       <div
         v-for="(image, index) in state.images"
@@ -27,7 +27,7 @@
     <div v-if="state.loading" class="flex items-center">
       <svg
         aria-hidden="true"
-        class="w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+        class="mr-2 h-8 w-8 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

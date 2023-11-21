@@ -5,7 +5,7 @@
     </Title>
     <Meta vmid="keywords" name="keywords" :content="meta" />
   </Head>
-  <section class="container border rounded bg-white dark:bg-gray-800 p-4">
+  <section class="container rounded border bg-white p-4 dark:bg-gray-800">
     <div class="text-justify" id="content" v-if="page">
       <span class="card-body" v-html="currentContent"></span>
     </div>

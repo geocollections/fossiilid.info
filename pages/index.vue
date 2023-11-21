@@ -1,7 +1,7 @@
 <template>
   <section class="container mx-auto space-y-10">
     <h1
-      class="text-3xl sm:text-4xl md:text-5xl text-center uppercase text-gray-500 dark:text-gray-300"
+      class="text-center text-3xl uppercase text-gray-500 dark:text-gray-300 sm:text-4xl md:text-5xl"
     >
       fossiilid.info
     </h1>

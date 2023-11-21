@@ -12,7 +12,7 @@ export function useApiFetch<T>(url: string, options: UseFetchOptions<T> = {}) {
 
 export function useNewApiFetch<T>(
   url: string,
-  options: UseFetchOptions<T> = {}
+  options: UseFetchOptions<T> = {},
 ) {
   const defaults: UseFetchOptions<T> = {
     baseURL: "https://rwapi.geoloogia.info/api/v1/public",

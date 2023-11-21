@@ -43,7 +43,7 @@
 
       <slot name="view-more" :toggle="toggle" :collapsed="collapsed">
         <div
-          class="vue-foldable-view-more mt-3 mb-3"
+          class="vue-foldable-view-more mb-3 mt-3"
           style="text-align: center"
           :class="{ collapsed: collapsed }"
           @click="toggle"

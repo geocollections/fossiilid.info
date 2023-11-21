@@ -14,7 +14,7 @@
             <span v-if="node.rank">
               {{ $translate({ et: node.rank_name, en: node.rank_name_en }) }}
             </span>
-            <span class="italic font-light" v-else>
+            <span class="font-light italic" v-else>
               {{ t("unranked") }}
             </span>
           </td>

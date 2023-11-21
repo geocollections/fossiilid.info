@@ -33,7 +33,7 @@ function switchTheme() {
       @click="switchTheme"
     />
     <template #fallback>
-      <div class="w-8 h-8"></div>
+      <div class="h-8 w-8"></div>
     </template>
   </ClientOnly>
 </template>

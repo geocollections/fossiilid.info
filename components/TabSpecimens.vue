@@ -6,7 +6,7 @@
     :page-count="store.searchParameters.specimens.paginateBy"
   />
   <UTable
-    class="bg-white rounded border"
+    class="rounded border bg-white"
     :columns="columns"
     :rows="specimenRes.results"
     v-model:sort="sort"
@@ -149,7 +149,7 @@
         :data-caption="item.caption"
       >
         <img
-          class="border rounded p-1"
+          class="rounded border p-1"
           :src="item.image_preview_url"
           style="max-height: 6rem; max-width: 3rem"
         />

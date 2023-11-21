@@ -19,7 +19,7 @@ commands:
         type: string
         default: Running << parameters.command >> over SSH
     steps:
-      - run: 
+      - run:
           name: << parameters.step-name >>
           command: << pipeline.parameters.ssh-connect >> "cd << pipeline.parameters.workingdir >> && << parameters.command >>"
 jobs:

@@ -1,20 +1,20 @@
 <template>
   <header
-    class="sticky transition-shadow bg-gray-50/95 backdrop-blur border-b px-2 dark:bg-gray-900/95 top-0 z-10 dark:border-gray-800"
+    class="sticky top-0 z-10 border-b bg-gray-50/95 px-2 backdrop-blur transition-shadow dark:border-gray-800 dark:bg-gray-900/95"
     :class="{ 'shadow-lg': state.scroll }"
   >
     <div class="container mx-auto">
-      <nav class="py-2 h-14 gap-x-2 flex items-center">
+      <nav class="flex h-14 items-center gap-x-2 py-2">
         <NuxtLink
-          class="uppercase font-bold text-base md:text-lg text-tomato"
+          class="text-base font-bold uppercase text-tomato md:text-lg"
           to="/"
         >
           <div>fossiilid</div>
-          <div class="text-xs text-right -mt-2">.info</div>
+          <div class="-mt-2 text-right text-xs">.info</div>
         </NuxtLink>
         <USelectMenu
           ref="quickSearch"
-          class="w-full lg:w-80 ml-2"
+          class="ml-2 w-full lg:w-80"
           :ui="{ width: 'w-80' }"
           :searchable="search"
           size="md"
@@ -46,7 +46,7 @@
             {{ $t("menu.detail_search") }}
           </span>
         </UButton>
-        <div class="ml-auto space-x-2 hidden lg:flex">
+        <div class="ml-auto hidden space-x-2 lg:flex">
           <USelect
             v-model="store.mode"
             size="md"
@@ -72,7 +72,7 @@
           </UDropdown>
         </div>
         <UButton
-          class="lg:hidden ml-auto"
+          class="ml-auto lg:hidden"
           size="md"
           variant="ghost"
           color="gray"
@@ -80,9 +80,9 @@
           @click="state.isOpen = true"
         ></UButton>
         <USlideover v-model="state.isOpen">
-          <div class="p-4 space-y-2 flex flex-col">
+          <div class="flex flex-col space-y-2 p-4">
             <UButton
-              class="lg:hidden ml-auto"
+              class="ml-auto lg:hidden"
               size="md"
               variant="ghost"
               color="gray"

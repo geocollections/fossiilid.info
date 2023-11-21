@@ -1,6 +1,6 @@
 <template>
   <footer class="border-t font-serif text-sm dark:border-gray-800">
-    <div class="mx-auto container my-2">
+    <div class="container mx-auto my-2">
       <table
         style="
           width: 100%;
@@ -67,7 +67,7 @@
       </table>
       <div class="flex justify-center">
         <div
-          class="gap-x-6 flex w-fit px-4 dark:bg-gray-500 border dark:border-gray-400 py-4 rounded"
+          class="flex w-fit gap-x-6 rounded border px-4 py-4 dark:border-gray-400 dark:bg-gray-500"
         >
           <a href="http://geokogud.info">
             <img

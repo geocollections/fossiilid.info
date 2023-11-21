@@ -1,9 +1,9 @@
 <template>
   <section class="container space-y-2">
-    <h1 class="text-5xl text-center mb-4">{{ $t("menu.detail_search") }}</h1>
+    <h1 class="mb-4 text-center text-5xl">{{ $t("menu.detail_search") }}</h1>
     <div class="grid grid-cols-2 gap-2">
       <div
-        class="col-span-full lg:col-span-1 p-4 border bg-white dark:bg-gray-800 dark:border-gray-700 rounded"
+        class="col-span-full rounded border bg-white p-4 dark:border-gray-700 dark:bg-gray-800 lg:col-span-1"
       >
         <UForm class="space-y-2" :state="searchFormState" @submit="search">
           <UFormGroup :label="$t('advancedsearch.hightaxon')">
@@ -93,7 +93,7 @@
               <span>20</span>
             </div>
           </UFormGroup>
-          <div class="justify-end space-x-2 flex items-center">
+          <div class="flex items-center justify-end space-x-2">
             <UButton
               variant="outline"
               color="gray"
@@ -109,9 +109,9 @@
         </UForm>
       </div>
       <div
-        class="col-span-full lg:col-span-1 border rounded dark:border-gray-700"
+        class="col-span-full rounded border dark:border-gray-700 lg:col-span-1"
       >
-        <div id="map" class="h-96 lg:h-full z-0" style="cursor: default"></div>
+        <div id="map" class="z-0 h-96 lg:h-full" style="cursor: default"></div>
       </div>
     </div>
     <div>
@@ -124,7 +124,7 @@
     </div>
     <div
       v-if="state.results.length > 0"
-      class="border rounded bg-white dark:bg-gray-800 dark:border-gray-700 p-4"
+      class="rounded border bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
     >
       <h1 id="results" class="pb-4 text-4xl">
         {{ $t("advancedsearch.results") }}: {{ state.numberOfResults }}
@@ -140,7 +140,7 @@
       />
       <div
         v-for="group in state.output"
-        class="border-dotted border-t-2 border-gray-400 pb-4 pt-2"
+        class="border-t-2 border-dotted border-gray-400 pb-4 pt-2"
       >
         <span class="flex items-center gap-x-2">
           <img
