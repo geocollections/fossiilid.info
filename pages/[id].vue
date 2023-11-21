@@ -6,8 +6,7 @@
       name="description"
       :content="description[0]?.description"
     />
-    <!-- <OgImageWithoutCache v-if="images.length > 0" :url="images[0].src" /> -->
-    <!-- <Meta v-if="images.length > 0" name="og:image" :content="images[0].src" /> -->
+    <OgImage v-if="images.length > 0" :url="images[0].thumbnail" />
   </Head>
   <section v-if="taxon" class="container">
     <div class="mb-4 flex items-center gap-x-2">
@@ -982,8 +981,6 @@ const cntLocalities = ref(speciesMapRes.value?.count);
 const opinions = ref(opinionRes.value?.results ?? []);
 const images = ref(buildGalleryImages(imagesRes.value?.results ?? []));
 state.specimenCollectionCnt = cntSpecimenCollectionRes.value?.count ?? 0;
-
-defineOgImage({ url: images.value[0].thumbnail });
 
 const tabs = computed(() => [
   { slot: "info", label: t("tabs.overview") },
