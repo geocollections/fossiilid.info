@@ -12,7 +12,7 @@
     <div class="mb-4 flex items-center gap-x-2">
       <NuxtLink
         v-if="taxon.fossil_group__id"
-        :href="stateRoute(`/${taxon.fossil_group__id}`)"
+        :href="stateRoute(localePath(`/${taxon.fossil_group__id}`))"
       >
         <img
           class="taxon-img"
@@ -92,7 +92,7 @@
             <template #title="{ title }">
               {{ title }}
               <span v-for="(item, index) in opinions" :key="index">
-                <NuxtLink :href="stateRoute(`/${item.other_taxon}`)">
+                <NuxtLink :to="stateRoute(localePath(`/${item.other_taxon}`))">
                   {{ item.other_taxon__taxon }}
                 </NuxtLink>
               </span>
@@ -122,7 +122,9 @@
                 "
               >
                 {{ $t("header.f_fossil_group") }}:
-                <NuxtLink :href="stateRoute(`/${taxon.fossil_group__id}`)">
+                <NuxtLink
+                  :to="stateRoute(localePath(`/${taxon.fossil_group__id}`))"
+                >
                   {{ taxon.fossil_group__taxon }}
                 </NuxtLink>
               </div>
@@ -130,7 +132,7 @@
                 {{ $t("header.f_belongs_to") }}:
                 <NuxtLink
                   :class="isHigherTaxon(taxon.rank__rank_en) ? '' : 'italic'"
-                  :href="stateRoute(`/${taxon.parent}`)"
+                  :to="stateRoute(localePath(`/${taxon.parent}`))"
                 >
                   {{ taxon.parent__taxon }}
                 </NuxtLink>
@@ -139,7 +141,9 @@
                 1 {{ $t("header.f_other_names") }}:
                 <span v-for="(item, idx) in opinions" :key="idx">
                   <span v-if="isDefinedAndNotNull(item.other_taxon)">
-                    <NuxtLink :href="stateRoute(`/${item.other_taxon}`)">
+                    <NuxtLink
+                      :to="stateRoute(localePath(`/${item.other_taxon}`))"
+                    >
                       {{ item.other_taxon__taxon }}
                     </NuxtLink>
                     <span v-if="idx !== opinions.length - 1">,</span>
@@ -569,10 +573,10 @@
           <div>
             <div v-for="(item, idx) in state.allSpecies">
               {{ calculateSpeciesIdx(idx) }}.
-              <a :href="'/' + item.id">
+              <NuxtLink :to="stateRoute(localePath(`/${item.id}`))">
                 <em>{{ item.taxon }}</em>
                 {{ item.author_year }}
-              </a>
+              </NuxtLink>
               <template
                 v-if="
                   item.stratigraphy_top__stratigraphy !==
@@ -831,6 +835,7 @@ const route = useRoute();
 const store = useRootStore();
 const { t, locale } = useI18n();
 const stateRoute = useStateRoute();
+const localePath = useLocalePath();
 
 type Taxon = {
   id: number;

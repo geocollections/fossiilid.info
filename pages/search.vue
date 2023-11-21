@@ -152,7 +152,7 @@
           <h2 class="text-2xl">
             <NuxtLink
               v-if="group.fossil_group_id"
-              :href="stateRoute(`/${group.fossil_group_id}`)"
+              :to="stateRoute(localePath(`/${group.fossil_group_id}`))"
             >
               {{ group.fossil_group }}
             </NuxtLink>
@@ -162,7 +162,7 @@
         <div class="grid grid-cols-2 pl-4">
           <template v-for="species in group.node" v-bind:key="species.taxon_id">
             <div class="col-span-1">
-              <NuxtLink :href="stateRoute(`/${species.taxon_id}`)">
+              <NuxtLink :to="stateRoute(localePath(`/${species.taxon_id}`))">
                 <em>{{ species.taxon }}</em>
                 {{ species.author_year }}
               </NuxtLink>
@@ -220,6 +220,7 @@ import type {
 const { t, locale } = useI18n();
 const { $apiFetch, $L } = useNuxtApp();
 const stateRoute = useStateRoute();
+const localePath = useLocalePath();
 
 const searchFormState = reactive({
   higherTaxon: undefined as TaxonOption | undefined,

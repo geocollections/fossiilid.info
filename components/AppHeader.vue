@@ -5,13 +5,13 @@
   >
     <div class="container mx-auto">
       <nav class="flex h-14 items-center gap-x-2 py-2">
-        <NuxtLink
+        <NuxtLinkLocale
           class="text-base font-bold uppercase text-tomato md:text-lg"
           to="/"
         >
           <div>fossiilid</div>
           <div class="-mt-2 text-right text-xs">.info</div>
-        </NuxtLink>
+        </NuxtLinkLocale>
         <USelectMenu
           ref="quickSearch"
           class="ml-2 w-full lg:w-80"
@@ -58,7 +58,7 @@
             size="md"
             :options="langOptions"
             icon="i-heroicons-language-20-solid"
-            @update:model-value="(newLocale: string) => setLocale(newLocale)"
+            @update:model-value="handleLocaleChange"
           />
           <ColorModeSwitch />
           <UDropdown :items="pageItems">
@@ -106,9 +106,7 @@
                 :options="langOptions"
                 icon="i-heroicons-language-20-solid"
                 :aria-label="t('header.lang')"
-                @update:model-value="
-                  (newLocale: string) => setLocale(newLocale)
-                "
+                @update:model-value="handleLocaleChange"
               />
             </div>
             <div class="ml-auto">
@@ -144,6 +142,8 @@ const state = reactive({
 });
 const store = useRootStore();
 const { setLocale, locale, t } = useI18n();
+const switchLocalePath = useSwitchLocalePath();
+const router = useRouter();
 const { $apiFetch } = useNuxtApp();
 const { metaSymbol } = useShortcuts();
 const quickSearch = ref();
@@ -214,5 +214,8 @@ async function search(value: string) {
 
 function handleScroll() {
   state.scroll = document.documentElement.scrollTop > 1;
+}
+function handleLocaleChange(locale: string) {
+  setLocale(locale);
 }
 </script>

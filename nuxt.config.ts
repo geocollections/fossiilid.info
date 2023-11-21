@@ -48,7 +48,12 @@ export default defineNuxtConfig({
     lazy: true,
     langDir: "lang",
     defaultLocale: "en",
-    strategy: "no_prefix",
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: "i18n_redirect",
+      redirectOn: "root",
+    },
+    // strategy: "no_prefix",
   },
   googleFonts: {
     families: {

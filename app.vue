@@ -27,14 +27,6 @@ watch(
     });
   },
 );
-watch(
-  () => locale.value,
-  (locale) => {
-    router.replace({
-      query: { ...route.query, lang: locale },
-    });
-  },
-);
 onMounted(() => {
   setLangAndMode();
 });
@@ -47,12 +39,9 @@ function setLangAndMode() {
     store.mode = route.query.mode as string;
   }
 
-  if (route.query?.lang && checkIfLangIsCorrect(route.query.lang as string)) {
-    setLocale(route.query.lang as string);
-  }
   // route.path
   router.replace({
-    query: { mode: mode, lang: lang },
+    query: { mode: mode },
   });
 }
 

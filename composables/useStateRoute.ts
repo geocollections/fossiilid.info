@@ -5,14 +5,13 @@ import { useRootStore } from "~/stores/root";
 export function useStateRoute() {
   const route = useRoute();
   const router = useRouter();
-  const { locale } = useI18n();
   const store = useRootStore();
   return (to: RouteLocationRaw): RouteLocation => {
     const resolved = router.resolve(to);
 
     return {
       ...resolved,
-      query: { ...route.query, lang: locale.value, mode: store.mode },
+      query: { ...route.query, mode: store.mode },
     };
   };
 }

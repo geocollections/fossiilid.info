@@ -24,6 +24,7 @@ export default defineSitemapEventHandler(async () => {
       asSitemapUrl({
         loc: `/${p.id}`,
         lastmod: p.date_changed,
+        _i18nTransform: true,
       }),
     ),
   ];

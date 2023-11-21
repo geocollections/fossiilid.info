@@ -32,7 +32,7 @@
             <NuxtLink
               v-else
               :style="{ 'margin-left': `${0.75 * node.level}rem` }"
-              :to="stateRoute({ path: `/${node.id}` })"
+              :to="stateRoute({ path: localePath(`/${node.id}`) })"
             >
               {{ node.taxon }}
             </NuxtLink>
@@ -49,6 +49,7 @@ const props = defineProps<{ id: number }>();
 
 const { t } = useI18n({ useScope: "local" });
 const stateRoute = useStateRoute();
+const localePath = useLocalePath();
 
 type HierarchyNode = {
   id: number;

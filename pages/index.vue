@@ -17,7 +17,7 @@
       >
         <NuxtLink
           class="text-primary"
-          :to="stateRoute({ path: `/${item.taxon}` })"
+          :to="stateRoute({ path: localePath(`/${item.taxon}`) })"
           :title="item.taxon__taxon"
         >
           <img
@@ -36,6 +36,7 @@
 <script setup lang="ts">
 const { locale } = useI18n();
 const stateRoute = useStateRoute();
+const localePath = useLocalePath();
 defineOgImageScreenshot();
 type ApiListResponse<T> = {
   count: number;
