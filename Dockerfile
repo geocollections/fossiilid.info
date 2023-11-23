@@ -17,7 +17,7 @@ RUN npm run build
 RUN npm prune
 
 FROM base
-
+RUN apt-get install -y chromium-browser
 COPY --from=build /code/.output /code/.output
 
 CMD [ "node", "./.output/server/index.mjs" ]

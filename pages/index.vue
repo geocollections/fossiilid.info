@@ -37,7 +37,7 @@
 const { locale } = useI18n();
 const stateRoute = useStateRoute();
 const localePath = useLocalePath();
-
+defineOgImageScreenshot();
 type ApiListResponse<T> = {
   count: number;
   results: T[];
