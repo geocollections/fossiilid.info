@@ -37,7 +37,9 @@
 const { locale } = useI18n();
 const stateRoute = useStateRoute();
 const localePath = useLocalePath();
-defineOgImageScreenshot();
+defineOgImage({
+  url: "https://files.geocollections.info/img/fossiilid/fossiilid.png",
+});
 type ApiListResponse<T> = {
   count: number;
   results: T[];
