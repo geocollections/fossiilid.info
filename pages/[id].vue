@@ -935,6 +935,7 @@ const [
       taxon: taxon.value.id,
       fields: "reference,reference__reference,description",
       format: "json",
+      order_by: "-id",
     },
   }),
   useApiFetch<{
