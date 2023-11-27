@@ -267,12 +267,15 @@
             </span>
           </template>
         </UCard>
-        <UCard v-if="description.length > 0">
+        <UCard
+          v-if="description.length > 0"
+          :ui="{ body: { base: 'space-y-2' } }"
+        >
           <template #header>
             {{ $t("header.f_taxon_description_diagnosis") }}
           </template>
           <div v-for="item in description">
-            <h3 class="mb-3" v-if="item.description">
+            <h3 v-if="item.description">
               <a
                 href="#"
                 @click="
