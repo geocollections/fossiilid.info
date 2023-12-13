@@ -23,7 +23,7 @@ export default defineSitemapEventHandler(async () => {
     ...taxaRes.response.docs.map((p) =>
       asSitemapUrl({
         loc: `/${p.id}`,
-        lastmod: p.date_changed,
+        // lastmod: p.date_changed,
         _i18nTransform: true,
       }),
     ),
