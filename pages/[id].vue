@@ -280,7 +280,7 @@
                 href="#"
                 @click="
                   openUrl({
-                    parent_url: 'http://geocollections.info/reference',
+                    parent_url: 'https://geocollections.info/reference',
                     object: item.reference,
                     width: 500,
                     height: 500,
@@ -328,7 +328,7 @@
                 href="#"
                 @click="
                   openUrl({
-                    parent_url: 'http://geocollections.info/specimen',
+                    parent_url: 'https://geocollections.info/specimen',
                     object: typeSpecimen.specimen.toString(),
                     width: 500,
                     height: 500,
@@ -491,7 +491,7 @@
                 href="#"
                 @click="
                   openUrl({
-                    parent_url: 'http://geocollections.info/reference',
+                    parent_url: 'https://geocollections.info/reference',
                     object: synonym.reference.toString(),
                     width: 600,
                     height: 600,
@@ -531,7 +531,7 @@
                 href="#"
                 @click="
                   openUrl({
-                    parent_url: 'http://geocollections.info/reference',
+                    parent_url: 'https://geocollections.info/reference',
                     object: reference.id,
                     width: 500,
                     height: 500,
@@ -644,7 +644,7 @@
               <UDivider v-if="idx !== 0" class="my-1" />
               <a
                 :href="
-                  'http://geocollection.info/locality/' + conop.locality_id
+                  'https://geocollection.info/locality/' + conop.locality_id
                 "
                 target="_blank"
               >
@@ -760,7 +760,7 @@
           <div class="my-2" v-for="sample in distributionSamples">
             <a
               :href="
-                'http://geocollections.info/locality/' + sample.locality_id
+                'https://geocollections.info/locality/' + sample.locality_id
               "
               target="_blank"
             >
@@ -806,9 +806,9 @@ import dayjs from "dayjs";
 import { useNewApiFetch } from "~/composables/useApiFetch";
 
 const state = reactive({
-  geocollectionUrl: "http://geocollections.info",
+  geocollectionUrl: "https://geocollections.info",
   fossilsUrl: "https://fossiilid.info",
-  kividUrl: "http://www.kivid.info",
+  kividUrl: "https://kivid.info",
   fileUrl: "https://files.geocollections.info",
   isReferencesCollapsed: true,
   scroll: false,

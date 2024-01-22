@@ -55,9 +55,9 @@ const props = defineProps({
   },
 });
 const state = reactive({
-  geocollectionUrl: "http://geocollections.info",
+  geocollectionUrl: "https://geocollections.info",
   fossilsUrl: "https://fossiilid.info",
-  kividUrl: "http://www.kivid.info",
+  kividUrl: "https://kivid.info",
   fileUrl: "https://files.geocollections.info",
   images: [] as any[],
   loading: false,

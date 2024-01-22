@@ -175,8 +175,8 @@ const props = defineProps({
   },
 });
 const state = reactive({
-  geocollectionUrl: "http://geocollections.info",
-  kividUrl: "http://www.kivid.info",
+  geocollectionUrl: "https://geocollections.info",
+  kividUrl: "https://kivid.info",
 });
 const sortKeyMap = {
   specimen_number: "specimen_number",
