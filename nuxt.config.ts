@@ -73,5 +73,13 @@ export default defineNuxtConfig({
   sitemap: {
     sitemaps: true,
     sources: ["/api/__sitemap__/urls"],
+    xsl: false,
+  },
+  site: {
+    url: "https://fossiilid.info",
+    name: "Fossiilid.info",
+  },
+  seo: {
+    redirectToCanonicalSiteUrl: true,
   },
 });
