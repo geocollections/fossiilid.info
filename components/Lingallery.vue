@@ -11,7 +11,7 @@
             :data-caption="item.caption"
           >
             <img
-              class="rounded border"
+              class="rounded border dark:border-gray-800"
               :alt="item.src"
               style="height: 200px"
               :src="item.thumbnail"
