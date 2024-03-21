@@ -82,4 +82,7 @@ export default defineNuxtConfig({
   seo: {
     redirectToCanonicalSiteUrl: true,
   },
+  linkChecker: {
+    enabled: false
+  }
 });
