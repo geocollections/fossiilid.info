@@ -1,5 +1,5 @@
 <template>
-  <UCard>
+<UCard v-if="(hierarchy?.length || 0) > 0" >
     <template #header>
       {{ $t("header.fossils_classification") }}
     </template>
@@ -60,7 +60,7 @@ type HierarchyNode = {
   level: number;
 };
 
-const { data: hierarchy } = useNewApiFetch<HierarchyNode[]>(
+const { data: hierarchy } = await useNewApiFetch<HierarchyNode[]>(
   `/taxa/${props.id}/hierarchy/`,
 );
 
