@@ -1317,7 +1317,7 @@ function setImageSrc(el: any, type: string) {
   if (type === "higher_taxon") {
     res.thumbnail =
       state.fileUrl +
-      "/small/" +
+      "/large/" +
       el.filename.substring(0, 2) +
       "/" +
       el.filename.substring(2, 4) +
@@ -1334,7 +1334,7 @@ function setImageSrc(el: any, type: string) {
   } else if (type === "non_higher_taxon") {
     res.thumbnail =
       state.fileUrl +
-      "/small/" +
+      "/large/" +
       el.uuid_filename.substring(0, 2) +
       "/" +
       el.uuid_filename.substring(2, 4) +
@@ -1351,7 +1351,7 @@ function setImageSrc(el: any, type: string) {
   } else if (type === "selected_image") {
     res.thumbnail =
       state.fileUrl +
-      "/small/" +
+      "/large/" +
       el.filename.substring(0, 2) +
       "/" +
       el.filename.substring(2, 4) +
