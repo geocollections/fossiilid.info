@@ -421,14 +421,13 @@
               "
               href="#"
               v-if="isDefinedAndNotNull(typeSpecimen.stratigraphy)"
-            >
-              {{
+              >{{
                 $translate({
                   et: typeSpecimen.stratigraphy__stratigraphy,
                   en: typeSpecimen.stratigraphy__stratigraphy_en,
                 })
-              }}
-            </a>
+              }}</a
+            >
             <span
               v-if="
                 isDifferentName({
@@ -455,7 +454,7 @@
               )
             </span>
             <span v-if="isDefinedAndNotNull(typeSpecimen.remarks)">
-              {{ typeSpecimen.remarks }}
+              ,&nbsp;{{ typeSpecimen.remarks }}
             </span>
             <span class="pl-3" v-if="typeSpecimen.attachment">
               <a
@@ -547,13 +546,15 @@
                 <em>{{ reference.journal_name }}</em>
                 {{ " " }}
                 <span v-if="reference.volume">
-                <strong>{{ reference.volume }}</strong>
-                <span>,</span>
+                  <strong>{{ reference.volume }}</strong>
+                  <span>,</span>
                 </span>
                 {{ " " }}
                 <span v-if="reference.number"> {{ reference.number }},</span>
                 {{ " " }}
-                <span v-if="isDefinedAndNotNull(reference.pages)"> {{ reference.pages }}.</span>
+                <span v-if="isDefinedAndNotNull(reference.pages)">
+                  {{ reference.pages }}.</span
+                >
               </span>
               <span v-else-if="isDefinedAndNotNull(reference.book)">
                 <em>{{ reference.book }}</em>
@@ -810,6 +811,7 @@ import filter from "lodash/filter";
 import { useRootStore } from "../stores/root";
 import dayjs from "dayjs";
 import { useNewApiFetch } from "~/composables/useApiFetch";
+import isEmpty from "lodash/isEmpty";
 
 const state = reactive({
   geocollectionUrl: "https://geocollections.info",
@@ -1173,7 +1175,7 @@ const isNumberOfLocalitiesOnMapOver1000 = computed(() => {
 
 function isDifferentName(obj: any) {
   let localizedName = locale.value === "et" ? obj["et"] : obj["en"];
-  return localizedName[0] !== localizedName[1] && localizedName[1] !== "";
+  return localizedName[0] !== localizedName[1] && !isEmpty(localizedName[1]);
 }
 
 function composeImgUrl(uuid_filename: string | undefined, isFull: boolean) {
