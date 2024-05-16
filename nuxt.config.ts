@@ -36,7 +36,7 @@ export default defineNuxtConfig({
     "@nuxt/ui",
     "@nuxtjs/google-fonts",
     "@vueuse/nuxt",
-    "@nuxtseo/module",
+    "@nuxtjs/seo",
   ],
   i18n: {
     locales: [
