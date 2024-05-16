@@ -1080,17 +1080,26 @@ if (taxon.value.rank__rank_en !== "Species") {
     count: number;
     results?: Species[];
   }>("/taxon/", {
-    query: computed(() => ({
-      hierarchy_string__istartswith: taxon.value?.hierarchy_string,
-      rank__rank_en: "species",
-      ...getModeQueryParam(store.mode),
-      order_by: "taxon",
-      fields:
-        "taxon,author_year,id,stratigraphy_base__stratigraphy_en,stratigraphy_base__stratigraphy,stratigraphy_top__stratigraphy_en,stratigraphy_top__stratigraphy",
-      page: store.searchParameters.species.page,
-      paginate_by: store.searchParameters.species.paginateBy,
-      format: "json",
-    })),
+    query: computed(() => {
+      const hiearchyParams = {};
+      if (taxon.value?.hierarchy_string) {
+        hiearchyParams["hierarchy_string__istartswith"] =
+          taxon.value?.hierarchy_string;
+      } else {
+        hiearchyParams["id"] = taxon.value?.id;
+      }
+      return {
+        ...hiearchyParams,
+        rank__rank_en: "species",
+        ...getModeQueryParam(store.mode),
+        order_by: "taxon",
+        fields:
+          "taxon,author_year,id,stratigraphy_base__stratigraphy_en,stratigraphy_base__stratigraphy,stratigraphy_top__stratigraphy_en,stratigraphy_top__stratigraphy",
+        page: store.searchParameters.species.page,
+        paginate_by: store.searchParameters.species.paginateBy,
+        format: "json",
+      };
+    }),
   });
   state.allSpecies = speciesRes.value?.results ?? [];
   state.numberOfSpecimen = speciesRes.value?.count ?? 0;
