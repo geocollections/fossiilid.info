@@ -26,7 +26,8 @@ const synonyms = computed(() => synonymsRes.value?.results ?? []);
     <div
       v-for="(synonym, idx) in synonyms"
       :key="idx"
-      :class="idx === synonyms.length - 1 ? '' : 'border-bottom my-1'"
+      class="py-1"
+      :class="idx === synonyms.length - 1 ? '' : 'border-b'"
     >
       <span v-if="synonym.reference">
         <a :href="`https://geocollections.info/reference/${synonym.reference}`">
