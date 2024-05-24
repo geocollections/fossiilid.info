@@ -57,7 +57,7 @@ const taxonOccurrence = computed(() => data.value?.results ?? []);
     <ul>
       <li v-for="(occurrence, idx) in taxonOccurrence" :key="idx" class="italic">
         <a
-          :href="`https://geocollections.info/reference/${occurrence.reference.id}`"
+          :href="`https://kirjandus.geoloogia.info/reference/${occurrence.reference.id}`"
         >
           <strong>{{ occurrence.reference.reference }}</strong>
         </a>

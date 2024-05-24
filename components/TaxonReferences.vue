@@ -28,7 +28,7 @@ const references = computed(() => referencesRes.value?.results ?? []);
         :class="idx === references.length - 1 ? '' : 'my-3'"
         style="padding-left: 3em; text-indent: -3em"
       >
-        <a :href="`https://geocollections.info/reference/${reference.id}`">
+        <a :href="`https://kirjandus.geoloogia.info/reference/${reference.id}`">
           {{ reference.author }}
           {{ reference.year }}.
         </a>

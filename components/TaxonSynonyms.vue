@@ -30,7 +30,7 @@ const synonyms = computed(() => synonymsRes.value?.results ?? []);
       :class="idx === synonyms.length - 1 ? '' : 'border-b'"
     >
       <span v-if="synonym.reference">
-        <a :href="`https://geocollections.info/reference/${synonym.reference}`">
+        <a :href="`https://kirjandus.geoloogia.info/reference/${synonym.reference}`">
           <!-- NOTE: year is not always set on the synonym -->
           {{ synonym.year }}
         </a>
