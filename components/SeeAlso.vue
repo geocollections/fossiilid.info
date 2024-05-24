@@ -11,8 +11,8 @@
           />
         </a>
       </li>
-      <li v-if="taxon.taxon_id_tol">
-        <a :href="`http://tolweb.org/${taxon.taxon_id_tol}`">
+      <li v-if="taxon.tol_id">
+        <a :href="`http://tolweb.org/${taxon.tol_id}`">
           {{ $t("header.f_link_tolweb") }}
           <UIcon
             name="i-heroicons-arrow-up-right-20-solid"
@@ -20,8 +20,8 @@
           />
         </a>
       </li>
-      <li v-if="taxon.taxon_id_eol">
-        <a :href="`https://www.eol.org/pages/${taxon.taxon_id_eol}`">
+      <li v-if="taxon.eol_id">
+        <a :href="`https://www.eol.org/pages/${taxon.eol_id}`">
           {{ $t("header.f_link_eol") }}
           <UIcon
             name="i-heroicons-arrow-up-right-20-solid"
@@ -29,8 +29,8 @@
           />
         </a>
       </li>
-      <li v-if="taxon.taxon_id_nrm">
-        <a :href="`https://naturforskaren.se/species/${taxon.taxon_id_nrm}`">
+      <li v-if="taxon.nrm_id">
+        <a :href="`https://naturforskaren.se/species/${taxon.nrm_id}`">
           {{ $t("header.f_link_naturforskaren") }}
           <UIcon
             name="i-heroicons-arrow-up-right-20-solid"
@@ -38,10 +38,8 @@
           />
         </a>
       </li>
-      <li v-if="taxon.taxon_id_plutof">
-        <a
-          :href="`https://elurikkus.ee/bie-hub/species/${taxon.taxon_id_plutof}`"
-        >
+      <li v-if="taxon.plutof_id">
+        <a :href="`https://elurikkus.ee/bie-hub/species/${taxon.plutof_id}`">
           {{ $t("header.f_link_plutof") }}
           <UIcon
             name="i-heroicons-arrow-up-right-20-solid"
@@ -49,7 +47,7 @@
           />
         </a>
       </li>
-      <li v-if="taxon.taxon_id_pbdb">
+      <li v-if="taxon.pbdb_id">
         <a :href="paleobiologyUrl">
           {{ $t("header.f_link_paleobiology") }}
           <UIcon
@@ -63,21 +61,14 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps({
-  taxon: {
-    type: Object,
-    required: true,
-  },
-  taxonPage: {
-    type: Object,
-    required: true,
-  },
-});
+import type { Taxon, TaxonPage } from "~/pages/[id].vue";
+
+const props = defineProps<{ taxon: Taxon; taxonPage: TaxonPage }>();
 const { locale } = useI18n();
 const wikipediaUrl = computed(() => {
   return `https://${locale.value}.wikipedia.org/wiki/${props.taxonPage.link_wikipedia}`;
 });
 const paleobiologyUrl = computed(() => {
-  return `https://paleobiodb.org/classic/checkTaxonInfo`;
+  return `https://paleobiodb.org/classic/checkTaxonInfo?taxon_no=${props.taxon.pbdb_id}`;
 });
 </script>

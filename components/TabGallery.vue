@@ -1,11 +1,11 @@
 <template>
   <div id="#tab-gallery" role="tabpanel">
     <div
-      class="space-2 inline-block space-x-2 space-y-2 rounded bg-gray-200 p-2 dark:bg-gray-800"
+      class="space-2 inline-block w-[100%] rounded bg-gray-200 pb-2 pl-2 dark:bg-gray-800"
     >
       <div
         v-for="(image, index) in state.images"
-        class="float-left"
+        class="float-left pr-2 pt-2"
         :key="index"
       >
         <a
@@ -15,6 +15,7 @@
           :data-caption="image.caption"
         >
           <img
+            class="rounded"
             :alt="image.caption"
             style="height: 200px"
             :src="image.thumbnail"

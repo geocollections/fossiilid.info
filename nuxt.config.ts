@@ -37,6 +37,7 @@ export default defineNuxtConfig({
     "@nuxtjs/google-fonts",
     "@vueuse/nuxt",
     "@nuxtjs/seo",
+    "@nuxt/image",
   ],
   i18n: {
     locales: [
@@ -83,6 +84,18 @@ export default defineNuxtConfig({
     redirectToCanonicalSiteUrl: true,
   },
   linkChecker: {
-    enabled: false
-  }
+    enabled: false,
+  },
+  image: {
+    providers: {
+      geocollections: {
+        name: "geocollections",
+        provider: "~/providers/geocollections.ts",
+        options: {
+          baseURL: "https://files.geocollections.info/",
+        },
+      },
+    },
+  },
 });
+

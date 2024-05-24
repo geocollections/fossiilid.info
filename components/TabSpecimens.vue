@@ -12,91 +12,44 @@
     v-model:sort="sort"
   >
     <template #specimen_number-data="{ row }">
-      <a
-        href="#"
-        @click="
-          openUrl({
-            parent_url: state.geocollectionUrl + '/specimen',
-            object: row.id,
-            width: 500,
-            height: 500,
-          })
-        "
-      >
+      <a :href="`${geocollectionUrl}/specimen/${row.id}`">
         {{ row.acronym }} {{ row.specimen_number }}
       </a>
     </template>
     <template #taxon-data="{ row: item }">
       <div>
         <a :href="'/' + item.taxon_id">{{ item.taxon }}</a>
-        <span
-          v-if="
-            isDefinedAndNotNull(item.taxon_txt) &&
-            isDefinedAndNotNull(item.taxon) &&
-            item.taxon_txt != item.taxon
-          "
+        <template
+          v-if="item.taxon_txt && item.taxon && item.taxon_txt != item.taxon"
         >
-          |
-        </span>
-        <span
-          v-if="
-            isDefinedAndNotNull(item.taxon_txt) && item.taxon_txt != item.taxon
-          "
-        >
+          <span> | </span>
           <i v-for="(txt, idx) in item.taxon_txt">
             {{ txt }}
             <span v-if="idx !== item.taxon_txt.length - 1">,</span>
           </i>
-        </span>
+        </template>
       </div>
       <!-- Currently both are links because rock__name is mostly null. -->
-      <div>
-        <a
-          href="#"
-          @click="
-            openUrl({
-              parent_url: state.kividUrl,
-              object: item.rock_id,
-              width: 500,
-              height: 500,
-            })
-          "
-        >
+      <div v-if="item.rock_id">
+        <a :href="`${kividUrl}/rock/${item.rock_id}`">
           {{ $translate({ et: item.rock, en: item.rock_en }) }}
         </a>
-        <span
+        <template
           v-if="
-            isDefinedAndNotNull(item.rock) && isDefinedAndNotNull(item.rock_txt)
-          "
-        >
-          |
-        </span>
-        <span
-          v-if="
-            (isDefinedAndNotNull(item.rock_txt) ||
-              isDefinedAndNotNull(item.rock_txt_en)) &&
+            (item.rock_txt || item.rock_txt_en) &&
             (item.rock !== item.rock_txt || item.rock_en !== item.rock_txt_en)
           "
         >
+          <span> | </span>
           <i>
             {{ $translate({ et: item.rock_txt, en: item.rock_txt_en }) }}
           </i>
-        </span>
+        </template>
       </div>
     </template>
     <template #locality-data="{ row: item }">
       <div v-if="item.locality || item.locality_en">
-        <a
-          href="#"
-          @click="
-            openUrl({
-              parent_url: state.geocollectionUrl + '/locality',
-              object: item.locality_id,
-              width: 500,
-              height: 500,
-            })
-          "
-        >
+        <a :href="`${geocollectionUrl}/locality/${item.locality_id}`">
           {{ $translate({ et: item.locality, en: item.locality_en }) }}
         </a>
       </div>
@@ -111,15 +64,7 @@
     <template #stratigraphy-data="{ row: item }">
       <a
         v-if="item.stratigraphy || item.stratigraphy_en"
-        href="#"
-        @click="
-          openUrl({
-            parent_url: state.geocollectionUrl + '/stratigraphy',
-            object: item.stratigraphy_id,
-            width: 500,
-            height: 500,
-          })
-        "
+        :href="`${geocollectionUrl}/stratigraphy/${item.stratigraphy_id}`"
       >
         {{ $translate({ et: item.stratigraphy, en: item.stratigraphy_en }) }}
       </a>
@@ -166,7 +111,6 @@
 </template>
 
 <script setup lang="ts">
-import { isDefinedAndNotEmpty, isDefinedAndNotNull, openUrl } from "~/utils";
 import { useRootStore } from "~/stores/root";
 const props = defineProps({
   taxon: {
@@ -174,10 +118,10 @@ const props = defineProps({
     required: true,
   },
 });
-const state = reactive({
-  geocollectionUrl: "https://geocollections.info",
-  kividUrl: "https://kivid.info",
-});
+
+const geocollectionUrl = "https://geocollections.info" as const;
+const kividUrl = "https://kivid.info" as const;
+
 const sortKeyMap = {
   specimen_number: "specimen_number",
   taxon: "taxon",
@@ -194,15 +138,9 @@ const sortKeyMap = {
     et: "original_status",
     en: "original_status_en",
   },
-};
+} as const;
 const store = useRootStore();
-const { $apiFetch } = useNuxtApp();
 
-onMounted(() => {
-  window.addEventListener("resize", () => {
-    state.clientWidth = document.documentElement.clientWidth;
-  });
-});
 const sort = ref({
   column: "specimen_number",
   direction: "asc",
@@ -218,9 +156,8 @@ const { data: specimenRes, pending } = await useApiFetch("/solr/specimen/", {
     format: "json",
   })),
 });
-const specimenCount = computed(() => specimenRes.count);
 
-function getSortKey(columnKey: string) {
+function getSortKey(columnKey: keyof typeof sortKeyMap) {
   if (typeof sortKeyMap[columnKey] === "string") {
     return sortKeyMap[columnKey];
   }

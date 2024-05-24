@@ -9,6 +9,13 @@ export function useStateRoute() {
   return (to: RouteLocationRaw): RouteLocation => {
     const resolved = router.resolve(to);
 
+    if (route.query.mode) {
+      return {
+        ...resolved,
+        query: route.query,
+      };
+    }
+
     return {
       ...resolved,
       query: { ...route.query, mode: store.mode },
