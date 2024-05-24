@@ -220,9 +220,11 @@ const taxonTitle = computed(() => {
   return null;
 });
 
-defineOgImage({
-  url: img(image.filename, { size: "large" }, { provider: "geocollections" }),
-});
+if (image) {
+  defineOgImage({
+    url: img(image.filename, { size: "large" }, { provider: "geocollections" }),
+  });
+}
 
 function isHigherTaxon(rank: string | undefined | null) {
   if (!rank)

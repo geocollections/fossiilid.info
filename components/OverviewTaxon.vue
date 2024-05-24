@@ -3,7 +3,7 @@ import type { Taxon, TaxonPage } from "../pages/[id].vue";
 
 const props = defineProps<{
   taxon: Taxon;
-  taxonPage: TaxonPage;
+  taxonPage: TaxonPage | undefined;
 }>();
 
 function isHigherTaxon(rank: string | undefined | null) {
@@ -37,7 +37,7 @@ const isSpecies = computed(() => {
     <div class="col-span-full space-y-2 lg:col-span-2">
       <TaxonOpinions :taxon="taxon" />
       <TaxonImages :id="taxon.id" />
-      <TaxonPage :taxon-page="taxonPage" />
+      <TaxonPage v-if="taxonPage" :taxon-page="taxonPage" />
       <TaxonDescriptions :taxon="taxon" />
       <TaxonTypeSpecimens v-if="isSpeciesOrSubspecies" :taxon="taxon" />
       <TaxonSynonyms v-if="isSpeciesOrSubspecies" :taxon="taxon" />
