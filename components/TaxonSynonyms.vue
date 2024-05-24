@@ -38,17 +38,11 @@ const synonyms = computed(() => synonymsRes.value?.results ?? []);
       <span v-else>
         {{ synonym.year }}
       </span>
-
       &nbsp;&nbsp;&nbsp;
-
       <em>{{ synonym.synonym }}</em>
       &mdash; {{ synonym.author }}
-      <span v-if="synonym.pages">
-        , {{ $t("abbreviation.pp") }}. {{ synonym.pages }}
-      </span>
-      <span v-if="synonym.figures">
-        , {{ $t("abbreviation.fig") }}. {{ synonym.figures }}
-      </span>
+      <span v-if="synonym.pages">, {{ $t("abbreviation.pp") }}. {{ synonym.pages }}</span>
+      <span v-if="synonym.figures">, {{ $t("abbreviation.fig") }}. {{ synonym.figures }}</span>
     </div>
   </UCard>
 </template>
