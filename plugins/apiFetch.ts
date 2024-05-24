@@ -1,6 +1,6 @@
-import { FetchOptions } from "ofetch";
+import type { FetchOptions } from "ofetch";
 
-export default defineNuxtPlugin((nuxtApp) => {
+export default defineNuxtPlugin((_nuxtApp) => {
   const defaults: FetchOptions = {
     baseURL: "https://rwapi.geoloogia.info/api/v0/public",
   };

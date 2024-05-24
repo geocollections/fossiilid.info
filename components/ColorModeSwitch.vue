@@ -8,12 +8,12 @@ const nextTheme = {
 };
 
 const icon = computed(() => {
-  if (colorMode.preference === "light") {
+  if (colorMode.preference === "light")
     return "i-heroicons-sun-20-solid";
-  }
-  if (colorMode.preference === "dark") {
+
+  if (colorMode.preference === "dark")
     return "i-heroicons-moon-20-solid";
-  }
+
   return "i-heroicons-computer-desktop-20-solid";
 });
 
@@ -33,7 +33,7 @@ function switchTheme() {
       @click="switchTheme"
     />
     <template #fallback>
-      <div class="h-8 w-8"></div>
+      <div class="h-8 w-8" />
     </template>
   </ClientOnly>
 </template>

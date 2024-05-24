@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Taxon } from "~/pages/[id].vue";
 import isEmpty from "lodash/isEmpty";
+import type { Taxon } from "~/pages/[id].vue";
 
 const props = defineProps<{
   taxon: Taxon;
@@ -9,7 +9,7 @@ const props = defineProps<{
 const { locale } = useI18n();
 const img = useImage();
 
-type TaxonTypeSpecimen = {
+interface TaxonTypeSpecimen {
   id: number;
   type?: {
     id: number;
@@ -42,7 +42,7 @@ type TaxonTypeSpecimen = {
   };
   locality_free?: string;
   locality_free_en?: string;
-};
+}
 
 const { data: typeSpecimensRes } = await useNewApiFetch<{
   results: TaxonTypeSpecimen[];
@@ -57,22 +57,23 @@ const { data: typeSpecimensRes } = await useNewApiFetch<{
 const typeSpecimens = computed(() => typeSpecimensRes.value?.results ?? []);
 
 function isDifferentName(obj: any) {
-  let localizedName = locale.value === "et" ? obj["et"] : obj["en"];
+  const localizedName = locale.value === "et" ? obj.et : obj.en;
   return localizedName[0] !== localizedName[1] && !isEmpty(localizedName[1]);
 }
 
 function arrayHasNonNullElement(arr: any[]) {
   let found = false;
-  arr.forEach(function (el) {
+  arr.forEach((el) => {
     found = isDefinedAndNotNull(el);
   });
   return found;
 }
 function isAtLeastOneDefinedAndNotEmpty(arr: any) {
-  let found = arrayHasNonNullElement(arr["common"]);
-  if (found) return found;
+  let found = arrayHasNonNullElement(arr.common);
+  if (found)
+    return found;
 
-  let localizedArr = locale.value === "et" ? arr["et"] : arr["en"];
+  const localizedArr = locale.value === "et" ? arr.et : arr.en;
   found = arrayHasNonNullElement(localizedArr);
   return found;
 }
@@ -84,9 +85,10 @@ function isAtLeastOneDefinedAndNotEmpty(arr: any) {
       {{ $t("header.f_species_type_data") }}
     </template>
     <div
+      v-for="(typeSpecimen, idx) in typeSpecimens"
+      :key="idx"
       class="flex"
       :class="idx === typeSpecimens.length - 1 ? '' : 'border-bottom my-3'"
-      v-for="(typeSpecimen, idx) in typeSpecimens"
     >
       <div>
         <span v-if="typeSpecimen.type">
@@ -128,7 +130,7 @@ function isAtLeastOneDefinedAndNotEmpty(arr: any) {
               ],
             })
           "
-          >,
+        >,
         </span>
         <template v-if="typeSpecimen.locality">
           <a
@@ -157,8 +159,7 @@ function isAtLeastOneDefinedAndNotEmpty(arr: any) {
                 et: typeSpecimen.locality_free,
                 en: typeSpecimen.locality_free_en,
               })
-            }}) </span
-          >,
+            }}) </span>,
         </template>
         <span v-if="isDefinedAndNotNull(typeSpecimen.level)">
           {{ typeSpecimen.level }},
@@ -166,12 +167,12 @@ function isAtLeastOneDefinedAndNotEmpty(arr: any) {
         <a
           v-if="typeSpecimen.stratigraphy"
           :href="`https://geocollections.info/stratigraphy/${typeSpecimen.stratigraphy?.id}`"
-          >{{
-            $translate({
-              et: typeSpecimen.stratigraphy.name,
-              en: typeSpecimen.stratigraphy.name_en,
-            })
-          }}
+        >{{
+          $translate({
+            et: typeSpecimen.stratigraphy.name,
+            en: typeSpecimen.stratigraphy.name_en,
+          })
+        }}
         </a>
         <span
           v-if="
@@ -198,7 +199,7 @@ function isAtLeastOneDefinedAndNotEmpty(arr: any) {
           ,&nbsp;{{ typeSpecimen.remarks }}
         </span>
       </div>
-      <span class="pl-3" v-if="typeSpecimen.attachment">
+      <span v-if="typeSpecimen.attachment" class="pl-3">
         <a
           :href="`https://geocollections.info/file/${typeSpecimen.attachment.id}`"
         >
@@ -211,7 +212,7 @@ function isAtLeastOneDefinedAndNotEmpty(arr: any) {
                 { provider: 'geocollections' },
               )
             "
-          />
+          >
         </a>
       </span>
     </div>

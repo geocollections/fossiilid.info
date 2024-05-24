@@ -21,7 +21,7 @@ const distributionConop = computed(() => data.value?.results ?? []);
       {{ $t("header.f_species_distribution_samples") }} (CONOP)
     </template>
     <div v-if="distributionConop.length > 0">
-      <div v-for="(conop, idx) in distributionConop">
+      <div v-for="(conop, idx) in distributionConop" :key="idx">
         <UDivider v-if="idx !== 0" class="my-1" />
         <a :href="`https://geocollection.info/locality/${conop.locality_id}`">
           {{ conop.locality_et }}

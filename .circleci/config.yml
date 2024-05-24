@@ -2,7 +2,7 @@ version: 2.1
 parameters:
   package-version:
     type: string
-    default: "1.0.0"
+    default: 1.0.0
   workingdir:
     type: string
     default: /var/www/fossiilid-nuxt3
@@ -11,7 +11,7 @@ parameters:
     default: ssh -o "StrictHostKeyChecking no" -p ${PORT} ${USER}@${ADDRESS}
 commands:
   ssh-run:
-    description: "Run a command on the remote server over SSH"
+    description: Run a command on the remote server over SSH
     parameters:
       command:
         type: string

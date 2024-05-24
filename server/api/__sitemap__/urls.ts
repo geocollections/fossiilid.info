@@ -1,3 +1,6 @@
+/* eslint-disable ts/no-unsafe-assignment */
+/* eslint-disable ts/no-unsafe-call */
+/* eslint-disable ts/no-unsafe-return */
 import { asSitemapUrl, defineSitemapEventHandler } from "#imports";
 
 export default defineSitemapEventHandler(async () => {
@@ -20,7 +23,7 @@ export default defineSitemapEventHandler(async () => {
 
   return [
     // map URLS as needed
-    ...taxaRes.response.docs.map((p) =>
+    ...taxaRes.response.docs.map(p =>
       asSitemapUrl({
         loc: `/${p.id}`,
         // lastmod: p.date_changed,

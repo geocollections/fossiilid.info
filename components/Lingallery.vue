@@ -1,31 +1,3 @@
-<template>
-  <div id="lingallery">
-    <div class="lingallery_thumbnails overflow-x-auto" v-if="showThumbnails">
-      <div class="lingallery_thumbnails_content space-x-1 whitespace-nowrap">
-        <ClientOnly>
-          <template v-for="(item, index) in items" :key="index">
-            <a
-              class="inline-block"
-              :aria-label="'image' + index"
-              data-fancybox="gallery"
-              :href="item.src"
-              :data-caption="item.caption"
-            >
-              <img
-                class="rounded border dark:border-gray-800"
-                :alt="item.src"
-                style="height: 200px"
-                :src="item.thumbnail"
-              />
-              <!--<img :alt="item.src" class="lazy"  data-sizes="(min-width: 20em) 35vw, 100vw" style="height: 200px;" :data-src="item.thumbnail" v-on="currentIndex !== index ? { click: () => handleImageClick(index) } : {}" :style="thumbnailStyle(index)">-->
-            </a>
-          </template>
-        </ClientOnly>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script>
 export default defineNuxtComponent({
   name: "Lingallery",
@@ -74,6 +46,34 @@ export default defineNuxtComponent({
   },
 });
 </script>
+
+<template>
+  <div id="lingallery">
+    <div v-if="showThumbnails" class="lingallery_thumbnails overflow-x-auto">
+      <div class="lingallery_thumbnails_content space-x-1 whitespace-nowrap">
+        <ClientOnly>
+          <template v-for="(item, index) in items" :key="index">
+            <a
+              class="inline-block"
+              :aria-label="`image${index}`"
+              data-fancybox="gallery"
+              :href="item.src"
+              :data-caption="item.caption"
+            >
+              <img
+                class="rounded border dark:border-gray-800"
+                :alt="item.src"
+                style="height: 200px"
+                :src="item.thumbnail"
+              >
+              <!-- <img :alt="item.src" class="lazy"  data-sizes="(min-width: 20em) 35vw, 100vw" style="height: 200px;" :data-src="item.thumbnail" v-on="currentIndex !== index ? { click: () => handleImageClick(index) } : {}" :style="thumbnailStyle(index)"> -->
+            </a>
+          </template>
+        </ClientOnly>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 /*

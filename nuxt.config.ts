@@ -58,7 +58,7 @@ export default defineNuxtConfig({
   },
   googleFonts: {
     families: {
-      Merriweather: {
+      "Merriweather": {
         wght: [300, 400, 700, 900],
         ital: [300, 400, 700, 900],
       },
@@ -98,4 +98,3 @@ export default defineNuxtConfig({
     },
   },
 });
-

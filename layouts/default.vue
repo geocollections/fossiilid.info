@@ -1,3 +1,15 @@
+<script setup lang="ts">
+const el = ref<HTMLElement | null>(null);
+const { y } = useWindowScroll(el);
+
+function toTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+}
+</script>
+
 <template>
   <div class="flex min-h-screen flex-col">
     <AppHeader />
@@ -20,18 +32,6 @@
     </ClientOnly>
   </div>
 </template>
-
-<script setup lang="ts">
-const el = ref<HTMLElement | null>(null);
-const { y } = useWindowScroll(el);
-
-function toTop() {
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth",
-  });
-}
-</script>
 
 <style>
 .v-enter-active,

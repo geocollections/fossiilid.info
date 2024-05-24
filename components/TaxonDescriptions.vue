@@ -29,7 +29,7 @@ const descriptions = computed(() => taxonDescriptions.value?.results);
     <template #header>
       {{ $t("header.f_taxon_description_diagnosis") }}
     </template>
-    <div v-for="item in descriptions">
+    <div v-for="(item, index) in descriptions" :key="index">
       <h3 v-if="item.description">
         <a
           :href="`https://kirjandus.geoloogia.info/reference/${item.reference.id}`"
@@ -37,7 +37,7 @@ const descriptions = computed(() => taxonDescriptions.value?.results);
           <strong>{{ item.reference.reference }}</strong>
         </a>
       </h3>
-      <div v-html="item.description"></div>
+      <div v-html="item.description" />
     </div>
   </UCard>
 </template>

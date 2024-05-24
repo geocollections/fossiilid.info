@@ -1,6 +1,21 @@
+<script setup lang="ts">
+import type { Taxon, TaxonPage } from "~/pages/[id].vue";
+
+const props = defineProps<{ taxon: Taxon; taxonPage: TaxonPage | undefined }>();
+const { locale } = useI18n();
+const wikipediaUrl = computed(() => {
+  return `https://${locale.value}.wikipedia.org/wiki/${props.taxonPage?.link_wikipedia}`;
+});
+const paleobiologyUrl = computed(() => {
+  return `https://paleobiodb.org/classic/checkTaxonInfo?taxon_no=${props.taxon.pbdb_id}`;
+});
+</script>
+
 <template>
   <UCard>
-    <template #header>See also</template>
+    <template #header>
+      See also
+    </template>
     <ul>
       <li v-if="taxonPage?.link_wikipedia">
         <a :href="wikipediaUrl">
@@ -59,16 +74,3 @@
     </ul>
   </UCard>
 </template>
-
-<script setup lang="ts">
-import type { Taxon, TaxonPage } from "~/pages/[id].vue";
-
-const props = defineProps<{ taxon: Taxon; taxonPage: TaxonPage }>();
-const { locale } = useI18n();
-const wikipediaUrl = computed(() => {
-  return `https://${locale.value}.wikipedia.org/wiki/${props.taxonPage.link_wikipedia}`;
-});
-const paleobiologyUrl = computed(() => {
-  return `https://paleobiodb.org/classic/checkTaxonInfo?taxon_no=${props.taxon.pbdb_id}`;
-});
-</script>

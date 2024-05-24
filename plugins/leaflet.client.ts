@@ -10,7 +10,7 @@ import "@geoman-io/leaflet-geoman-free";
 import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
 import { defineNuxtPlugin } from "nuxt/app";
 
-export default defineNuxtPlugin((nuxtApp) => {
+export default defineNuxtPlugin((_nuxtApp) => {
   return {
     provide: {
       L,

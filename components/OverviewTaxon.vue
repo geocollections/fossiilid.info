@@ -6,27 +6,27 @@ const props = defineProps<{
   taxonPage: TaxonPage;
 }>();
 
-const { locale } = useI18n();
-const { $apiFetch } = useNuxtApp();
-
 function isHigherTaxon(rank: string | undefined | null) {
-  if (!rank) return false;
+  if (!rank)
+    return false;
   return !["Species", "Subspecies", "Genus", "Supergenus", "Subgenus"].includes(
     rank,
   );
 }
 
 const isSpeciesOrSubspecies = computed(() => {
-  if (!props.taxon.rank) return false;
+  if (!props.taxon.rank)
+    return false;
 
   return (
-    props.taxon.rank.rank_en === "Species" ||
-    props.taxon.rank.rank_en === "Subspecies"
+    props.taxon.rank.rank_en === "Species"
+    || props.taxon.rank.rank_en === "Subspecies"
   );
 });
 
 const isSpecies = computed(() => {
-  if (!props.taxon.rank) return false;
+  if (!props.taxon.rank)
+    return false;
 
   return props.taxon.rank?.rank_en === "Species";
 });
@@ -53,12 +53,12 @@ const isSpecies = computed(() => {
       <TaxonomicalTree :id="taxon.id" />
       <SeeAlso
         v-if="
-          taxon.tol_id ||
-          taxon.eol_id ||
-          taxon.nrm_id ||
-          taxon.plutof_id ||
-          taxon.pbdb_id ||
-          taxonPage?.link_wikipedia
+          taxon.tol_id
+            || taxon.eol_id
+            || taxon.nrm_id
+            || taxon.plutof_id
+            || taxon.pbdb_id
+            || taxonPage?.link_wikipedia
         "
         :taxon="taxon"
         :taxon-page="taxonPage"

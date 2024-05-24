@@ -27,9 +27,9 @@ function getUrl(sample: any) {
     <template #header>
       {{ $t("header.f_species_distribution_samples") }}
     </template>
-    <div class="my-2" v-for="sample in distributionSamples">
+    <div v-for="(sample, idx) in distributionSamples" :key="idx" class="my-2">
       <a
-        :href="'https://geocollections.info/locality/' + sample.locality_id"
+        :href="`https://geocollections.info/locality/${sample.locality_id}`"
         target="_blank"
       >
         <i>

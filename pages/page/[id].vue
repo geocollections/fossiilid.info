@@ -1,19 +1,5 @@
-<template>
-  <Head>
-    <Title>
-      {{ (page && page.menu_title_et) || "Fossiilid" }}
-    </Title>
-    <Meta vmid="keywords" name="keywords" :content="meta" />
-  </Head>
-  <section class="container rounded border bg-white p-4 dark:bg-gray-800">
-    <div class="text-justify" id="content" v-if="page">
-      <span class="card-body" v-html="currentContent"></span>
-    </div>
-  </section>
-</template>
-
 <script setup lang="ts">
-type Webpage = {
+interface Webpage {
   id: number;
   content_en: string | null;
   content_et: string | null;
@@ -21,23 +7,21 @@ type Webpage = {
   menu_title_et: string | null;
   title_en: string | null;
   title_et: string | null;
-};
+}
 
 const route = useRoute();
 const { locale } = useI18n();
-const { data: page } = await useApiFetch<Webpage>("/webpages", {
+const { data: pages } = await useApiFetch<{ results: Webpage[] }>("/webpages", {
   query: {
     id: route.params.id,
     format: "json",
   },
-  // @ts-ignore
-  transform(data: { results: Webpage[] }): Webpage {
-    return data.results[0];
-  },
 });
-if (!page.value) {
+
+const page = computed(() => pages.value?.results[0]);
+
+if (!page.value)
   clearError({ redirect: "/" });
-}
 
 const meta = computed(() => {
   return [page.value?.menu_title_et, page.value?.title_et].join(", ");
@@ -48,6 +32,20 @@ const currentContent = computed(() => {
     : page.value?.content_en;
 });
 </script>
+
+<template>
+  <Head>
+    <Title>
+      {{ (page && page.menu_title_et) || "Fossiilid" }}
+    </Title>
+    <Meta vmid="keywords" name="keywords" :content="meta" />
+  </Head>
+  <section class="container rounded border bg-white p-4 dark:bg-gray-800">
+    <div v-if="page" id="content" class="text-justify">
+      <span class="card-body" v-html="currentContent" />
+    </div>
+  </section>
+</template>
 
 <style>
 h1 {

@@ -1,5 +1,4 @@
-import type { RouteLocation } from "vue-router";
-import type { RouteLocationRaw } from "vue-router";
+import type { RouteLocation, RouteLocationRaw } from "vue-router";
 import { useRootStore } from "~/stores/root";
 
 export function useStateRoute() {

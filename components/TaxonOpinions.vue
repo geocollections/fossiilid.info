@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Taxon } from "../pages/[id].vue";
 import dayjs from "dayjs";
+import type { Taxon } from "../pages/[id].vue";
 
 const props = defineProps<{
   taxon: Taxon;
@@ -19,12 +19,12 @@ const dateChanged = computed(() => {
 const { $apiFetchNew } = useNuxtApp();
 const { locale } = useI18n();
 
-type TaxonName = {
+interface TaxonName {
   language: string;
   name: string;
-};
+}
 
-type TaxonOpinion = {
+interface TaxonOpinion {
   taxon: {
     id: number;
     name: string;
@@ -33,7 +33,7 @@ type TaxonOpinion = {
     id: number;
     name: string;
   };
-};
+}
 
 const { data } = useAsyncData(
   "opinions",
@@ -84,12 +84,11 @@ const commonNames = computed(() => {
 });
 
 function isHigherTaxon(rank: string | undefined | null) {
-  if (!rank) return false;
+  if (!rank)
+    return false;
   // return !['Species','Subspecies','Genus','Supergenus','Subgenus'].includes(rank)
   return !(
-    ["Species", "Subspecies", "Genus", "Supergenus", "Subgenus"].indexOf(
-      rank,
-    ) >= 0
+    ["Species", "Subspecies", "Genus", "Supergenus", "Subgenus"].includes(rank)
   );
 }
 
@@ -168,7 +167,7 @@ const numberOfSpecimen = ref(0);
 
         <!-- NOTE: There is no case where taxon has opinions and common names. So this will never be true -->
         <div v-if="commonNames.length > 0">
-          <span v-for="item in commonNames">
+          <span v-for="(item, idx) in commonNames" :key="idx">
             {{ item.language }}:
             <strong>{{ item.name }}</strong>
             ;&ensp;
@@ -190,17 +189,17 @@ const numberOfSpecimen = ref(0);
           </a>
           <template
             v-if="
-              taxon.stratigraphy_top &&
-              taxon.stratigraphy_base &&
-              taxon.stratigraphy_top.id !== taxon.stratigraphy_base.id
+              taxon.stratigraphy_top
+                && taxon.stratigraphy_base
+                && taxon.stratigraphy_top.id !== taxon.stratigraphy_base.id
             "
           >
             &rarr;
           </template>
           <a
             v-if="
-              taxon.stratigraphy_top &&
-              taxon.stratigraphy_base?.id !== taxon.stratigraphy_top.id
+              taxon.stratigraphy_top
+                && taxon.stratigraphy_base?.id !== taxon.stratigraphy_top.id
             "
             :href="`${geocollectionUrl}/stratigraphy/${taxon.stratigraphy_top.id}`"
           >
@@ -220,7 +219,7 @@ const numberOfSpecimen = ref(0);
             {{ convertToDecimal(taxon.stratigraphy_top.age_top) }}
             {{ $t("header.f_taxon_age_within_unit") }})
           </span>
-          <br />
+          <br>
         </div>
         <div v-if="taxon.rank?.rank_en !== 'Species'">
           <span v-if="store.mode === 'in_baltoscandia'">
@@ -231,7 +230,7 @@ const numberOfSpecimen = ref(0);
           </span>
           <span v-else>{{ $t("header.f_global_species") }}</span>
           <strong>
-            <a href="#species" v-if="numberOfSpecimen">
+            <a v-if="numberOfSpecimen" href="#species">
               {{ numberOfSpecimen }}
             </a>
           </strong>

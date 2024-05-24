@@ -102,9 +102,6 @@
 
     "msg_error_page_not_found": "Page not found",
 
-    "search_msg_error_empty_form": "Please provide search term",
-    "search_msg_error_limit_exceeded": "More than %s rows found. Please specify search conditions",
-
     "add": "Add new",
     "edit": "My files",
     "lang": "Lang",

@@ -1,96 +1,3 @@
-<template>
-  <Head>
-    <Title>{{ taxon?.name }}</Title>
-    <Meta
-      v-if="description?.description"
-      name="description"
-      :content="description?.description"
-    />
-  </Head>
-  <section v-if="taxon" class="container">
-    <div class="mb-4 flex items-center gap-x-2">
-      <ClientOnly>
-        <NuxtLink
-          v-if="taxon.fossil_group?.id && showTitleImage"
-          :href="stateRoute(localePath(`/${taxon.fossil_group.id}`))"
-        >
-          <img
-            class="taxon-img"
-            height="120"
-            width="120"
-            border="0"
-            :src="titleImage"
-            :alt="taxon.fossil_group.name"
-            :title="taxon.fossil_group.name"
-            @error="handleTitleImageError"
-          />
-        </NuxtLink>
-      </ClientOnly>
-      <div>
-        <div>
-          {{
-            $translate({
-              et: taxon.rank?.rank,
-              en: taxon.rank?.rank_en,
-            })
-          }}
-        </div>
-        <h1
-          class="inline text-5xl font-bold"
-          :class="isHigherTaxon(taxon.rank?.rank_en) ? '' : 'italic'"
-        >
-          {{ taxon.name }}
-          <span class="text-xl">{{ taxon.author_year }}</span>
-        </h1>
-        <h2
-          v-if="taxon.fossil_group && isHigherTaxon(taxon.rank?.rank_en)"
-          class="text-2xl"
-        >
-          {{ taxonTitle }}
-        </h2>
-      </div>
-    </div>
-    <div
-      class="relative mb-2 inline-grid h-10 w-full items-center rounded-lg bg-gray-100 p-1 dark:bg-gray-800"
-      style="grid-template-columns: repeat(3, minmax(0px, 1fr))"
-    >
-      <UButton
-        v-for="tab in tabs"
-        variant="ghost"
-        color="white"
-        :class="{
-          'bg-white dark:bg-gray-900': activeSection === tab.slot,
-        }"
-        :disabled="tab.disabled"
-        :ui="{
-          base: 'flex items-center justify-center text-sm h-8',
-          color: {
-            white: {
-              ghost: 'dark:hover:disabled:bg-inherit hover:disabled:bg-inherit',
-            },
-          },
-        }"
-        :tabindex="!tab.disabled ? '0' : '-1'"
-        @click="activeSection = tab.slot"
-      >
-        <span class="mr-1">
-          {{ tab.label }}
-        </span>
-        <UBadge v-if="tab.count" variant="subtle">
-          {{ tab.count }}
-        </UBadge>
-      </UButton>
-    </div>
-    <OverviewTaxon
-      v-if="activeSection === 'info'"
-      :taxon="taxon"
-      :taxon-page="taxonPage"
-    />
-    <TabGallery v-if="activeSection === 'images'" :taxon="taxon" />
-    <TabSpecimens v-if="activeSection === 'specimens'" :taxon="taxon" />
-  </section>
-</template>
-
 <script setup lang="ts">
 const route = useRoute();
 const { t, locale } = useI18n();
@@ -99,7 +6,7 @@ const localePath = useLocalePath();
 
 const activeSection = ref("info");
 
-export type Taxon = {
+export interface Taxon {
   id: number;
   name: string;
   parent?: {
@@ -137,15 +44,15 @@ export type Taxon = {
   nrm_id?: string;
   plutof_id?: number;
   pbdb_id?: number;
-};
+}
 
-export type TaxonPage = {
+export interface TaxonPage {
   title: string;
   content: string;
   author_text?: string;
   date_text?: string;
   link_wikipedia?: string;
-};
+}
 
 const { $solrFetch, $apiFetchNew } = useNuxtApp();
 const img = useImage();
@@ -187,7 +94,6 @@ const { data } = await useAsyncData(
         format: "json",
       },
       onResponseError: (_err) => {
-        console.log(_err);
         showError({
           statusCode: 404,
           statusMessage: "Page not found",
@@ -301,14 +207,17 @@ const tabs = computed(() => [
 ]);
 
 const titleImage = computed(() => {
-  if (!taxon?.fossil_group) return;
+  if (!taxon?.fossil_group)
+    return;
   return img(`/fossilgroups/${taxon.fossil_group.id}.png`);
 });
 
 const taxonTitle = computed(() => {
-  if (taxonPage && taxonPage.title) return taxonPage.title;
-  if (commonNames.length > 0) return commonNames[0].name;
-  return;
+  if (taxonPage && taxonPage.title)
+    return taxonPage.title;
+  if (commonNames.length > 0)
+    return commonNames[0].name;
+  return null;
 });
 
 defineOgImage({
@@ -316,7 +225,8 @@ defineOgImage({
 });
 
 function isHigherTaxon(rank: string | undefined | null) {
-  if (!rank) return false;
+  if (!rank)
+    return false;
   return !["Species", "Subspecies", "Genus", "Supergenus", "Subgenus"].includes(
     rank,
   );
@@ -325,7 +235,100 @@ function isHigherTaxon(rank: string | undefined | null) {
 const showTitleImage = ref(true);
 
 function handleTitleImageError() {
-  console.log("Error loading title image");
   showTitleImage.value = false;
 }
 </script>
+
+<template>
+  <Head>
+    <Title>{{ taxon?.name }}</Title>
+    <Meta
+      v-if="description?.description"
+      name="description"
+      :content="description?.description"
+    />
+  </Head>
+  <section v-if="taxon" class="container">
+    <div class="mb-4 flex items-center gap-x-2">
+      <ClientOnly>
+        <NuxtLink
+          v-if="taxon.fossil_group?.id && showTitleImage"
+          :href="stateRoute(localePath(`/${taxon.fossil_group.id}`))"
+        >
+          <img
+            class="taxon-img"
+            height="120"
+            width="120"
+            border="0"
+            :src="titleImage"
+            :alt="taxon.fossil_group.name"
+            :title="taxon.fossil_group.name"
+            @error="handleTitleImageError"
+          >
+        </NuxtLink>
+      </ClientOnly>
+      <div>
+        <div>
+          {{
+            $translate({
+              et: taxon.rank?.rank,
+              en: taxon.rank?.rank_en,
+            })
+          }}
+        </div>
+        <h1
+          class="inline text-5xl font-bold"
+          :class="isHigherTaxon(taxon.rank?.rank_en) ? '' : 'italic'"
+        >
+          {{ taxon.name }}
+          <span class="text-xl">{{ taxon.author_year }}</span>
+        </h1>
+        <h2
+          v-if="taxon.fossil_group && isHigherTaxon(taxon.rank?.rank_en)"
+          class="text-2xl"
+        >
+          {{ taxonTitle }}
+        </h2>
+      </div>
+    </div>
+    <div
+      class="relative mb-2 inline-grid h-10 w-full items-center rounded-lg bg-gray-100 p-1 dark:bg-gray-800"
+      style="grid-template-columns: repeat(3, minmax(0px, 1fr))"
+    >
+      <UButton
+        v-for="(tab, index) in tabs"
+        :key="index"
+        variant="ghost"
+        color="white"
+        :class="{
+          'bg-white dark:bg-gray-900': activeSection === tab.slot,
+        }"
+        :disabled="tab.disabled"
+        :ui="{
+          base: 'flex items-center justify-center text-sm h-8',
+          color: {
+            white: {
+              ghost: 'dark:hover:disabled:bg-inherit hover:disabled:bg-inherit',
+            },
+          },
+        }"
+        :tabindex="!tab.disabled ? '0' : '-1'"
+        @click="activeSection = tab.slot"
+      >
+        <span class="mr-1">
+          {{ tab.label }}
+        </span>
+        <UBadge v-if="tab.count" variant="subtle">
+          {{ tab.count }}
+        </UBadge>
+      </UButton>
+    </div>
+    <OverviewTaxon
+      v-if="activeSection === 'info'"
+      :taxon="taxon"
+      :taxon-page="taxonPage"
+    />
+    <TabGallery v-if="activeSection === 'images'" :taxon="taxon" />
+    <TabSpecimens v-if="activeSection === 'specimens'" :taxon="taxon" />
+  </section>
+</template>

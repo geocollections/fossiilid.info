@@ -1,9 +1,5 @@
-<template>
-  <div v-if="mapData" class="z-0" id="map" style="height: 300px"></div>
-</template>
-
 <script setup lang="ts">
-import type { TileLayer, Map } from "leaflet";
+import type { Map, TileLayer } from "leaflet";
 import { useRootStore } from "~/stores/root";
 
 const props = defineProps<{ mapData: any[] }>();
@@ -81,12 +77,17 @@ function loadMap() {
       minZoom: 1,
       maxZoom: 18,
       attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors &copy; <a href=\"https://carto.com/attributions\">CARTO</a>",
     },
   );
   state.tileLayer.addTo(map.value);
 }
 </script>
+
+<template>
+  <div v-if="mapData" id="map" class="z-0" style="height: 300px" />
+</template>
+
 <style>
 .custom-popup-text a {
   color: #f05f40;

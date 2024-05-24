@@ -11,7 +11,7 @@ defineProps<{
     <template #header>
       {{ $t("header.f_taxon_intro") }}
     </template>
-    <div id="content" class="text-justify" v-html="taxonPage.content"></div>
+    <div id="content" class="text-justify" v-html="taxonPage.content" />
     <template #footer>
       <span class="text-sm italic">
         {{ taxonPage.author_text }} {{ taxonPage.date_text }}

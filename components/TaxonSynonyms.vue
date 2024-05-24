@@ -17,21 +17,24 @@ const { data: synonymsRes } = await useNewApiFetch<{
 
 const synonyms = computed(() => synonymsRes.value?.results ?? []);
 </script>
+
 <template>
   <UCard v-if="synonyms.length > 0">
     <template #header>
       {{ $t("header.f_species_synonymy") }}
     </template>
     <div
-      :class="idx === synonyms.length - 1 ? '' : 'border-bottom my-1'"
       v-for="(synonym, idx) in synonyms"
+      :key="idx"
+      :class="idx === synonyms.length - 1 ? '' : 'border-bottom my-1'"
     >
       <span v-if="synonym.reference">
         <a :href="`https://geocollections.info/reference/${synonym.reference}`">
+          <!-- NOTE: year is not always set on the synonym -->
           {{ synonym.year }}
         </a>
       </span>
-      <span v-else="synonym.year">
+      <span v-else>
         {{ synonym.year }}
       </span>
 

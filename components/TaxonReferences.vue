@@ -21,10 +21,11 @@ const references = computed(() => referencesRes.value?.results ?? []);
     <template #header>
       {{ $t("header.f_taxon_references") }}
     </template>
-    <Foldable :elLength="references.length">
+    <Foldable :el-length="references.length">
       <div
-        :class="idx === references.length - 1 ? '' : 'my-3'"
         v-for="(reference, idx) in references"
+        :key="idx"
+        :class="idx === references.length - 1 ? '' : 'my-3'"
         style="padding-left: 3em; text-indent: -3em"
       >
         <a :href="`https://geocollections.info/reference/${reference.id}`">
@@ -44,13 +45,11 @@ const references = computed(() => referencesRes.value?.results ?? []);
           <span v-if="reference.number"> {{ reference.number }},</span>
           {{ " " }}
           <span v-if="isDefinedAndNotNull(reference.pages)">
-            {{ reference.pages }}.</span
-          >
+            {{ reference.pages }}.</span>
         </span>
         <span v-else-if="isDefinedAndNotNull(reference.book)">
           {{ " " }}
-          <em>{{ reference.book }}</em
-          >, pp. {{ reference.pages }}.
+          <em>{{ reference.book }}</em>, pp. {{ reference.pages }}.
         </span>
         <span v-else> pp. {{ reference.pages }}.</span>
         <span v-if="reference.publisher">

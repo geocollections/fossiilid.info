@@ -5,8 +5,7 @@ const props = defineProps<{
   taxon: Taxon;
 }>();
 
-type TaxonOccurrence = {
-  id: number;
+interface TaxonOccurrence {
   reference: {
     id: number;
     reference: string;
@@ -23,7 +22,7 @@ type TaxonOccurrence = {
     name: string;
     name_en: string;
   };
-};
+}
 
 const { data } = await useNewApiFetch<{ results: TaxonOccurrence[] }>(
   `/taxa/${props.taxon.id}/taxon-occurrences/`,
@@ -31,19 +30,32 @@ const { data } = await useNewApiFetch<{ results: TaxonOccurrence[] }>(
     query: {
       format: "json",
       expand: "reference,locality,stratigraphy_base",
+      fields: [
+        "reference.id",
+        "reference.reference",
+        "locality.id",
+        "locality.name",
+        "locality.name_en",
+        "depth",
+        "depth_interval",
+        "stratigraphy_base.id",
+        "stratigraphy_base.name",
+        "stratigraphy_base.name_en",
+      ].join(","),
     },
   },
 );
 
 const taxonOccurrence = computed(() => data.value?.results ?? []);
 </script>
+
 <template>
   <UCard v-if="taxonOccurrence.length > 0">
     <template #header>
       {{ $t("header.f_species_distribution_references") }}
     </template>
     <ul>
-      <li class="italic" v-for="occurrence in taxonOccurrence">
+      <li v-for="(occurrence, idx) in taxonOccurrence" :key="idx" class="italic">
         <a
           :href="`https://geocollections.info/reference/${occurrence.reference.id}`"
         >

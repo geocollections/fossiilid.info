@@ -1,38 +1,3 @@
-<template>
-  <section class="container mx-auto space-y-10">
-    <h1
-      class="text-center text-3xl uppercase text-gray-500 dark:text-gray-300 sm:text-4xl md:text-5xl"
-    >
-      fossiilid.info
-    </h1>
-    <div
-      id="fossilgroups_box"
-      class="flex flex-wrap justify-center"
-      v-if="frontPage"
-    >
-      <div
-        v-for="(item, idx) in frontPage.results"
-        :key="idx"
-        class="text-center"
-      >
-        <NuxtLink
-          class="text-primary"
-          :to="stateRoute({ path: localePath(`/${item.taxon}`) })"
-          :title="item.taxon__taxon"
-        >
-          <img
-            :src="`https://files.geocollections.info/img/fossiilid/fossilgroups/${item.taxon}.png`"
-            :alt="item.frontpage + ' (' + item.taxon__taxon + ')'"
-            width="150"
-            height="150"
-          />
-          {{ item.frontpage }}
-        </NuxtLink>
-      </div>
-    </div>
-  </section>
-</template>
-
 <script setup lang="ts">
 const { locale } = useI18n();
 const stateRoute = useStateRoute();
@@ -40,15 +5,15 @@ const localePath = useLocalePath();
 defineOgImage({
   url: "https://files.geocollections.info/img/fossiilid/fossiilid.png",
 });
-type ApiListResponse<T> = {
+interface ApiListResponse<T> {
   count: number;
   results: T[];
-};
-type TaxonPage = {
+}
+interface TaxonPage {
   frontpage: string;
   taxon: number;
   taxon__taxon: string;
-};
+}
 
 const { data: frontPage } = await useApiFetch<ApiListResponse<TaxonPage>>(
   "/taxon_page",
@@ -63,6 +28,41 @@ const { data: frontPage } = await useApiFetch<ApiListResponse<TaxonPage>>(
   },
 );
 </script>
+
+<template>
+  <section class="container mx-auto space-y-10">
+    <h1
+      class="text-center text-3xl uppercase text-gray-500 dark:text-gray-300 sm:text-4xl md:text-5xl"
+    >
+      fossiilid.info
+    </h1>
+    <div
+      v-if="frontPage"
+      id="fossilgroups_box"
+      class="flex flex-wrap justify-center"
+    >
+      <div
+        v-for="(item, idx) in frontPage.results"
+        :key="idx"
+        class="text-center"
+      >
+        <NuxtLink
+          class="text-primary"
+          :to="stateRoute({ path: localePath(`/${item.taxon}`) })"
+          :title="item.taxon__taxon"
+        >
+          <img
+            :src="`https://files.geocollections.info/img/fossiilid/fossilgroups/${item.taxon}.png`"
+            :alt="`${item.frontpage} (${item.taxon__taxon})`"
+            width="150"
+            height="150"
+          >
+          {{ item.frontpage }}
+        </NuxtLink>
+      </div>
+    </div>
+  </section>
+</template>
 
 <style>
 .css-loader {

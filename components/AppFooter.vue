@@ -12,15 +12,15 @@
           <tr>
             <td valign="top" align="center" style="width: 33%">
               <strong>{{ $t("footer.related") }}:</strong>
-              <br />
+              <br>
               <a href="https://elurikkus.ee">eElurikkus</a>
-              <br />
+              <br>
               <a href="https://naturforskaren.se">Naturforskaren</a>
-              <br />
+              <br>
               <a href="https://www.geocase.eu">GeoCASe</a>
-              <br />
+              <br>
               <a href="https://open-up.eu">OpenUp!</a>
-              <br />
+              <br>
             </td>
             <td
               valign="top"
@@ -29,7 +29,7 @@
             >
               {{ $t("footer.licence") }}
               <div>
-                <br />
+                <br>
                 <a
                   class="cc-large"
                   href="https://creativecommons.org/licenses/by-nc/3.0/"
@@ -40,27 +40,27 @@
                     alt="Creative Commons Licence"
                     src="/ccbync.png"
                     typeof="foaf:Image"
-                  />
+                  >
                 </a>
-                <br />
+                <br>
               </div>
             </td>
             <td valign="top" align="center" style="width: 33%">
               <strong>{{ $t("footer.founders") }}:</strong>
-              <br />
+              <br>
               <a href="https://taltech.ee/geoloogia-instituut">
                 {{ $t("footer.gi") }}
               </a>
-              <br />
+              <br>
               <a href="https://natmuseum.ut.ee">
                 {{ $t("footer.ut") }}
               </a>
-              <br />
+              <br>
               <a href="https://loodusmuuseum.ee">
                 {{ $t("footer.elm") }}
               </a>
-              <br />
-              <br />
+              <br>
+              <br>
             </td>
           </tr>
         </tbody>
@@ -76,7 +76,7 @@
               src="https://files.geocollections.info/img/sarv_logo.svg"
               alt="SARV"
               title="SARV: geokogude infosüsteem"
-            />
+            >
           </a>
           <a href="https://natarc.ut.ee">
             <img
@@ -85,7 +85,7 @@
               src="https://elurikkus.ee/assets/images/natarc_logo_black.svg"
               alt="Natural History Archives and Information Network (NATARC)"
               title="SARV is part of national infrastructure Natural History Archives and Information Network (NATARC)"
-            />
+            >
           </a>
           <a href="https://www.struktuurifondid.ee">
             <img
@@ -94,7 +94,7 @@
               src="https://files.geocollections.info/img/EL_mv.png"
               alt="EU"
               title="Euroopa Liit"
-            />
+            >
           </a>
         </div>
       </div>

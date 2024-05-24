@@ -1,222 +1,18 @@
-<template>
-  <section class="container space-y-2">
-    <h1 class="mb-4 text-center text-5xl">{{ $t("menu.detail_search") }}</h1>
-    <div class="grid grid-cols-2 gap-2">
-      <div
-        class="col-span-full rounded border bg-white p-4 dark:border-gray-700 dark:bg-gray-800 lg:col-span-1"
-      >
-        <UForm class="space-y-2" :state="searchFormState" @submit="search">
-          <UFormGroup :label="$t('advancedsearch.hightaxon')">
-            <USelectMenu
-              by="id"
-              v-model="searchFormState.higherTaxon"
-              option-attribute="taxon"
-              :searchable="searchHigherTaxon"
-              :loading="loadingHigherTaxaOptions"
-              size="md"
-              :ui="{ icon: { trailing: { pointer: '' } } }"
-            >
-              <template v-if="searchFormState.higherTaxon" #trailing>
-                <UButton
-                  color="gray"
-                  variant="link"
-                  icon="i-heroicons-x-mark-20-solid"
-                  :padded="false"
-                  @click="searchFormState.higherTaxon = undefined"
-                />
-              </template>
-            </USelectMenu>
-          </UFormGroup>
-          <UFormGroup :label="$t('advancedsearch.species')">
-            <UInput v-model="searchFormState.species"></UInput>
-          </UFormGroup>
-          <UFormGroup :label="$t('advancedsearch.author')">
-            <UInput v-model="searchFormState.author"></UInput>
-          </UFormGroup>
-          <UFormGroup :label="$t('advancedsearch.locality')">
-            <UInput v-model="searchFormState.locality"></UInput>
-          </UFormGroup>
-          <UFormGroup :label="$t('advancedsearch.stratigraphy')">
-            <USelectMenu
-              by="id"
-              v-model="searchFormState.stratigraphy"
-              :searchable="searchStratigrahy"
-              :loading="loadingStratigraphyOptions"
-              size="md"
-              :ui="{ icon: { trailing: { pointer: '' } } }"
-            >
-              <template v-if="searchFormState.stratigraphy" #trailing>
-                <UButton
-                  color="gray"
-                  variant="link"
-                  icon="i-heroicons-x-mark-20-solid"
-                  :padded="false"
-                  @click="searchFormState.stratigraphy = undefined"
-                />
-              </template>
-              <template #label>
-                <span v-if="!searchFormState.stratigraphy">&nbsp;</span>
-                <span v-else>
-                  {{
-                    $translate({
-                      et: searchFormState.stratigraphy.stratigraphy,
-                      en: searchFormState.stratigraphy.stratigraphy_en,
-                    })
-                  }}
-                </span>
-              </template>
-              <template #option="{ option: stratigraphy }">
-                {{
-                  $translate({
-                    et: stratigraphy.stratigraphy,
-                    en: stratigraphy.stratigraphy_en,
-                  })
-                }}
-              </template>
-            </USelectMenu>
-          </UFormGroup>
-          <UCheckbox
-            v-model="searchFormState.isOutcrop"
-            :label="$t('advancedsearch.subsurfaceField')"
-          />
-          <UCheckbox
-            v-model="searchFormState.isNearMe"
-            :label="$t('advancedsearch.showNearMeField')"
-          />
-          <UFormGroup
-            v-if="searchFormState.isNearMe"
-            :label="`Radius ${searchFormState.nearMeRange} km`"
-          >
-            <URange v-model="searchFormState.nearMeRange" :min="0" :max="20" />
-            <div class="flex justify-between">
-              <span>0</span>
-              <span>20</span>
-            </div>
-          </UFormGroup>
-          <div class="flex items-center justify-end space-x-2">
-            <UButton
-              variant="outline"
-              color="gray"
-              icon="i-heroicons-trash"
-              @click="clearSearch"
-            >
-              {{ $t("advancedsearch.btn_clear") }}
-            </UButton>
-            <UButton type="submit">
-              {{ $t("advancedsearch.btn_search") }}
-            </UButton>
-          </div>
-        </UForm>
-      </div>
-      <div
-        class="col-span-full rounded border dark:border-gray-700 lg:col-span-1"
-      >
-        <div id="map" class="z-0 h-96 lg:h-full" style="cursor: default"></div>
-      </div>
-    </div>
-    <div>
-      <UAlert
-        v-if="state.initialMessage && !state.isLoadingResults"
-        color="blue"
-        variant="subtle"
-        :title="$t('advancedsearch.msg_add_criteria')"
-      />
-    </div>
-    <div
-      v-if="state.results.length > 0"
-      class="rounded border bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
-    >
-      <h1 id="results" class="pb-4 text-4xl">
-        {{ $t("advancedsearch.results") }}: {{ state.numberOfResults }}
-        {{ $t("advancedsearch.results_species") }}
-      </h1>
-
-      <UPagination
-        v-if="state.numberOfResults > paginationState.paginateBy"
-        :ui="{ base: 'ml-auto my-2' }"
-        v-model="paginationState.page"
-        :total="state.numberOfResults"
-        :page-count="paginationState.paginateBy"
-      />
-      <div
-        v-for="group in state.output"
-        class="border-t-2 border-dotted border-gray-400 pb-4 pt-2"
-      >
-        <span class="flex items-center gap-x-2">
-          <img
-            onerror="this.style.display='none'"
-            :src="'/fossilgroups/' + group.fossil_group_id + '.png'"
-            width="70"
-            height="70"
-          />
-          <h2 class="text-2xl">
-            <NuxtLink
-              v-if="group.fossil_group_id"
-              :to="stateRoute(localePath(`/${group.fossil_group_id}`))"
-            >
-              {{ group.fossil_group }}
-            </NuxtLink>
-            <span v-else>{{ group.fossil_group }}</span>
-          </h2>
-        </span>
-        <div class="grid grid-cols-2 pl-4">
-          <template v-for="species in group.node" v-bind:key="species.taxon_id">
-            <div class="col-span-1">
-              <NuxtLink :to="stateRoute(localePath(`/${species.taxon_id}`))">
-                <em>{{ species.taxon }}</em>
-                {{ species.author_year }}
-              </NuxtLink>
-            </div>
-            <div
-              v-if="species.fad && species.lad && species.fad !== species.lad"
-              class="col-span-1"
-            >
-              <span
-                v-translate="{ et: species.fad, en: species.fad_en }"
-              ></span>
-              &rarr;
-              <span
-                v-translate="{ et: species.lad, en: species.lad_en }"
-              ></span>
-            </div>
-            <div v-else-if="species.fad === species.lad" class="col-span-1">
-              <span
-                v-translate="{ et: species.fad, en: species.fad_en }"
-              ></span>
-            </div>
-            <div v-else-if="species.fad" class="col-span-1">
-              <span
-                v-translate="{ et: species.fad, en: species.fad_en }"
-              ></span>
-            </div>
-          </template>
-        </div>
-      </div>
-      <UPagination
-        v-if="state.numberOfResults > paginationState.paginateBy"
-        :ui="{ base: 'ml-auto my-2' }"
-        v-model="paginationState.page"
-        :total="state.numberOfResults"
-        :page-count="paginationState.paginateBy"
-      />
-    </div>
-  </section>
-</template>
-
 <script setup lang="ts">
-// @ts-ignore
+// @ts-expect-error no types for this package
 import Wkt from "wicket/wicket";
 import type {
-  FeatureGroup,
-  LeafletMouseEvent,
-  CircleMarker,
-  TileLayer,
   Circle,
+  CircleMarker,
+  FeatureGroup,
+  LatLngExpression,
+  LeafletMouseEvent,
+  Map,
   Polygon,
   Rectangle,
-  LatLngExpression,
-  Map,
+  TileLayer,
 } from "leaflet";
+
 const { t, locale } = useI18n();
 const { $apiFetch, $L } = useNuxtApp();
 const stateRoute = useStateRoute();
@@ -235,16 +31,37 @@ const searchFormState = reactive({
   selectedArea: null as Circle | Rectangle | Polygon | null,
 });
 
-type TaxonOption = {
+const state = reactive({
+  searchForm: setSearchParams(),
+  initialMessage: true,
+  errorMessage: null as string | null,
+  output: {} as {
+    [id: number]: {
+      fossil_group_id: number;
+      fossil_group: string;
+      node: any[];
+    };
+  },
+  tileLayer: null as TileLayer | null,
+  circle: null as CircleMarker<any> | null,
+  drawnItems: null as FeatureGroup | null,
+  isLoadingResults: false,
+  results: [] as SearchResult[],
+  mapDataResult: [] as MapSearchResult[],
+  numberOfResults: 0,
+});
+
+interface TaxonOption {
   id: number;
   taxon?: string;
   hierarchy_string?: string;
-};
+}
 
 const loadingHigherTaxaOptions = ref(false);
 
 async function searchHigherTaxon(value: string) {
-  if (value.length < 1) return [];
+  if (value.length < 1)
+    return [];
   loadingHigherTaxaOptions.value = true;
   const taxonOptionsRes = await $apiFetch<{ results: TaxonOption[] }>(
     `/solr/taxon/`,
@@ -264,17 +81,18 @@ async function searchHigherTaxon(value: string) {
   return taxonOptionsRes?.results ?? [];
 }
 
-type StratigraphyOption = {
+interface StratigraphyOption {
   id: number;
   stratigraphy?: string;
   stratigraphy_en?: string;
   hierarchy_string?: string;
-};
+}
 
 const loadingStratigraphyOptions = ref(false);
 
 async function searchStratigrahy(value: string) {
-  if (value.length < 1) return [];
+  if (value.length < 1)
+    return [];
   loadingStratigraphyOptions.value = true;
 
   const stratigraphyOptionsRes = await $apiFetch<{
@@ -297,9 +115,9 @@ async function searchStratigrahy(value: string) {
 }
 
 function buildAutocompleteFilterSolrSearchValue(value: string) {
-  let lowerFirstCh = value.charAt(0).toLowerCase();
-  let upperFirstCh = value.charAt(0).toUpperCase();
-  let str = value.substring(1).toLowerCase();
+  const lowerFirstCh = value.charAt(0).toLowerCase();
+  const upperFirstCh = value.charAt(0).toUpperCase();
+  const str = value.substring(1).toLowerCase();
   return `/.*[${upperFirstCh},${lowerFirstCh}]${str}.*/`;
 }
 function buildSearchFilterQuery() {
@@ -337,34 +155,34 @@ function buildSearchFilterQuery() {
       )}`,
     );
   }
-  if (searchFormState.isOutcrop) {
+  if (searchFormState.isOutcrop)
     result.push("-locality:*puurauk");
-  }
+
   return result;
 }
 function getFilterQueryForWKT(polygon: string) {
-  let coordsPairs = polygon.split(","),
-    reversedPairs = [] as string[];
+  const coordsPairs = polygon.split(",");
+  let reversedPairs = [] as string[];
 
   // second and fourth pairs' places are changed because solr getting error
-  let firstLatCoord = coordsPairs[0].replace("POLYGON((", "").split(" ")[0];
-  let secondLatCoord = coordsPairs[1].split(" ")[0];
+  const firstLatCoord = coordsPairs[0].replace("POLYGON((", "").split(" ")[0];
+  const secondLatCoord = coordsPairs[1].split(" ")[0];
 
-  if (parseFloat(firstLatCoord) <= parseFloat(secondLatCoord)) {
-    let coordsPairs_ = coordsPairs.slice(1, coordsPairs.length - 1);
+  if (Number.parseFloat(firstLatCoord) <= Number.parseFloat(secondLatCoord)) {
+    const coordsPairs_ = coordsPairs.slice(1, coordsPairs.length - 1);
     reversedPairs.push(coordsPairs[0]);
     reversedPairs = reversedPairs.concat(coordsPairs_.reverse());
     reversedPairs.push(coordsPairs[coordsPairs.length - 1]);
   }
 
-  let changedWkt =
-    reversedPairs.length > 0 ? reversedPairs.join(",") : coordsPairs.join(",");
+  const changedWkt
+    = reversedPairs.length > 0 ? reversedPairs.join(",") : coordsPairs.join(",");
   return `{!field f--latlong}isWithin(${changedWkt})`;
 }
 
 function getFilterQueryForCircle(circle: Circle) {
-  var latlng = circle.getLatLng();
-  var radius = Math.round((circle.getRadius() / 1000) * 10) / 10; // convert to km (from m) and round to 1 decmial place
+  const latlng = circle.getLatLng();
+  const radius = Math.round((circle.getRadius() / 1000) * 10) / 10; // convert to km (from m) and round to 1 decmial place
   return `{!geofilt sfield=latlong}&d=${radius}&pt=${latlng.lat},${latlng.lng}`;
 }
 const paginationState = reactive({
@@ -373,9 +191,10 @@ const paginationState = reactive({
   mapDataPaginateBy: 1000,
 });
 
-type SearchResult = {
+interface SearchResult {
   id: number;
   taxon?: string;
+  taxon_id: number;
   author_year?: string;
   fossil_group?: string;
   fossil_group_id?: number;
@@ -390,10 +209,20 @@ type SearchResult = {
   locality?: string;
   latlong?: string;
   src?: number;
-};
+}
+
+const map = ref<Map>();
+const {
+  populateLayerGroups,
+  initGroups,
+  groupedOverlays,
+  setDefaultOverlays,
+  groupsInitialized,
+  resetLayerGroups,
+} = useLeafletMap(map);
 
 async function search() {
-  let fl = `taxon_id,taxon,id,author_year,fossil_group,fossil_group_id,fad,fad_en,fad_id,lad,lad_en,lad_id,locality_en,locality_id,locality,latlong,src`;
+  const fl = `taxon_id,taxon,id,author_year,fossil_group,fossil_group_id,fad,fad_en,fad_id,lad,lad_en,lad_id,locality_en,locality_id,locality,latlong,src`;
   const fq = [
     ...buildSearchFilterQuery(),
     "{!collapse field--taxon}",
@@ -402,7 +231,8 @@ async function search() {
   if (searchFormState.isNearMe) {
     const nearMeArea = getFilterQueryForCircle(state.circle as Circle);
     fq.push(nearMeArea);
-  } else if (searchFormState.selectedArea) {
+  }
+  else if (searchFormState.selectedArea) {
     fq.push(
       getGeoParam(searchFormState.selectedArea as Circle | Rectangle | Polygon),
     );
@@ -426,18 +256,19 @@ async function search() {
   resultsHandling();
   fetchMapData();
 }
-type MapSearchResult = {
+interface MapSearchResult {
   locality_id?: number;
   locality_en?: string;
   locality?: string;
   latlong?: string;
   src?: number;
-};
+}
 
 async function fetchMapData() {
-  if (!map.value) return;
-  let start = [paginationState.paginateBy * (paginationState.page - 1)];
-  let fl = `locality_en,locality_id,locality,latlong,src`;
+  if (!map.value)
+    return;
+  const start = [paginationState.paginateBy * (paginationState.page - 1)];
+  const fl = `locality_en,locality_id,locality,latlong,src`;
   const fq = [
     ...buildSearchFilterQuery(),
     "{!collapse field--taxon}",
@@ -446,7 +277,8 @@ async function fetchMapData() {
   if (searchFormState.isNearMe) {
     const nearMeArea = getFilterQueryForCircle(state.circle as Circle);
     fq.push(nearMeArea);
-  } else if (searchFormState.selectedArea) {
+  }
+  else if (searchFormState.selectedArea) {
     fq.push(
       getGeoParam(searchFormState.selectedArea as Circle | Rectangle | Polygon),
     );
@@ -468,7 +300,7 @@ async function fetchMapData() {
 
   if (!groupsInitialized.value) {
     initGroups();
-    // @ts-ignore
+    // @ts-expect-error this is ok
     $L.control.groupedLayers({}, groupedOverlays.value, {}).addTo(map.value);
     setDefaultOverlays();
   }
@@ -476,36 +308,6 @@ async function fetchMapData() {
   resetLayerGroups();
   populateLayerGroups(state.mapDataResult);
 }
-
-const state = reactive({
-  searchForm: setSearchParams(),
-  initialMessage: true,
-  errorMessage: null as string | null,
-  output: {} as {
-    [id: number]: {
-      fossil_group_id: number;
-      fossil_group: string;
-      node: any[];
-    };
-  },
-  tileLayer: null as TileLayer | null,
-  circle: null as CircleMarker<any> | null,
-  drawnItems: null as FeatureGroup | null,
-  isLoadingResults: false,
-  results: [] as SearchResult[],
-  mapDataResult: [] as MapSearchResult[],
-  numberOfResults: 0,
-});
-
-const map = ref<Map>();
-const {
-  populateLayerGroups,
-  initGroups,
-  groupedOverlays,
-  setDefaultOverlays,
-  groupsInitialized,
-  resetLayerGroups,
-} = useLeafletMap(map);
 
 onMounted(() => {
   initialiseMap();
@@ -518,7 +320,8 @@ watch(
     if (searchFormState.isNearMe) {
       searchFormState.isOutcrop = true;
       getLocation();
-    } else {
+    }
+    else {
       state.circle?.remove();
       map.value?.closePopup();
       searchFormState.nearMeRange = 5;
@@ -529,9 +332,11 @@ watch(
 watch(
   () => searchFormState.nearMeRange,
   () => {
-    if (!searchFormState.isNearMe) return;
+    if (!searchFormState.isNearMe)
+      return;
     drawAreaNearMe();
-    if (!searchFormState.nearMeLatLng) return;
+    if (!searchFormState.nearMeLatLng)
+      return;
     map.value?.setView(
       [searchFormState.nearMeLatLng.lat, searchFormState.nearMeLatLng.lng],
       12 - searchFormState.nearMeRange * 0.15,
@@ -612,8 +417,8 @@ async function buildPopupContent(layer: Circle | Rectangle | Polygon) {
 
   if (numberOfDrawnLayers > 1) {
     const button = document.createElement("button");
-    button.className =
-      "border flex items-center px-2 py-1 rounded bg-tomato text-white";
+    button.className
+      = "border flex items-center px-2 py-1 rounded bg-tomato text-white";
     button.innerHTML = `
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
           <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
@@ -640,7 +445,7 @@ function getBaseLayers() {
     "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
     {
       attribution:
-        'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, imagery &copy; <a href="https://carto.com/attribution">CartoDB</a>',
+        "Map data &copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a>, imagery &copy; <a href=\"https://carto.com/attribution\">CartoDB</a>",
       subdomains: "abcd",
     },
   );
@@ -687,10 +492,11 @@ function initialiseMap() {
   });
 
   map.value.on("pm:create", ({ layer }) => {
-    if (!map.value) return;
+    if (!map.value)
+      return;
     state.drawnItems?.addLayer(layer);
     generatePopup(layer as Circle | Rectangle | Polygon, [0, 0], map.value);
-    layer.on("click", function (e: LeafletMouseEvent) {
+    layer.on("click", (e: LeafletMouseEvent) => {
       map.value?.closePopup();
 
       buildPopupContent(e.target).then((content) => {
@@ -702,16 +508,15 @@ function initialiseMap() {
     layer.openPopup();
     const numberOfDrawnLayers = state.drawnItems?.getLayers().length ?? 0;
 
-    if (numberOfDrawnLayers < 2) {
+    if (numberOfDrawnLayers < 2)
       showRecordsInSelectedArea(layer as Circle | Rectangle | Polygon);
-    }
   });
 
   state.tileLayer = getBaseLayers();
   map.value.addLayer(state.tileLayer as TileLayer);
 
   $L.control
-    // @ts-ignore
+    // @ts-expect-error no types for this package
     .coordinates({
       position: "bottomright",
       useLatLngOrder: true,
@@ -722,10 +527,11 @@ function initialiseMap() {
 function getGeoParam(shape: Circle | Rectangle | Polygon) {
   if ("getRadius" in shape) {
     return getFilterQueryForCircle(shape);
-  } else {
-    var wkt = new Wkt.Wkt();
-    var geojson = shape.toGeoJSON();
-    var geostr = JSON.stringify(geojson);
+  }
+  else {
+    const wkt = new Wkt.Wkt();
+    const geojson = shape.toGeoJSON();
+    const geostr = JSON.stringify(geojson);
 
     wkt.read(geostr);
 
@@ -774,7 +580,7 @@ function clearSearch() {
 function resultsHandling() {
   state.initialMessage = false;
   state.isLoadingResults = false;
-  let output: {
+  const output: {
     [id: number]: {
       fossil_group_id: number;
       fossil_group: string;
@@ -783,12 +589,12 @@ function resultsHandling() {
   } = {};
 
   for (const taxon of state.results) {
-    if (taxon.fossil_group_id === undefined) {
+    if (taxon.fossil_group_id === undefined)
       taxon.fossil_group_id = -1;
-    }
-    if (taxon.fossil_group === undefined) {
+
+    if (taxon.fossil_group === undefined)
       taxon.fossil_group = locale.value === "et" ? "Määramata" : "None";
-    }
+
     if (output[taxon.fossil_group_id] === undefined) {
       output[taxon.fossil_group_id] = {
         fossil_group_id: taxon.fossil_group_id,
@@ -810,10 +616,12 @@ function resultsHandling() {
 }
 
 function getLocation() {
-  if (!navigator.geolocation) return;
+  if (!navigator.geolocation)
+    return;
   navigator.geolocation.getCurrentPosition(
-    function (position) {
-      if (!map.value) return;
+    (position) => {
+      if (!map.value)
+        return;
 
       searchFormState.nearMeLatLng = {
         lat: position.coords.latitude,
@@ -826,20 +634,22 @@ function getLocation() {
       );
       // this_.applySearch();
     },
-    function (error) {
-      if (error.code == error.PERMISSION_DENIED)
+    (error) => {
+      if (error.code === error.PERMISSION_DENIED)
         state.errorMessage = "Geolocation is not supported by this browser.";
     },
   );
 }
 function drawAreaNearMe() {
-  if (!map.value) return;
+  if (!map.value)
+    return;
 
   if (state.circle !== null) {
     state.circle.remove();
     map.value.closePopup();
   }
-  if (!searchFormState.nearMeLatLng) return;
+  if (!searchFormState.nearMeLatLng)
+    return;
 
   state.circle = $L.circle(searchFormState.nearMeLatLng, {
     color: "#bada55",
@@ -847,12 +657,221 @@ function drawAreaNearMe() {
     dashArray: "4",
   });
   state.circle.on("add", ({ target }) => {
-    if (!map.value) return;
+    if (!map.value)
+      return;
     generatePopup(target, target._latlng, map.value);
   });
   state.circle.addTo(map.value);
 }
 </script>
+
+<template>
+  <section class="container space-y-2">
+    <h1 class="mb-4 text-center text-5xl">
+      {{ $t("menu.detail_search") }}
+    </h1>
+    <div class="grid grid-cols-2 gap-2">
+      <div
+        class="col-span-full rounded border bg-white p-4 dark:border-gray-700 dark:bg-gray-800 lg:col-span-1"
+      >
+        <UForm class="space-y-2" :state="searchFormState" @submit="search">
+          <UFormGroup :label="$t('advancedsearch.hightaxon')">
+            <USelectMenu
+              v-model="searchFormState.higherTaxon"
+              by="id"
+              option-attribute="taxon"
+              :searchable="searchHigherTaxon"
+              :loading="loadingHigherTaxaOptions"
+              size="md"
+              :ui="{ icon: { trailing: { pointer: '' } } }"
+            >
+              <template v-if="searchFormState.higherTaxon" #trailing>
+                <UButton
+                  color="gray"
+                  variant="link"
+                  icon="i-heroicons-x-mark-20-solid"
+                  :padded="false"
+                  @click="searchFormState.higherTaxon = undefined"
+                />
+              </template>
+            </USelectMenu>
+          </UFormGroup>
+          <UFormGroup :label="$t('advancedsearch.species')">
+            <UInput v-model="searchFormState.species" />
+          </UFormGroup>
+          <UFormGroup :label="$t('advancedsearch.author')">
+            <UInput v-model="searchFormState.author" />
+          </UFormGroup>
+          <UFormGroup :label="$t('advancedsearch.locality')">
+            <UInput v-model="searchFormState.locality" />
+          </UFormGroup>
+          <UFormGroup :label="$t('advancedsearch.stratigraphy')">
+            <USelectMenu
+              v-model="searchFormState.stratigraphy"
+              by="id"
+              :searchable="searchStratigrahy"
+              :loading="loadingStratigraphyOptions"
+              size="md"
+              :ui="{ icon: { trailing: { pointer: '' } } }"
+            >
+              <template v-if="searchFormState.stratigraphy" #trailing>
+                <UButton
+                  color="gray"
+                  variant="link"
+                  icon="i-heroicons-x-mark-20-solid"
+                  :padded="false"
+                  @click="searchFormState.stratigraphy = undefined"
+                />
+              </template>
+              <template #label>
+                <span v-if="!searchFormState.stratigraphy">&nbsp;</span>
+                <span v-else>
+                  {{
+                    $translate({
+                      et: searchFormState.stratigraphy.stratigraphy,
+                      en: searchFormState.stratigraphy.stratigraphy_en,
+                    })
+                  }}
+                </span>
+              </template>
+              <template #option="{ option: stratigraphy }">
+                {{
+                  $translate({
+                    et: stratigraphy.stratigraphy,
+                    en: stratigraphy.stratigraphy_en,
+                  })
+                }}
+              </template>
+            </USelectMenu>
+          </UFormGroup>
+          <UCheckbox
+            v-model="searchFormState.isOutcrop"
+            :label="$t('advancedsearch.subsurfaceField')"
+          />
+          <UCheckbox
+            v-model="searchFormState.isNearMe"
+            :label="$t('advancedsearch.showNearMeField')"
+          />
+          <UFormGroup
+            v-if="searchFormState.isNearMe"
+            :label="`Radius ${searchFormState.nearMeRange} km`"
+          >
+            <URange v-model="searchFormState.nearMeRange" :min="0" :max="20" />
+            <div class="flex justify-between">
+              <span>0</span>
+              <span>20</span>
+            </div>
+          </UFormGroup>
+          <div class="flex items-center justify-end space-x-2">
+            <UButton
+              variant="outline"
+              color="gray"
+              icon="i-heroicons-trash"
+              @click="clearSearch"
+            >
+              {{ $t("advancedsearch.btn_clear") }}
+            </UButton>
+            <UButton type="submit">
+              {{ $t("advancedsearch.btn_search") }}
+            </UButton>
+          </div>
+        </UForm>
+      </div>
+      <div
+        class="col-span-full rounded border dark:border-gray-700 lg:col-span-1"
+      >
+        <div id="map" class="z-0 h-96 lg:h-full" style="cursor: default" />
+      </div>
+    </div>
+    <div>
+      <UAlert
+        v-if="state.initialMessage && !state.isLoadingResults"
+        color="blue"
+        variant="subtle"
+        :title="$t('advancedsearch.msg_add_criteria')"
+      />
+    </div>
+    <div
+      v-if="state.results.length > 0"
+      class="rounded border bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
+    >
+      <h1 id="results" class="pb-4 text-4xl">
+        {{ $t("advancedsearch.results") }}: {{ state.numberOfResults }}
+        {{ $t("advancedsearch.results_species") }}
+      </h1>
+
+      <UPagination
+        v-if="state.numberOfResults > paginationState.paginateBy"
+        v-model="paginationState.page"
+        :ui="{ base: 'ml-auto my-2' }"
+        :total="state.numberOfResults"
+        :page-count="paginationState.paginateBy"
+      />
+      <div
+        v-for="(group, idx) in state.output"
+        :key="idx"
+        class="border-t-2 border-dotted border-gray-400 pb-4 pt-2"
+      >
+        <span class="flex items-center gap-x-2">
+          <img
+            onerror="this.style.display='none'"
+            :src="`/fossilgroups/${group.fossil_group_id}.png`"
+            width="70"
+            height="70"
+          >
+          <h2 class="text-2xl">
+            <NuxtLink
+              v-if="group.fossil_group_id"
+              :to="stateRoute(localePath(`/${group.fossil_group_id}`))"
+            >
+              {{ group.fossil_group }}
+            </NuxtLink>
+            <span v-else>{{ group.fossil_group }}</span>
+          </h2>
+        </span>
+        <div class="grid grid-cols-2 pl-4">
+          <template v-for="species in group.node" :key="species.taxon_id">
+            <div class="col-span-1">
+              <NuxtLink :to="stateRoute(localePath(`/${species.taxon_id}`))">
+                <em>{{ species.taxon }}</em>
+                {{ species.author_year }}
+              </NuxtLink>
+            </div>
+            <div
+              v-if="species.fad && species.lad && species.fad !== species.lad"
+              class="col-span-1"
+            >
+              <span
+                v-translate="{ et: species.fad, en: species.fad_en }"
+              />
+              &rarr;
+              <span
+                v-translate="{ et: species.lad, en: species.lad_en }"
+              />
+            </div>
+            <div v-else-if="species.fad === species.lad" class="col-span-1">
+              <span
+                v-translate="{ et: species.fad, en: species.fad_en }"
+              />
+            </div>
+            <div v-else-if="species.fad" class="col-span-1">
+              <span
+                v-translate="{ et: species.fad, en: species.fad_en }"
+              />
+            </div>
+          </template>
+        </div>
+      </div>
+      <UPagination
+        v-if="state.numberOfResults > paginationState.paginateBy"
+        v-model="paginationState.page"
+        :ui="{ base: 'ml-auto my-2' }"
+        :total="state.numberOfResults"
+        :page-count="paginationState.paginateBy"
+      />
+    </div>
+  </section>
+</template>
 
 <style scoped>
 #rangeInput {
@@ -890,6 +909,7 @@ function drawAreaNearMe() {
   z-index: 10;
   height: 7px;
   -webkit-appearance: none;
+  appearance: none;
 }
 #rangeInput input::-moz-range-thumb {
   border: none;
