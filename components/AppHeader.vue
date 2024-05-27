@@ -53,7 +53,7 @@ const langOptions = computed(() => [
   },
   {
     label: "SWE",
-    value: "se",
+    value: "sv",
   },
 ]);
 

@@ -44,7 +44,7 @@ export default defineNuxtConfig({
       { code: "et", file: "et.json" },
       { code: "en", file: "en.json" },
       { code: "fi", file: "fi.json" },
-      { code: "se", file: "se.json" },
+      { code: "sv", file: "sv.json" },
     ],
     lazy: true,
     langDir: "lang",
