@@ -10,7 +10,6 @@ function handleError() {
 <template>
   <NuxtLayout>
     <div class="space-y-5 pt-10 text-center">
-      {{ error }}
       <div class="text-tomato">
         Error 404
       </div>

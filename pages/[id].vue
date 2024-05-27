@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { HorizontalNavigationLink } from "#ui/types";
+
 const route = useRoute();
 const { t, locale } = useI18n();
 const stateRoute = useStateRoute();
@@ -161,7 +163,7 @@ const { data } = await useAsyncData(
       taxon,
       taxonPage: pageRes.results?.[0],
       description: descriptionRes.results?.[0],
-      commonNames: commonNamesRes.results?.[0],
+      commonNames: commonNamesRes.results ?? [],
       image: imagesRes.results[0],
       imageCount: imagesRes.count,
       specimenCount: cntSpecimenCollectionRes.count,
@@ -190,21 +192,35 @@ const {
   specimenCount,
 } = data.value;
 
-const tabs = computed(() => [
-  { slot: "info", label: t("tabs.overview") },
-  {
-    slot: "images",
-    label: t("tabs.gallery"),
-    count: imageCount,
-    disabled: imageCount < 1,
-  },
-  {
-    slot: "specimens",
-    label: t("tabs.specimens"),
-    count: specimenCount,
-    disabled: specimenCount < 1,
-  },
-]);
+const links = computed(() => {
+  const links: HorizontalNavigationLink[] = [
+    {
+      to: localePath({ name: "id", params: route.params, query: route.query }),
+      label: t("tabs.overview"),
+      exact: true,
+      icon: "i-heroicons-information-circle",
+    },
+  ];
+  if (imageCount > 0) {
+    links.push({
+      to: localePath({ name: "id-gallery", params: route.params, query: route.query }),
+      label: t("tabs.gallery"),
+      badge: imageCount,
+      exact: true,
+      icon: "i-heroicons-photo",
+    });
+  }
+  if (specimenCount > 0) {
+    links.push({
+      to: localePath({ name: "id-specimens", params: route.params, query: route.query }),
+      label: t("tabs.specimens"),
+      badge: specimenCount,
+      exact: true,
+      icon: "i-heroicons-bug-ant",
+    });
+  }
+  return links;
+});
 
 const titleImage = computed(() => {
   if (!taxon?.fossil_group)
@@ -293,44 +309,7 @@ function handleTitleImageError() {
         </h2>
       </div>
     </div>
-    <div
-      class="relative mb-2 inline-grid h-10 w-full items-center rounded-lg bg-gray-100 p-1 dark:bg-gray-800"
-      style="grid-template-columns: repeat(3, minmax(0px, 1fr))"
-    >
-      <UButton
-        v-for="(tab, index) in tabs"
-        :key="index"
-        variant="ghost"
-        color="white"
-        :class="{
-          'bg-white dark:bg-gray-900': activeSection === tab.slot,
-        }"
-        :disabled="tab.disabled"
-        :ui="{
-          base: 'flex items-center justify-center text-sm h-8',
-          color: {
-            white: {
-              ghost: 'dark:hover:disabled:bg-inherit hover:disabled:bg-inherit',
-            },
-          },
-        }"
-        :tabindex="!tab.disabled ? '0' : '-1'"
-        @click="activeSection = tab.slot"
-      >
-        <span class="mr-1">
-          {{ tab.label }}
-        </span>
-        <UBadge v-if="tab.count" variant="subtle">
-          {{ tab.count }}
-        </UBadge>
-      </UButton>
-    </div>
-    <OverviewTaxon
-      v-if="activeSection === 'info'"
-      :taxon="taxon"
-      :taxon-page="taxonPage"
-    />
-    <TabGallery v-if="activeSection === 'images'" :taxon="taxon" />
-    <TabSpecimens v-if="activeSection === 'specimens'" :taxon="taxon" />
+    <UHorizontalNavigation :links="links" class="border-b mb-2 border-gray-200 dark:border-gray-800" />
+    <NuxtPage :taxon="taxon" :taxon-page="taxonPage" />
   </section>
 </template>
