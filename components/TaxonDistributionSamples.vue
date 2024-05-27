@@ -5,15 +5,13 @@ const props = defineProps<{
   taxon: Taxon;
 }>();
 
-const { data } = await useApiFetch<{ results: any[] }>(`/taxon/`, {
+const { data } = await useNewApiFetch<any[]>(`/taxa/${props.taxon.id}/sample-distribution/`, {
   query: {
-    sql: "get_species_distribution_sample",
-    keyword: props.taxon.name,
     format: "json",
   },
 });
 
-const distributionSamples = computed(() => data.value?.results ?? []);
+const distributionSamples = computed(() => data.value ?? []);
 
 const geocollectionUrl = "https://geocollections.info";
 

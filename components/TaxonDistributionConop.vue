@@ -4,15 +4,13 @@ import type { Taxon } from "~/pages/[id].vue";
 const props = defineProps<{
   taxon: Taxon;
 }>();
-const { data } = useApiFetch<{ results: any[] }>("/taxon/", {
+const { data } = useNewApiFetch<any[]>(`/taxa/${props.taxon.id}/conop-distribution/`, {
   query: {
-    sql: "get_species_distribution_conop",
-    keyword: props.taxon.name,
     format: "json",
   },
 });
 
-const distributionConop = computed(() => data.value?.results ?? []);
+const distributionConop = computed(() => data.value ?? []);
 </script>
 
 <template>
