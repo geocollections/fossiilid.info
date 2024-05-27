@@ -3,7 +3,7 @@ import type { Taxon, TaxonPage } from "~/pages/[id].vue";
 
 defineProps<{
   taxon: Taxon;
-  taxonPage: TaxonPage;
+  taxonPage?: TaxonPage;
 }>();
 </script>
 
