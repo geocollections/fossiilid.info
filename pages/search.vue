@@ -67,6 +67,7 @@ async function searchHigherTaxon(value: string) {
     `/taxon`,
     {
       query: {
+        q: "*",
         fq: [
           `taxon:${buildAutocompleteFilterSolrSearchValue(value)}`,
           "rank:[1 TO 13]",
@@ -99,6 +100,7 @@ async function searchStratigrahy(value: string) {
     response: { docs: StratigraphyOption[] };
   }>(`/stratigraphy`, {
     query: {
+      q: "*",
       fq: [
         `stratigraphy:${buildAutocompleteFilterSolrSearchValue(
           value,
@@ -241,6 +243,7 @@ async function search() {
     `/taxon_search`,
     {
       query: {
+        q: "*",
         fl,
         fq,
         sort: "fossil_group asc,taxon asc",
@@ -287,6 +290,7 @@ async function fetchMapData() {
     `/taxon_search`,
     {
       query: {
+        q: "*",
         fl,
         sort: "fossil_group asc,taxon asc",
         fq,
@@ -374,6 +378,7 @@ async function buildPopupContent(layer: Circle | Rectangle | Polygon) {
   const geomParams = getGeoParam(layer);
   const localityRes = await $solrFetch<{ response: { numFound: number } }>(`/taxon_search`, {
     query: {
+      q: "*",
       fl: "taxon",
       sort: "fossil_group asc,taxon asc",
       fq: [
@@ -388,6 +393,7 @@ async function buildPopupContent(layer: Circle | Rectangle | Polygon) {
   });
   const taxonRes = await $solrFetch<{ response: { numFound: number } }>(`/taxon_search`, {
     query: {
+      q: "*",
       fl: "taxon",
       sort: "fossil_group asc,taxon asc",
       fq: [
