@@ -24,7 +24,7 @@ export function useNewApiFetch<T>(
 
 export function useSolrFetch<T>(url: string, options: UseFetchOptions<T> = {}) {
   const defaults: UseFetchOptions<T> = {
-    baseURL: "https://rwapi.geoloogia.info/api/v0/public/solr",
+    baseURL: "https://api.geoloogia.info/solr",
   };
   const params = defu(options, defaults);
 

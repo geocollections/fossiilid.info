@@ -142,7 +142,7 @@ const { data } = await useAsyncData(
           },
         },
       ),
-      $solrFetch<{ count: number }>("/specimen/", {
+      $solrFetch<{ response: { numFound: number } }>("/specimen", {
         query: {
           q: `hierarchy_string:(${taxon.hierarchy_string}*)`,
           rows: 0,
@@ -166,7 +166,7 @@ const { data } = await useAsyncData(
       commonNames: commonNamesRes.results ?? [],
       image: imagesRes.results[0],
       imageCount: imagesRes.count,
-      specimenCount: cntSpecimenCollectionRes.count,
+      specimenCount: cntSpecimenCollectionRes.response.numFound,
     };
   },
   {

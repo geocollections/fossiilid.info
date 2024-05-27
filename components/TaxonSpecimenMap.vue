@@ -7,12 +7,12 @@ const props = defineProps<{
 
 const store = useRootStore();
 
-const { data: mapData } = await useSolrFetch<any>("/taxon_search/", {
+const { data: mapData } = await useSolrFetch<{ response: { docs: any[]; numFound: number } }>("/taxon_search", {
   query: computed(() => ({
     q: `taxon_hierarchy:${props.taxon?.hierarchy_string}*${
       store.mode === "in_global" ? `` : ` AND ${store.mode}:1`
     }`,
-    fq: ["{!collapse field--locality}", "rank:[14 TO 17]"],
+    fq: ["{!collapse field=locality}", "rank:[14 TO 17]"],
     sort: "fossil_group asc,taxon asc",
     rows: 1000,
     start: 0,
@@ -21,10 +21,10 @@ const { data: mapData } = await useSolrFetch<any>("/taxon_search/", {
   })),
 });
 
-const map = computed(() => mapData.value?.results ?? []);
+const map = computed(() => mapData.value?.response.docs ?? []);
 
 const isNumberOfLocalitiesOnMapOver1000 = computed(() => {
-  return mapData.value?.count !== undefined && mapData.value.count > 1000;
+  return mapData.value?.response !== undefined && mapData.value.response.numFound > 1000;
 });
 </script>
 

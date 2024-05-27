@@ -14,7 +14,7 @@ import type {
 } from "leaflet";
 
 const { t, locale } = useI18n();
-const { $apiFetch, $L } = useNuxtApp();
+const { $apiFetch, $solrFetch, $L } = useNuxtApp();
 const stateRoute = useStateRoute();
 const localePath = useLocalePath();
 
@@ -63,8 +63,8 @@ async function searchHigherTaxon(value: string) {
   if (value.length < 1)
     return [];
   loadingHigherTaxaOptions.value = true;
-  const taxonOptionsRes = await $apiFetch<{ results: TaxonOption[] }>(
-    `/solr/taxon/`,
+  const taxonOptionsRes = await $solrFetch<{ response: { docs: TaxonOption[] } }>(
+    `/taxon`,
     {
       query: {
         fq: [
@@ -78,7 +78,7 @@ async function searchHigherTaxon(value: string) {
     },
   );
   loadingHigherTaxaOptions.value = false;
-  return taxonOptionsRes?.results ?? [];
+  return taxonOptionsRes?.response.docs ?? [];
 }
 
 interface StratigraphyOption {
@@ -95,9 +95,9 @@ async function searchStratigrahy(value: string) {
     return [];
   loadingStratigraphyOptions.value = true;
 
-  const stratigraphyOptionsRes = await $apiFetch<{
-    results: StratigraphyOption[];
-  }>(`/solr/stratigraphy/`, {
+  const stratigraphyOptionsRes = await $solrFetch<{
+    response: { docs: StratigraphyOption[] };
+  }>(`/stratigraphy`, {
     query: {
       fq: [
         `stratigraphy:${buildAutocompleteFilterSolrSearchValue(
@@ -111,7 +111,7 @@ async function searchStratigrahy(value: string) {
     },
   });
   loadingStratigraphyOptions.value = false;
-  return stratigraphyOptionsRes.results;
+  return stratigraphyOptionsRes.response.docs ?? [];
 }
 
 function buildAutocompleteFilterSolrSearchValue(value: string) {
@@ -237,8 +237,8 @@ async function search() {
       getGeoParam(searchFormState.selectedArea as Circle | Rectangle | Polygon),
     );
   }
-  const res = await $apiFetch<{ results: SearchResult[]; count: number }>(
-    `solr/taxon_search`,
+  const res = await $solrFetch<{ response: { docs: SearchResult[]; numFound: number } }>(
+    `/taxon_search`,
     {
       query: {
         fl,
@@ -250,8 +250,8 @@ async function search() {
       },
     },
   );
-  state.results = res.results;
-  state.numberOfResults = res.count;
+  state.results = res.response.docs;
+  state.numberOfResults = res.response.numFound;
 
   resultsHandling();
   fetchMapData();
@@ -283,8 +283,8 @@ async function fetchMapData() {
       getGeoParam(searchFormState.selectedArea as Circle | Rectangle | Polygon),
     );
   }
-  const res = await $apiFetch<{ results: MapSearchResult[]; count: number }>(
-    `solr/taxon_search`,
+  const res = await $solrFetch<{ response: { docs: MapSearchResult[]; numFound: number } }>(
+    `/taxon_search`,
     {
       query: {
         fl,
@@ -296,7 +296,7 @@ async function fetchMapData() {
       },
     },
   );
-  state.mapDataResult = res.results;
+  state.mapDataResult = res.response.docs;
 
   if (!groupsInitialized.value) {
     initGroups();
@@ -372,7 +372,7 @@ function generatePopup(
 
 async function buildPopupContent(layer: Circle | Rectangle | Polygon) {
   const geomParams = getGeoParam(layer);
-  const localityRes = await $apiFetch<{ count: number }>(`solr/taxon_search`, {
+  const localityRes = await $solrFetch<{ response: { numFound: number } }>(`/taxon_search`, {
     query: {
       fl: "taxon",
       sort: "fossil_group asc,taxon asc",
@@ -386,7 +386,7 @@ async function buildPopupContent(layer: Circle | Rectangle | Polygon) {
       format: "json",
     },
   });
-  const taxonRes = await $apiFetch<{ count: number }>(`solr/taxon_search`, {
+  const taxonRes = await $solrFetch<{ response: { numFound: number } }>(`/taxon_search`, {
     query: {
       fl: "taxon",
       sort: "fossil_group asc,taxon asc",
@@ -406,12 +406,12 @@ async function buildPopupContent(layer: Circle | Rectangle | Polygon) {
   const localityCountDiv = document.createElement("div");
   localityCountDiv.innerHTML = `${t(
     "advancedsearch.js_map_popup_localitycount",
-  )}: <b>${localityRes.count}</b>`;
+  )}: <b>${localityRes.response.numFound}</b>`;
 
   const speciesCountDiv = document.createElement("div");
   speciesCountDiv.innerHTML = `${t(
     "advancedsearch.js_map_popup_speciescount",
-  )}: <b>${taxonRes.count}</b>`;
+  )}: <b>${taxonRes.response.numFound}</b>`;
 
   rootDiv.append(localityCountDiv, speciesCountDiv);
 

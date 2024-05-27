@@ -32,7 +32,7 @@ const sort = ref<{ column: string; direction: "asc" | "desc" }>({
   column: "specimen_number",
   direction: "asc",
 });
-const { data: specimenRes } = await useSolrFetch<{ results: any[]; count: number }>("/specimen/", {
+const { data: specimenRes } = await useSolrFetch<{ response: { docs: any[]; numFound: number } }>("/specimen", {
   query: computed(() => ({
     q: `hierarchy_string:(${props.taxon.hierarchy_string}*)`,
     rows: store.searchParameters.specimens.paginateBy,
@@ -102,14 +102,14 @@ const columns = computed(() => [
   <UPagination
     v-model="store.searchParameters.specimens.page"
     :ui="{ base: 'ml-auto mb-2' }"
-    :total="specimenRes?.count ?? 0"
+    :total="specimenRes?.response.numFound ?? 0"
     :page-count="store.searchParameters.specimens.paginateBy"
   />
   <UTable
     v-model:sort="sort"
     class="rounded border bg-white"
     :columns="columns"
-    :rows="specimenRes?.results ?? []"
+    :rows="specimenRes?.response.docs ?? []"
   >
     <template #specimen_number-data="{ row }">
       <a :href="`${geocollectionUrl}/specimen/${row.id}`">
@@ -205,7 +205,7 @@ const columns = computed(() => [
   <UPagination
     v-model="store.searchParameters.specimens.page"
     :ui="{ base: 'ml-auto mt-2' }"
-    :total="specimenRes?.count ?? 0"
+    :total="specimenRes?.response.numFound ?? 0"
     :page-count="store.searchParameters.specimens.paginateBy"
   />
 </template>
