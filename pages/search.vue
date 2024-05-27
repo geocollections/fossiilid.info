@@ -177,7 +177,7 @@ function getFilterQueryForWKT(polygon: string) {
 
   const changedWkt
     = reversedPairs.length > 0 ? reversedPairs.join(",") : coordsPairs.join(",");
-  return `{!field f--latlong}isWithin(${changedWkt})`;
+  return `{!field f=latlong}isWithin(${changedWkt})`;
 }
 
 function getFilterQueryForCircle(circle: Circle) {
@@ -225,7 +225,7 @@ async function search() {
   const fl = `taxon_id,taxon,id,author_year,fossil_group,fossil_group_id,fad,fad_en,fad_id,lad,lad_en,lad_id,locality_en,locality_id,locality,latlong,src`;
   const fq = [
     ...buildSearchFilterQuery(),
-    "{!collapse field--taxon}",
+    "{!collapse field=taxon}",
     "rank:[14 TO 17]",
   ];
   if (searchFormState.isNearMe) {
@@ -271,7 +271,7 @@ async function fetchMapData() {
   const fl = `locality_en,locality_id,locality,latlong,src`;
   const fq = [
     ...buildSearchFilterQuery(),
-    "{!collapse field--taxon}",
+    "{!collapse field=taxon}",
     "rank:[14 TO 17]",
   ];
   if (searchFormState.isNearMe) {
