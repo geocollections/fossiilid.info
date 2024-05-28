@@ -6,8 +6,6 @@ const { t, locale } = useI18n();
 const stateRoute = useStateRoute();
 const localePath = useLocalePath();
 
-const activeSection = ref("info");
-
 export interface Taxon {
   id: number;
   name: string;
@@ -191,6 +189,14 @@ const {
   imageCount,
   specimenCount,
 } = data.value;
+
+const router = useRouter();
+const getRouteBaseName = useRouteBaseName();
+
+if (imageCount < 1 && getRouteBaseName(route) === "id-gallery")
+  router.replace(localePath({ name: "id", params: route.params, query: route.query }));
+if (specimenCount < 1 && getRouteBaseName(route) === "id-specimens")
+  router.replace(localePath({ name: "id", params: route.params, query: route.query }));
 
 const links = computed(() => {
   const links: HorizontalNavigationLink[] = [
