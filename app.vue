@@ -30,7 +30,7 @@ function setLangAndMode() {
 
   // route.path
   router.replace({
-    query: { mode },
+    query: { mode, ...route.query },
   });
 }
 

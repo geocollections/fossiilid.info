@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import type { Taxon } from "~/pages/[id].vue";
+import type { Taxon, TaxonPage } from "~/pages/[id].vue";
 
 const props = defineProps<{
   taxon: Taxon;
+  taxonPage: TaxonPage;
 }>();
 
 const geocollectionUrl = "https://geocollections.info" as const;
@@ -26,19 +27,55 @@ const sortKeyMap = {
     en: "original_status_en",
   },
 } as const;
-const store = useRootStore();
 
 const sort = ref<{ column: string; direction: "asc" | "desc" }>({
   column: "specimen_number",
   direction: "asc",
 });
+const page = ref(1);
+const paginateBy = ref(10);
+
+const queryParams = computed(() => {
+  const params: { [K: string]: any } = {};
+
+  params.page = page.value;
+
+  if (sort.value)
+    params.sort = `${sort.value.column} ${sort.value.direction}`;
+
+  return params;
+});
+
+const route = useRoute();
+const router = useRouter();
+
+watch(queryParams, () => {
+  router.push({
+    query: {
+      ...route.query,
+      ...queryParams.value,
+    },
+  });
+});
+
+watch(() => route.query, (query) => {
+  const parsedPage = Number(query.page) || 1;
+  if (parsedPage !== queryParams.value.page)
+    page.value = parsedPage || 1;
+
+  if (query.sort) {
+    const [column, direction] = (query.sort as string).split(" ") || ["specimen_number", "asc"];
+    sort.value = { column, direction: direction as "asc" | "desc" };
+  }
+}, { immediate: true });
+
 const { data: specimenRes } = await useSolrFetch<{ response: { docs: any[]; numFound: number } }>("/specimen", {
   query: computed(() => ({
     q: `hierarchy_string:(${props.taxon.hierarchy_string}*)`,
-    rows: store.searchParameters.specimens.paginateBy,
+    rows: paginateBy.value,
     start:
-      store.searchParameters.specimens.paginateBy
-      * (store.searchParameters.specimens.page - 1),
+      paginateBy.value
+      * (page.value - 1),
     sort: `${getSortKey(sort.value.column as keyof typeof sortKeyMap)} ${sort.value.direction}`,
     format: "json",
   })),
@@ -100,10 +137,10 @@ const columns = computed(() => [
 
 <template>
   <UPagination
-    v-model="store.searchParameters.specimens.page"
+    v-model="page"
     :ui="{ base: 'ml-auto mb-2' }"
     :total="specimenRes?.response.numFound ?? 0"
-    :page-count="store.searchParameters.specimens.paginateBy"
+    :page-count="paginateBy"
   />
   <UTable
     v-model:sort="sort"
@@ -187,25 +224,27 @@ const columns = computed(() => [
       }}
     </template>
     <template #image-data="{ row: item, getRowData }">
-      <a
-        v-if="getRowData(null)"
-        data-fancybox="gallery3"
-        :href="item.image_url"
-        :data-caption="item.caption"
-      >
-        <img
-          class="rounded border p-1"
-          :src="item.image_preview_url"
-          style="max-height: 6rem; max-width: 3rem"
+      <ClientOnly>
+        <a
+          v-if="getRowData(null)"
+          data-fancybox="gallery3"
+          :href="item.image_url"
+          :data-caption="item.caption"
         >
-      </a>
-      <div v-else />
+          <img
+            class="rounded border p-1"
+            :src="item.image_preview_url"
+            style="max-height: 6rem; max-width: 3rem"
+          >
+        </a>
+        <div v-else />
+      </ClientOnly>
     </template>
   </UTable>
   <UPagination
-    v-model="store.searchParameters.specimens.page"
+    v-model="page"
     :ui="{ base: 'ml-auto mt-2' }"
     :total="specimenRes?.response.numFound ?? 0"
-    :page-count="store.searchParameters.specimens.paginateBy"
+    :page-count="paginateBy"
   />
 </template>
