@@ -38,7 +38,7 @@
     "f_link_paleobiology": "Paleobiology Database",
     "f_link_see_also": "Katso myös",
     "f_belongs_to": "Sisältyy taksoniin",
-    "f_name_is_invalid": "Current taxon is already existed. See initial taxon",
+    "f_name_is_invalid": "Current taxon already exists. See initial taxon",
     "f_other_names": "Other version of taxon",
     "f_contains": "Sisältää taksonit",
     "f_contains_genera": "Sisältää suvut",
