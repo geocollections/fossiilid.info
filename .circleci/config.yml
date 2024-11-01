@@ -31,7 +31,7 @@ jobs:
           step-name: Build Docker image
           command: bash -e fossiilid-build-run.sh
 workflows:
-  build_deploy_nuxt3:
+  build_deploy:
     when:
       equal: [master, << pipeline.git.branch >>]
     jobs:
