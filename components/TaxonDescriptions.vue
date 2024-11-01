@@ -12,7 +12,6 @@ const { data: taxonDescriptions } = await useNewApiFetch<{
   query: {
     taxon: props.taxon.id,
     fields: "reference.id,reference.reference,description",
-
     expand: "reference",
     format: "json",
     ordering: "-id",
@@ -32,6 +31,7 @@ const descriptions = computed(() => taxonDescriptions.value?.results);
     <div v-for="(item, index) in descriptions" :key="index">
       <h3 v-if="item.description">
         <a
+          v-if="item.reference"
           :href="`https://kirjandus.geoloogia.info/reference/${item.reference.id}`"
         >
           <strong>{{ item.reference.reference }}</strong>
