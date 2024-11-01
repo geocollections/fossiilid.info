@@ -30,6 +30,7 @@ const { data } = await useNewApiFetch<{ results: TaxonOccurrence[] }>(
     query: {
       format: "json",
       expand: "reference,locality,stratigraphy_base",
+      reference__is_null: false,
       fields: [
         "reference.id",
         "reference.reference",
