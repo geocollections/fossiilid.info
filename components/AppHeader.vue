@@ -111,6 +111,7 @@ function handleLocaleChange(locale: string) {
           size="md"
           icon="i-heroicons-magnifying-glass-20-solid"
           :placeholder="$t('search.fossils_search')"
+          clear-search-on-close
           name="search"
           by="id"
           @update:model-value="(taxon) => $router.push(`/${taxon.id}`)"
