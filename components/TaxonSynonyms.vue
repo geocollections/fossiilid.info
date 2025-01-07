@@ -8,12 +8,12 @@ const props = defineProps<{
 const PAGE_SIZE = 10;
 
 const { $apiFetchNew } = useNuxtApp();
-const currentOffset = ref(PAGE_SIZE);
 const totalSynonyms = ref(0);
 const synonyms = ref<any[]>([]);
+const showMore = ref(false);
 
 const { data } = await useAsyncData("synonyms", async () => {
-  return await fetchData({ offset: 0 });
+  return await fetchData({ offset: 0, limit: PAGE_SIZE });
 }, {
   default:
     () => ({
@@ -25,7 +25,7 @@ const { data } = await useAsyncData("synonyms", async () => {
 synonyms.value = data.value.results;
 totalSynonyms.value = data.value.count;
 
-async function fetchData({ offset }: { offset: number }): Promise<{ results: any[]; count: number }> {
+async function fetchData({ offset, limit }: { offset: number; limit: number }): Promise<{ results: any[]; count: number }> {
   if (totalSynonyms.value > 0 && offset > totalSynonyms.value)
     return { results: [], count: 0 };
 
@@ -33,7 +33,7 @@ async function fetchData({ offset }: { offset: number }): Promise<{ results: any
     query: {
       format: "json",
       ordering: "year",
-      limit: PAGE_SIZE,
+      limit,
       offset,
     },
   });
@@ -41,12 +41,21 @@ async function fetchData({ offset }: { offset: number }): Promise<{ results: any
   return data;
 }
 
-async function fetchMore() {
-  const data = await fetchData({ offset: currentOffset.value });
-  currentOffset.value = currentOffset.value + PAGE_SIZE;
+async function handleShowMore() {
+  if (synonyms.value.length < totalSynonyms.value) {
+    const data = await fetchData({ offset: 0, limit: totalSynonyms.value });
 
-  synonyms.value.push(...data.results);
+    synonyms.value.push(...data.results);
+  }
+  showMore.value = !showMore.value;
 }
+
+const visibleSynonyms = computed(() => {
+  if (!showMore.value)
+    return synonyms.value.slice(0, PAGE_SIZE);
+
+  return synonyms.value;
+});
 </script>
 
 <template>
@@ -55,7 +64,7 @@ async function fetchMore() {
       {{ $t("header.f_species_synonymy") }}
     </template>
     <div
-      v-for="(item, index) in synonyms"
+      v-for="(item, index) in visibleSynonyms"
       :key="index"
       class="py-1"
       :class="index === synonyms.length - 1 ? '' : 'border-b'"
@@ -76,8 +85,17 @@ async function fetchMore() {
       <span v-if="item.figures">, {{ $t("abbreviation.fig") }}. {{ item.figures }}</span>
     </div>
     <div class="w-100 flex justify-center pt-4">
-      <UButton v-if="synonyms.length < totalSynonyms" @click="fetchMore">
-        Load More
+      <UButton
+        :icon="
+          !showMore
+            ? 'i-heroicons-chevron-down'
+            : 'i-heroicons-chevron-up'
+        "
+        variant="outline"
+        size="xl"
+        @click="handleShowMore"
+      >
+        {{ !showMore ? $t("main.btnViewMore") : $t("main.btnViewLess") }}
       </UButton>
     </div>
   </UCard>
