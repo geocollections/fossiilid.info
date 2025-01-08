@@ -45,7 +45,7 @@ async function handleShowMore() {
   if (synonyms.value.length < totalSynonyms.value) {
     const data = await fetchData({ offset: 0, limit: totalSynonyms.value });
 
-    synonyms.value.push(...data.results);
+    synonyms.value = data.results;
   }
   showMore.value = !showMore.value;
 }
