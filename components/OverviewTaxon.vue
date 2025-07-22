@@ -38,8 +38,8 @@ const isSpecies = computed(() => {
       <TaxonOpinions :taxon="taxon" />
       <TaxonImages :id="taxon.id" />
       <TaxonPage v-if="taxonPage" :taxon-page="taxonPage" />
-      <TaxonDescriptions :taxon="taxon" />
       <TaxonTypeSpecimens v-if="isSpeciesOrSubspecies" :taxon="taxon" />
+      <TaxonDescriptions :taxon="taxon" />
       <TaxonSynonyms v-if="isSpeciesOrSubspecies" :taxon="taxon" />
       <TaxonReferences :taxon="taxon" />
       <TaxonSpecies
