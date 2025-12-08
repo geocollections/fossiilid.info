@@ -91,7 +91,7 @@ function isAtLeastOneDefinedAndNotEmpty(arr: any) {
       :class="idx === typeSpecimens.length - 1 ? '' : 'border-bottom my-3'"
     >
       <div>
-        <span v-if="typeSpecimen.type">
+        <span v-if="typeSpecimen.type" class="capitalize font-bold">
           {{
             $translate({
               et: typeSpecimen.type.value,
@@ -130,7 +130,8 @@ function isAtLeastOneDefinedAndNotEmpty(arr: any) {
               ],
             })
           "
-        >,
+          class="font-bold"
+        >;
         </span>
         <template v-if="typeSpecimen.locality">
           <a
@@ -159,7 +160,8 @@ function isAtLeastOneDefinedAndNotEmpty(arr: any) {
                 et: typeSpecimen.locality_free,
                 en: typeSpecimen.locality_free_en,
               })
-            }}) </span>,
+            }}) </span>
+          <span class="font-bold">; </span>
         </template>
         <span v-if="isDefinedAndNotNull(typeSpecimen.level)">
           {{ typeSpecimen.level }},
