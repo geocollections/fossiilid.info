@@ -49,7 +49,7 @@ const { data: typeSpecimensRes } = await useNewApiFetch<{
   count: number;
 }>(`/taxa/${props.taxon.id}/taxon-type-specimens/`, {
   query: {
-    expand: "type,attachment,specimen,stratigraphy,locality",
+    expand: "type,attachment,stratigraphy,locality",
     format: "json",
   },
 });
@@ -101,7 +101,7 @@ function isAtLeastOneDefinedAndNotEmpty(arr: any) {
         </span>
         <a
           v-if="typeSpecimen.specimen"
-          :href="`https://geocollections.info/specimen/${typeSpecimen.specimen.id}`"
+          :href="`https://geocollections.info/specimen/${typeSpecimen.specimen}`"
         >
           {{ typeSpecimen.repository }}
           {{ typeSpecimen.specimen_number }}
