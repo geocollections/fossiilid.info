@@ -33,8 +33,6 @@ jobs:
 workflows:
   build_deploy:
     when:
-      or:
-        - equal: [master, << pipeline.git.branch >>]
-        - equal: [new-cloud-machine, << pipeline.git.branch >>]
+      equal: [master, << pipeline.git.branch >>]
     jobs:
       - build_run_image
