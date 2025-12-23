@@ -49,7 +49,7 @@ const { data: typeSpecimensRes } = await useNewApiFetch<{
   count: number;
 }>(`/taxa/${props.taxon.id}/taxon-type-specimens/`, {
   query: {
-    expand: "type,attachment,specimen,stratigraphy,locality",
+    expand: "type,attachment,stratigraphy,locality,reference",
     format: "json",
   },
 });
@@ -87,134 +87,143 @@ function isAtLeastOneDefinedAndNotEmpty(arr: any) {
     <div
       v-for="(typeSpecimen, idx) in typeSpecimens"
       :key="idx"
-      class="flex"
       :class="idx === typeSpecimens.length - 1 ? '' : 'border-bottom my-3'"
     >
-      <div>
-        <span v-if="typeSpecimen.type">
-          {{
-            $translate({
-              et: typeSpecimen.type.value,
-              en: typeSpecimen.type.value_en,
-            })
-          }}:
-        </span>
-        <a
-          v-if="typeSpecimen.specimen"
-          :href="`https://geocollections.info/specimen/${typeSpecimen.specimen.id}`"
-        >
-          {{ typeSpecimen.repository }}
-          {{ typeSpecimen.specimen_number }}
-        </a>
-        <span v-else>
-          {{ typeSpecimen.repository }}
-          {{ typeSpecimen.specimen_number }}
-        </span>
-        <span
-          v-if="
-            isAtLeastOneDefinedAndNotEmpty({
-              common: [
-                typeSpecimen.level,
-                typeSpecimen.attachment?.filename,
-                typeSpecimen.remarks,
-              ],
-              et: [
-                typeSpecimen.stratigraphy?.name,
-                typeSpecimen.stratigraphy_free,
-                typeSpecimen.locality?.name,
-              ],
-              en: [
-                typeSpecimen.stratigraphy?.name_en,
-                typeSpecimen.stratigraphy_free_en,
-                typeSpecimen.locality?.name_en,
-              ],
-            })
-          "
-        >,
-        </span>
-        <template v-if="typeSpecimen.locality">
-          <a
-            :href="`https://geocollections.info/locality/${typeSpecimen.locality?.id}`"
-          >
+      <UDivider v-if="idx > 0" />
+      <div class="flex">
+        <div>
+          <span v-if="typeSpecimen.type" class="capitalize font-bold">
             {{
               $translate({
-                et: typeSpecimen.locality.name,
-                en: typeSpecimen.locality.name_en,
+                et: typeSpecimen.type.value,
+                en: typeSpecimen.type.value_en,
               })
-            }}
+            }}:
+          </span>
+          {{ typeSpecimen.repository }}
+          <span v-if="typeSpecimen.specimen_number">;
+          </span>
+          <a
+            v-if="typeSpecimen.specimen"
+            :href="`https://geocollections.info/specimen/${typeSpecimen.specimen}`"
+          >
+            {{ typeSpecimen.specimen_number }}
+          </a>
+          <span v-else>
+            {{ typeSpecimen.specimen_number }}
+          </span>
+          <span
+            v-if="
+              isAtLeastOneDefinedAndNotEmpty({
+                common: [
+                  typeSpecimen.level,
+                  typeSpecimen.attachment?.filename,
+                  typeSpecimen.remarks,
+                ],
+                et: [
+                  typeSpecimen.stratigraphy?.name,
+                  typeSpecimen.stratigraphy_free,
+                  typeSpecimen.locality?.name,
+                ],
+                en: [
+                  typeSpecimen.stratigraphy?.name_en,
+                  typeSpecimen.stratigraphy_free_en,
+                  typeSpecimen.locality?.name_en,
+                ],
+              })
+            "
+            class="font-bold"
+          >;
+          </span>
+          <template v-if="typeSpecimen.locality">
+            <a
+              :href="`https://geocollections.info/locality/${typeSpecimen.locality?.id}`"
+            >
+              {{
+                $translate({
+                  et: typeSpecimen.locality.name,
+                  en: typeSpecimen.locality.name_en,
+                })
+              }}
+            </a>
+            <span
+              v-if="
+                isDifferentName({
+                  et: [typeSpecimen.locality?.name, typeSpecimen.locality_free],
+                  en: [
+                    typeSpecimen.locality?.name_en,
+                    typeSpecimen.locality_free_en,
+                  ],
+                })
+              "
+            >
+              ({{
+                $translate({
+                  et: typeSpecimen.locality_free,
+                  en: typeSpecimen.locality_free_en,
+                })
+              }}) </span>
+            <span class="font-bold">; </span>
+          </template>
+          <span v-if="isDefinedAndNotNull(typeSpecimen.level)">
+            {{ typeSpecimen.level }},
+          </span>
+          <a
+            v-if="typeSpecimen.stratigraphy"
+            :href="`https://geocollections.info/stratigraphy/${typeSpecimen.stratigraphy?.id}`"
+          >{{
+            $translate({
+              et: typeSpecimen.stratigraphy.name,
+              en: typeSpecimen.stratigraphy.name_en,
+            })
+          }}
           </a>
           <span
             v-if="
               isDifferentName({
-                et: [typeSpecimen.locality?.name, typeSpecimen.locality_free],
+                et: [
+                  typeSpecimen.stratigraphy?.name,
+                  typeSpecimen.stratigraphy_free,
+                ],
                 en: [
-                  typeSpecimen.locality?.name_en,
-                  typeSpecimen.locality_free_en,
+                  typeSpecimen.stratigraphy?.name_en,
+                  typeSpecimen.stratigraphy_free_en,
                 ],
               })
             "
           >
             ({{
               $translate({
-                et: typeSpecimen.locality_free,
-                en: typeSpecimen.locality_free_en,
+                et: typeSpecimen.stratigraphy_free,
+                en: typeSpecimen.stratigraphy_free_en,
               })
-            }}) </span>,
-        </template>
-        <span v-if="isDefinedAndNotNull(typeSpecimen.level)">
-          {{ typeSpecimen.level }},
-        </span>
-        <a
-          v-if="typeSpecimen.stratigraphy"
-          :href="`https://geocollections.info/stratigraphy/${typeSpecimen.stratigraphy?.id}`"
-        >{{
-          $translate({
-            et: typeSpecimen.stratigraphy.name,
-            en: typeSpecimen.stratigraphy.name_en,
-          })
-        }}
-        </a>
-        <span
-          v-if="
-            isDifferentName({
-              et: [
-                typeSpecimen.stratigraphy?.name,
-                typeSpecimen.stratigraphy_free,
-              ],
-              en: [
-                typeSpecimen.stratigraphy?.name_en,
-                typeSpecimen.stratigraphy_free_en,
-              ],
-            })
-          "
-        >
-          ({{
-            $translate({
-              et: typeSpecimen.stratigraphy_free,
-              en: typeSpecimen.stratigraphy_free_en,
-            })
-          }})
-        </span>
-        <span v-if="isDefinedAndNotNull(typeSpecimen.remarks)">
-          ,&nbsp;{{ typeSpecimen.remarks }}
+            }})
+          </span>
+          <span v-if="isDefinedAndNotNull(typeSpecimen.remarks)">
+            ,&nbsp;{{ typeSpecimen.remarks }}
+          </span>
+          <div v-if="typeSpecimen.reference" class="mt-2">
+            <span class="italic">Reference: </span>
+            <ReferenceItem :reference="typeSpecimen.reference" />
+          </div>
+        </div>
+        <span v-if="typeSpecimen.attachment" class="pl-3">
+          <a
+            :href="`https://geocollections.info/file/${typeSpecimen.attachment.id}`"
+          >
+            <img
+              class="max-h-[200px] rounded"
+              :src="
+                img(
+                  typeSpecimen.attachment.filename,
+                  { size: 'small' },
+                  { provider: 'geocollections' },
+                )
+              "
+            >
+          </a>
         </span>
       </div>
-      <span v-if="typeSpecimen.attachment" class="pl-3">
-        <a
-          :href="`https://geocollections.info/file/${typeSpecimen.attachment.id}`"
-        >
-          <img
-            class="max-h-[120px]"
-            :src="
-              img(
-                typeSpecimen.attachment.filename,
-                { size: 'small' },
-                { provider: 'geocollections' },
-              )
-            "
-          >
-        </a>
-      </span>
     </div>
   </UCard>
 </template>
