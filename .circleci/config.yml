@@ -1,38 +1,79 @@
 version: 2.1
-parameters:
-  package-version:
-    type: string
-    default: 1.0.0
-  workingdir:
-    type: string
-    default: /var/www/fossiilid
-  ssh-connect:
-    type: string
-    default: ssh -o "StrictHostKeyChecking no" -p ${PORT} ${USER}@${ADDRESS}
-commands:
-  ssh-run:
-    description: Run a command on the remote server over SSH
-    parameters:
-      command:
-        type: string
-      step-name:
-        type: string
-        default: Running << parameters.command >> over SSH
-    steps:
-      - run:
-          name: << parameters.step-name >>
-          command: << pipeline.parameters.ssh-connect >> "cd << pipeline.parameters.workingdir >> && << parameters.command >>"
-jobs:
-  build_run_image:
-    docker:
-      - image: cimg/base:current
-    steps:
-      - ssh-run:
-          step-name: Build Docker image
-          command: bash -e fossiilid-build-run.sh
+
+orbs:
+  deployment: geocollections/deployment-orb@1
+
 workflows:
-  build_deploy:
-    when:
-      equal: [master, << pipeline.git.branch >>]
+  build:
     jobs:
-      - build_run_image
+      - deployment/build_docker_image:
+          tag: << pipeline.git.tag >>
+          tag_latest: true
+          context:
+            - dockerhub
+          filters: &filters-production
+            branches:
+              only: master
+            tags:
+              only: /^v\d+\.\d+\.\d+$/
+      - deployment/ssh_push_docker_image:
+          context:
+            - machine-sarv-apps
+          requires: 
+            - deployment/build_docker_image
+          filters:
+            <<: *filters-production
+      - deployment/ssh_run_container_with_script:
+          script: run_production.sh
+          image_tag: << pipeline.git.tag >>
+          context:
+            - dockerhub
+            - machine-sarv-apps
+          requires:
+            - deployment/ssh_push_docker_image
+          filters:
+            <<: *filters-production
+      - deployment/ssh_remove_unused_images:
+          tag_filter: v*
+          context:
+            - dockerhub
+            - machine-sarv-apps
+          requires:
+            - deployment/ssh_run_container_with_script
+          filters:
+            <<: *filters-production
+  build-dev:
+    jobs:
+      - deployment/build_docker_image:
+          tag: dev-<< pipeline.git.revision >>
+          context:
+            - dockerhub
+          filters: &filters-dev
+            tags:
+              ignore: /^.*$/
+      - deployment/ssh_push_docker_image:
+          context:
+            - machine-sarv-apps
+          requires: 
+            - deployment/build_docker_image
+          filters:
+            <<: *filters-dev
+      - deployment/ssh_run_container_with_script:
+          script: run_dev.sh
+          image_tag: dev-<< pipeline.git.revision >>
+          context:
+            - dockerhub
+            - machine-sarv-apps
+          requires:
+            - deployment/ssh_push_docker_image
+          filters:
+            <<: *filters-dev
+      - deployment/ssh_remove_unused_images:
+          tag_filter: dev-*
+          context:
+            - dockerhub
+            - machine-sarv-apps
+          requires:
+            - deployment/ssh_run_container_with_script
+          filters:
+            <<: *filters-dev
