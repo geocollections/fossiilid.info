@@ -80,7 +80,7 @@ export default defineNuxtConfig({
     name: "Fossiilid.info",
   },
   seo: {
-    redirectToCanonicalSiteUrl: true,
+    redirectToCanonicalSiteUrl: false,
   },
   linkChecker: {
     enabled: false,
