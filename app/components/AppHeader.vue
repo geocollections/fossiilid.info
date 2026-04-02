@@ -11,8 +11,9 @@ const state = reactive({
 const store = useRootStore();
 const { setLocale, locale, t } = useI18n();
 const { $apiFetch } = useNuxtApp();
-const { metaSymbol } = useShortcuts();
 const quickSearch = ref();
+const searchTerm = ref("");
+const items = ref([]);
 
 defineShortcuts({
   meta_k: {
@@ -71,13 +72,34 @@ onBeforeMount(() => {
 });
 
 async function search(value: string) {
-  if (value.length < 1)
-    return [];
   const taxa = await $apiFetch<{ results: any[] }>(
     `/taxon/?sql=simple_taxon_search&keyword=${value}&format=json`,
   );
   return taxa.results;
 }
+
+let currentQuery = "";
+
+const debouncedSearch = useDebounceFn(async (value) => {
+  currentQuery = value;
+
+  const results = await search(value);
+
+  // race condition protection
+  if (currentQuery !== value) {
+    return;
+  }
+
+  items.value = results;
+}, 300);
+
+watch(searchTerm, (newValue) => {
+  if (!newValue) {
+    return;
+  }
+
+  debouncedSearch(newValue);
+});
 
 function handleScroll() {
   state.scroll = document.documentElement.scrollTop > 1;
@@ -95,33 +117,33 @@ function handleLocaleChange(locale: string) {
     <div class="container mx-auto">
       <nav class="flex h-14 items-center gap-x-2 py-2">
         <NuxtLinkLocale
-          class="text-base font-bold uppercase text-tomato md:text-lg"
+          class="text-tomato text-base font-bold uppercase md:text-lg"
           to="/"
         >
           <div>fossiilid</div>
-          <div class="-mt-2 text-right text-xs">
-            .info
-          </div>
+          <div class="-mt-2 text-right text-xs">.info</div>
         </NuxtLinkLocale>
         <USelectMenu
           ref="quickSearch"
+          v-model:search-term="searchTerm"
+          label-key="name"
+          :items="items"
+          ignore-fields
           class="ml-2 w-full lg:w-80"
-          :ui="{ width: 'w-80' }"
-          :searchable="search"
           size="md"
-          icon="i-heroicons-magnifying-glass-20-solid"
+          leading-icon="i-lucide-search"
           :placeholder="$t('search.fossils_search')"
           clear-search-on-close
           name="search"
           by="id"
           @update:model-value="(taxon) => $router.push(`/${taxon.id}`)"
         >
-          <template #option="{ option: taxa }">
-            {{ taxa.name }}
+          <template #item="{ item }">
+            {{ item.name }}
           </template>
           <template #trailing>
             <div class="flex items-center gap-0.5">
-              <UKbd>{{ metaSymbol }}</UKbd>
+              <UKbd value="meta" />
               <UKbd>K</UKbd>
             </div>
           </template>
@@ -129,7 +151,8 @@ function handleLocaleChange(locale: string) {
         <UButton
           class="hidden lg:flex"
           size="md"
-          color="white"
+          color="neutral"
+          variant="outline"
           icon="i-heroicons-adjustments-vertical-20-solid"
           to="/search"
           :aria-label="$t('menu.detail_search')"
@@ -143,25 +166,28 @@ function handleLocaleChange(locale: string) {
             v-model="store.mode"
             size="md"
             icon="i-heroicons-globe-europe-africa-20-solid"
-            :options="modeOptions"
+            :items="modeOptions"
           />
           <USelect
             :model-value="locale"
             size="md"
-            :options="langOptions"
+            :items="langOptions"
             icon="i-heroicons-language-20-solid"
             @update:model-value="handleLocaleChange"
           />
           <ColorModeSwitch />
-          <UDropdown :items="pageItems">
-            <UButton
-              :label="$t('menu.more')"
-              :aria-label="$t('menu.more')"
-              size="md"
-              color="white"
-              trailing-icon="i-heroicons-chevron-down-20-solid"
-            />
-          </UDropdown>
+          <UDropdownMenu :items="pageItems">
+            <template #default>
+              <UButton
+                :label="$t('menu.more')"
+                :aria-label="$t('menu.more')"
+                size="md"
+                color="neutral"
+                variant="outline"
+                trailing-icon="i-heroicons-chevron-down-20-solid"
+              />
+            </template>
+          </UDropdownMenu>
         </div>
         <UButton
           class="ml-auto lg:hidden"
@@ -171,51 +197,46 @@ function handleLocaleChange(locale: string) {
           trailing-icon="i-heroicons-bars-3"
           @click="state.isOpen = true"
         />
-        <USlideover v-model="state.isOpen">
-          <div class="flex flex-col space-y-2 p-4">
-            <UButton
-              class="ml-auto lg:hidden"
-              size="md"
-              variant="ghost"
-              color="gray"
-              trailing-icon="i-heroicons-x-mark"
-              @click="state.isOpen = false"
-            />
-            <UDivider />
-            <div class="grid grid-cols-2 gap-x-2">
-              <USelect
-                v-model="store.mode"
-                class="col-span-1"
+
+        <USlideover v-model:open="state.isOpen">
+          <template #body>
+            <div class="flex flex-col space-y-2 p-4">
+              <USeparator />
+              <div class="grid grid-cols-2 gap-x-2">
+                <USelect
+                  v-model="store.mode"
+                  class="col-span-1"
+                  size="md"
+                  icon="i-heroicons-globe-europe-africa-20-solid"
+                  :aria-label="t('header.mode')"
+                  :items="modeOptions"
+                />
+                <USelect
+                  class="col-span-1"
+                  :model-value="locale"
+                  size="md"
+                  :items="langOptions"
+                  icon="i-heroicons-language-20-solid"
+                  :aria-label="t('header.lang')"
+                  @update:model-value="handleLocaleChange"
+                />
+              </div>
+              <div class="ml-auto">
+                <ColorModeSwitch />
+              </div>
+              <USeparator />
+              <UButton
+                label="Advanced search"
                 size="md"
-                icon="i-heroicons-globe-europe-africa-20-solid"
-                :aria-label="t('header.mode')"
-                :options="modeOptions"
+                color="gray"
+                variant="ghost"
+                icon="i-heroicons-adjustments-vertical-20-solid"
+                to="/search"
               />
-              <USelect
-                class="col-span-1"
-                :model-value="locale"
-                size="md"
-                :options="langOptions"
-                icon="i-heroicons-language-20-solid"
-                :aria-label="t('header.lang')"
-                @update:model-value="handleLocaleChange"
-              />
+              <USeparator />
+              <UNavigationMenu orientation="vertical" :items="pageItems[0]" />
             </div>
-            <div class="ml-auto">
-              <ColorModeSwitch />
-            </div>
-            <UDivider />
-            <UButton
-              label="Advanced search"
-              size="md"
-              color="gray"
-              variant="ghost"
-              icon="i-heroicons-adjustments-vertical-20-solid"
-              to="/search"
-            />
-            <UDivider />
-            <UVerticalNavigation :links="pageItems[0]" />
-          </div>
+          </template>
         </USlideover>
       </nav>
     </div>
