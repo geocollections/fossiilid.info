@@ -1,7 +1,11 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  css: ["~/assets/css/main.css"],
+  css: [
+    "~/assets/css/main.css",
+    "leaflet/dist/leaflet.css",
+    "leaflet.fullscreen/dist/Control.FullScreen.css",
+  ],
   app: {
     head: {
       title: "Fossiilid.info",
