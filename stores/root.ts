@@ -17,6 +17,6 @@ export const useRootStore = defineStore("root", {
     };
   },
   persist: {
-    paths: ["mode"],
+    pick: ["mode"],
   },
 });
