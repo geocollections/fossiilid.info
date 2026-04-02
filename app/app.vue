@@ -50,10 +50,12 @@ function checkIfModeIsCorrect(mode: string) {
 </script>
 
 <template>
-  <Head>
-    <Meta name="description" :content="t('header.subtitle')" />
-  </Head>
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
+  <UApp>
+    <Head>
+      <Meta name="description" :content="t('header.subtitle')" />
+    </Head>
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
+  </UApp>
 </template>

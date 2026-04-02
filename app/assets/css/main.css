@@ -1,0 +1,45 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@theme {
+  --color-tomato-50: #fef4f2;
+  --color-tomato-100: #fee7e2;
+  --color-tomato-200: #fed3ca;
+  --color-tomato-300: #fdb4a4;
+  --color-tomato-400: #f98870;
+  --color-tomato-500: #f05f40;
+  --color-tomato-600: #dd4525;
+  --color-tomato-700: #ba371b;
+  --color-tomato-800: #9a311a;
+  --color-tomato-900: #802e1c;
+  --color-tomato-950: #45140a;
+
+  --color-tomato-deafult: var(--color-tomato-500);
+
+  --font-display:
+    Merriweather, ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
+.text-tomato {
+  color: var(--color-tomato-deafult);
+}
+
+@layer base {
+  *,
+  ::before,
+  ::after,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--ui-color-neutral-200);
+    font-family: var(--font-display);
+  }
+  a {
+    color: var(--color-tomato-deafult);
+  }
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1rem;
+  border: neutral;
+}

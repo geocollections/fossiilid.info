@@ -165,6 +165,7 @@ function handleLocaleChange(locale: string) {
           <USelect
             v-model="store.mode"
             size="md"
+            class="w-40"
             icon="i-heroicons-globe-europe-africa-20-solid"
             :items="modeOptions"
           />

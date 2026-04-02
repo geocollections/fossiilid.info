@@ -1,14 +1,12 @@
 export default defineAppConfig({
   ui: {
-    primary: "tomato",
-
+    colors: {
+      primary: "tomato",
+    },
     card: {
-      background: "dark:bg-gray-800",
-      divide: "dark:divide-gray-700",
-      ring: "dark:ring-gray-700",
-      header: {
-        base: "text-base font-bold ",
-        padding: "px-2 py-4 sm:px-4",
+      slots: {
+        root: "dark:bg-gray-800 dark:divide-gray-700 dark:ring-gray-700",
+        header: "text-base font-bold px-2 py-4 sm:px-4",
       },
     },
   },

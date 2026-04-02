@@ -48,6 +48,9 @@ const currentContent = computed(() => {
 </template>
 
 <style>
+
+@reference "tailwindcss";
+
 h1 {
   @apply pb-4;
   font-size: 2.5rem;
