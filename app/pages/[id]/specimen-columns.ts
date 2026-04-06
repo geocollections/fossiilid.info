@@ -26,6 +26,13 @@ export const tableColumns = (t, locale, UButton, ClientOnly) => {
     });
   };
 
+  const sorting = ref([
+    {
+      id: "specimen_number",
+      desc: true,
+    },
+  ]);
+
   const columns: TableColumn<Taxon>[] = [
     {
       accessorKey: "specimen_number",
@@ -68,13 +75,10 @@ export const tableColumns = (t, locale, UButton, ClientOnly) => {
                 h(
                   "a",
                   { href: `${kividUrl}/rock/${row.original.rock_id}` },
-                  translate(
-                    {
-                      et: row.original.rock,
-                      en: row.original.rock_en,
-                    },
-                    locale,
-                  ),
+                  translate({
+                    et: row.original.rock,
+                    en: row.original.rock_en,
+                  }),
                 ),
                 (row.original.rock_txt || row.original.rock_txt_en) &&
                 (row.original.rock !== row.original.rock_txt ||
@@ -84,13 +88,10 @@ export const tableColumns = (t, locale, UButton, ClientOnly) => {
                       h(
                         "i",
                         {},
-                        translate(
-                          {
-                            et: row.original.rock_txt,
-                            en: row.original.rock_txt_en,
-                          },
-                          locale,
-                        ),
+                        translate({
+                          et: row.original.rock_txt,
+                          en: row.original.rock_txt_en,
+                        }),
                       ),
                     ])
                   : null,
@@ -110,13 +111,10 @@ export const tableColumns = (t, locale, UButton, ClientOnly) => {
                 {
                   href: `${geocollectionUrl}/locality/${row.original.locality_id}`,
                 },
-                translate(
-                  {
-                    et: row.original.locality,
-                    en: row.original.locality_en,
-                  },
-                  locale,
-                ),
+                translate({
+                  et: row.original.locality,
+                  en: row.original.locality_en,
+                }),
               )
             : null,
           row.original.locality_free
@@ -146,13 +144,10 @@ export const tableColumns = (t, locale, UButton, ClientOnly) => {
                 {
                   href: `${geocollectionUrl}/stratigraphy/${row.original.stratigraphy_id}`,
                 },
-                translate(
-                  {
-                    et: row.original.stratigraphy,
-                    en: row.original.stratigraphy_en,
-                  },
-                  locale,
-                ),
+                translate({
+                  et: row.original.stratigraphy,
+                  en: row.original.stratigraphy_en,
+                }),
               )
             : h("div"),
           row.original.stratigraphy_txt
@@ -175,22 +170,19 @@ export const tableColumns = (t, locale, UButton, ClientOnly) => {
       accessorKey: "status",
       header: ({ column }) => sortBy(column, t("search.specimen.status")),
       cell: ({ row }) =>
-        translate(
-          {
-            et: row.original.original_status,
-            en: row.original.original_status_en,
-          },
-          locale,
-        ),
+        translate({
+          et: row.original.original_status,
+          en: row.original.original_status_en,
+        }),
     },
 
     {
       id: "image",
       header: t("search.specimen.images"),
-      cell: ({ row, getValue }) =>
+      cell: ({ row }) =>
         h(ClientOnly, null, {
           default: () =>
-            getValue("image")
+            row.original.image
               ? h(
                   "a",
                   {
@@ -208,5 +200,5 @@ export const tableColumns = (t, locale, UButton, ClientOnly) => {
         }),
     },
   ];
-  return { columns };
+  return { columns, sorting };
 };

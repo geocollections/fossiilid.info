@@ -34,48 +34,38 @@ const sort = ref<{ column: string; direction: "asc" | "desc" }>({
 const page = ref(1);
 const paginateBy = ref(10);
 
-const queryParams = computed(() => {
-  const params: { [K: string]: any } = {};
-
-  params.page = page.value;
-
-  if (sort.value) {
-    params.sort = `${sort.value.column} ${sort.value.direction}`;
-  }
-
-  return params;
-});
-
 const route = useRoute();
 const router = useRouter();
 
-watch(queryParams, () => {
+const ClientOnly = resolveComponent("ClientOnly");
+const UButton = resolveComponent("UButton");
+
+const { columns, sorting } = tableColumns(t, locale, UButton, ClientOnly);
+
+watch(
+  sorting,
+  (newValue) => {
+    page.value = 1;
+    router.push({
+      query: {
+        ...route.query,
+        col: newValue[0]?.id,
+        dir: newValue[0]?.desc ? "desc" : "asc",
+        page: page.value,
+      },
+    });
+  },
+  { deep: true },
+);
+
+watch(page, (newValue) => {
   router.push({
     query: {
       ...route.query,
-      ...queryParams.value,
+      page: newValue,
     },
   });
 });
-
-watch(
-  () => route.query,
-  (query) => {
-    const parsedPage = Number(query.page) || 1;
-    if (parsedPage !== queryParams.value.page) {
-      page.value = parsedPage || 1;
-    }
-
-    if (query.sort) {
-      const [column, direction] = (query.sort as string).split(" ") || [
-        "specimen_number",
-        "asc",
-      ];
-      sort.value = { column, direction: direction as "asc" | "desc" };
-    }
-  },
-  { immediate: true },
-);
 
 const { data: specimenRes } = await useSolrFetch<{
   response: { docs: any[]; numFound: number };
@@ -84,7 +74,7 @@ const { data: specimenRes } = await useSolrFetch<{
     q: `hierarchy_string:(${props.taxon.hierarchy_string}*)`,
     rows: paginateBy.value,
     start: paginateBy.value * (page.value - 1),
-    sort: `${getSortKey(sort.value.column as keyof typeof sortKeyMap)} ${sort.value.direction}`,
+    sort: `${getSortKey(sorting.value[0]?.id as keyof typeof sortKeyMap)} ${sorting.value[0]?.desc ? "desc" : "asc"}`,
     format: "json",
   })),
 });
@@ -101,11 +91,6 @@ function getSortKey(columnKey: keyof typeof sortKeyMap) {
   // @ts-expect-error this cannot error as we have checked the type above
   return sortKeyMap[columnKey].en;
 }
-
-const ClientOnly = resolveComponent("ClientOnly");
-const UButton = resolveComponent("UButton");
-
-const { columns } = tableColumns(t, locale, UButton, ClientOnly);
 </script>
 
 <template>
@@ -117,6 +102,7 @@ const { columns } = tableColumns(t, locale, UButton, ClientOnly);
   />
   <UTable
     class="rounded border bg-white"
+    v-model:sorting="sorting"
     :columns="columns"
     :data="specimenRes?.response.docs ?? []"
   />
