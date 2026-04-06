@@ -315,7 +315,7 @@ function handleTitleImageError() {
         </h2>
       </div>
     </div>
-    <UHorizontalNavigation :links="links" class="border-b mb-2 border-gray-200 dark:border-gray-800" />
+    <UNavigationMenu :items="links" class="border-b mb-2 border-gray-200 dark:border-gray-800" />
     <NuxtPage :taxon="taxon" :taxon-page="taxonPage" />
   </section>
 </template>
