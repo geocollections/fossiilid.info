@@ -19,7 +19,7 @@ const {
   resetLayerGroups,
   setView,
 } = useLeafletMap(map);
-const { $L } = useNuxtApp();
+const { $L, $FullScreen } = useNuxtApp();
 onMounted(() => {
   loadMap();
   initGroups();
@@ -67,9 +67,9 @@ watch(
 );
 
 function loadMap() {
-  map.value = $L.map("map", {
-    fullscreenControl: true,
-  });
+  map.value = $L.map("map");
+  map.value.addControl(new $FullScreen());
+
   setView();
   state.tileLayer = $L.tileLayer(
     "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
@@ -77,7 +77,7 @@ function loadMap() {
       minZoom: 1,
       maxZoom: 18,
       attribution:
-        "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors &copy; <a href=\"https://carto.com/attributions\">CARTO</a>",
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
     },
   );
   state.tileLayer.addTo(map.value);
