@@ -55,7 +55,7 @@ watch(page, (newValue) => {
     v-model:page="page"
     :ui="{ base: 'ml-auto mb-2' }"
     :total="specimenRes?.response.numFound ?? 0"
-    :page-count="paginateBy"
+    :items-per-page="paginateBy"
   />
   <SpecimenTable
     v-model="sorting"
@@ -65,6 +65,6 @@ watch(page, (newValue) => {
     v-model:page="page"
     :ui="{ base: 'ml-auto mt-2' }"
     :total="specimenRes?.response.numFound ?? 0"
-    :page-count="paginateBy"
+    :items-per-page="paginateBy"
   />
 </template>

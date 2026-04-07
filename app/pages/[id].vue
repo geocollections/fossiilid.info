@@ -57,10 +57,12 @@ export interface TaxonPage {
 const { $solrFetch, $apiFetchNew } = useNuxtApp();
 const img = useImage();
 
+const taxonId = computed(() => String(route.params.id));
+
 const { data } = await useAsyncData(
-  "taxon",
+  () => `taxon-${taxonId.value}`,
   async () => {
-    const taxon = await $apiFetchNew<Taxon>(`/taxa/${route.params.id}/`, {
+    const taxon = await $apiFetchNew<Taxon>(`/taxa/${taxonId.value}/`, {
       query: {
         expand: "rank,fossil_group,stratigraphy_base,stratigraphy_top,parent",
         fields: [
@@ -157,6 +159,7 @@ const { data } = await useAsyncData(
         },
       ),
     ]);
+
     return {
       taxon,
       taxonPage: pageRes.results?.[0],
@@ -177,6 +180,7 @@ const { data } = await useAsyncData(
       imageCount: 0,
       specimenCount: 0,
     }),
+    watch: [taxonId, locale],
   },
 );
 
@@ -194,9 +198,13 @@ const router = useRouter();
 const getRouteBaseName = useRouteBaseName();
 
 if (imageCount < 1 && getRouteBaseName(route) === "id-gallery")
-  router.replace(localePath({ name: "id", params: route.params, query: route.query }));
+  router.replace(
+    localePath({ name: "id", params: route.params, query: route.query }),
+  );
 if (specimenCount < 1 && getRouteBaseName(route) === "id-specimens")
-  router.replace(localePath({ name: "id", params: route.params, query: route.query }));
+  router.replace(
+    localePath({ name: "id", params: route.params, query: route.query }),
+  );
 
 const links = computed(() => {
   const links: HorizontalNavigationLink[] = [
@@ -209,7 +217,11 @@ const links = computed(() => {
   ];
   if (imageCount > 0) {
     links.push({
-      to: localePath({ name: "id-gallery", params: route.params, query: route.query }),
+      to: localePath({
+        name: "id-gallery",
+        params: route.params,
+        query: route.query,
+      }),
       label: t("tabs.gallery"),
       badge: imageCount,
       exact: true,
@@ -218,7 +230,11 @@ const links = computed(() => {
   }
   if (specimenCount > 0) {
     links.push({
-      to: localePath({ name: "id-specimens", params: route.params, query: route.query }),
+      to: localePath({
+        name: "id-specimens",
+        params: route.params,
+        query: route.query,
+      }),
       label: t("tabs.specimens"),
       badge: specimenCount,
       exact: true,
@@ -229,16 +245,13 @@ const links = computed(() => {
 });
 
 const titleImage = computed(() => {
-  if (!taxon?.fossil_group)
-    return;
+  if (!taxon?.fossil_group) return;
   return img(`/fossilgroups/${taxon.fossil_group.id}.png`);
 });
 
 const taxonTitle = computed(() => {
-  if (taxonPage && taxonPage.title)
-    return taxonPage.title;
-  if (commonNames.length > 0)
-    return commonNames[0].name;
+  if (taxonPage && taxonPage.title) return taxonPage.title;
+  if (commonNames.length > 0) return commonNames[0].name;
   return null;
 });
 
@@ -249,8 +262,7 @@ if (image) {
 }
 
 function isHigherTaxon(rank: string | undefined | null) {
-  if (!rank)
-    return false;
+  if (!rank) return false;
   return !["Species", "Subspecies", "Genus", "Supergenus", "Subgenus"].includes(
     rank,
   );
@@ -288,7 +300,7 @@ function handleTitleImageError() {
             :alt="taxon.fossil_group.name"
             :title="taxon.fossil_group.name"
             @error="handleTitleImageError"
-          >
+          />
         </NuxtLink>
       </ClientOnly>
       <div>
@@ -315,7 +327,10 @@ function handleTitleImageError() {
         </h2>
       </div>
     </div>
-    <UNavigationMenu :items="links" class="border-b mb-2 border-gray-200 dark:border-gray-800" />
+    <UNavigationMenu
+      :items="links"
+      class="mb-2 border-b border-gray-200 dark:border-gray-800"
+    />
     <NuxtPage :taxon="taxon" :taxon-page="taxonPage" />
   </section>
 </template>

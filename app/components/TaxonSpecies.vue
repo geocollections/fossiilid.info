@@ -51,21 +51,19 @@ const allSpecies = computed(() => allSpeciesRes.value?.results ?? []);
 const numberOfSpecimen = computed(() => allSpeciesRes.value?.count ?? 0);
 
 function getModeQueryParam(mode: string) {
-  if (mode === "in_baltoscandia")
-    return { in_baltoscandia: 1 };
-  else if (mode === "in_estonia")
-    return { in_estonia: 1 };
+  if (mode === "in_baltoscandia") return { in_baltoscandia: 1 };
+  else if (mode === "in_estonia") return { in_estonia: 1 };
 
   return {};
 }
 
 function calculateSpeciesIdx(idx: number) {
   return (
-    idx
-    + 1
-    + store.searchParameters.species.paginateBy
-    * store.searchParameters.species.page
-    - store.searchParameters.species.paginateBy
+    idx +
+    1 +
+    store.searchParameters.species.paginateBy *
+      store.searchParameters.species.page -
+    store.searchParameters.species.paginateBy
   );
 }
 </script>
@@ -106,9 +104,9 @@ function calculateSpeciesIdx(idx: number) {
         </template>
         <template
           v-else-if="
-            item.stratigraphy_base
-              && item.stratigraphy_top
-              && item.stratigraphy_top.id === item.stratigraphy_base.id
+            item.stratigraphy_base &&
+            item.stratigraphy_top &&
+            item.stratigraphy_top.id === item.stratigraphy_base.id
           "
         >
           |
@@ -125,10 +123,10 @@ function calculateSpeciesIdx(idx: number) {
     </div>
     <UPagination
       v-if="numberOfSpecimen > store.searchParameters.species.paginateBy"
-      v-model="store.searchParameters.species.page"
+      v-model:page="store.searchParameters.species.page"
       class="mt-2"
       :total="numberOfSpecimen"
-      :page-count="store.searchParameters.species.paginateBy"
+      :items-per-page="store.searchParameters.species.paginateBy"
     />
   </UCard>
 </template>
