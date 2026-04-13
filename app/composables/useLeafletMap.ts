@@ -51,7 +51,7 @@ export function useLeafletMap() {
   }));
 
   function setDefaultOverlays() {
-    const map = advancedSearchStore.map;
+    const map = advancedSearchStore.getMap();
     if (!map) return;
     layer1?.addTo(map);
     layer2?.addTo(map);
@@ -59,7 +59,7 @@ export function useLeafletMap() {
   }
 
   function setView() {
-    const map = advancedSearchStore.map;
+    const map = advancedSearchStore.getMap();
     if (!map) return;
     if (store.mode === "in_global") map.setView([58.5, 20.5], 1);
     else if (store.mode === "in_estonia") map.setView([58.5, 25.5], 6);
@@ -101,7 +101,7 @@ export function useLeafletMap() {
   }
 
   function populateLayerGroups(locations: MapSearchResult[]) {
-    const map = advancedSearchStore.map;
+    const map = advancedSearchStore.getMap();
 
     // Remove from map while populating — prevents a redraw per addLayer
     layer1?.remove();

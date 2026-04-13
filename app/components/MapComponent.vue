@@ -18,7 +18,7 @@ const {
   groupsInitialized,
   resetLayerGroups,
   setView,
-} = useLeafletMap(map);
+} = useLeafletMap();
 const { $L, $FullScreen } = useNuxtApp();
 onMounted(() => {
   loadMap();
