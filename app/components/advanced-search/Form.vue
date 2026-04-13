@@ -71,7 +71,7 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
         :placeholder="$t('advancedsearch.locality')"
       />
 
-      <!-- Disabled for the moment because it doesn't work correctly
+      <!-- Disabled for the moment because it doesn't work
       <span class="grid grid-cols-2">
         <div>
           <USwitch

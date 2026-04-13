@@ -25,5 +25,5 @@ onMounted(() => {
 });
 </script>
 <template>
-  <div id="map" class="z-0 h-96 lg:h-1/3" style="cursor: pointer"></div>
+  <div id="map" class="z-0 flex-1" style="cursor: pointer"></div>
 </template>

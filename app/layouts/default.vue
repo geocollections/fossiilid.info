@@ -13,11 +13,9 @@ function toTop() {
 <template>
   <div class="flex min-h-screen flex-col">
     <AppHeader />
-    <main ref="el">
-      <div class="px-2 py-10">
-        <slot />
-      </div>
-    </main>
+    <div class="flex h-full flex-1 p-8">
+      <slot />
+    </div>
     <AppFooter class="mt-auto" />
     <ClientOnly>
       <Transition>
@@ -25,7 +23,7 @@ function toTop() {
           v-if="y > 0"
           size="lg"
           icon="i-heroicons-arrow-up"
-          class="fixed bottom-2 right-2 rounded-full"
+          class="fixed right-2 bottom-2 rounded-full"
           @click="toTop"
         />
       </Transition>

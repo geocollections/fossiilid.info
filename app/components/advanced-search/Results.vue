@@ -79,12 +79,11 @@ const columns: TableColumn<any>[] = [
 ];
 </script>
 <template>
-  <div>
+  <div class="flex flex-col justify-between">
     <UTable
       :columns="columns"
       :data="advancedSearchStore.results"
       label-key="fossil_group_id"
-      class="h-[86.5%]"
     />
 
     <span class="flex justify-between">
