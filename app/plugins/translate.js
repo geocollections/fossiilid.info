@@ -1,13 +1,13 @@
 export default defineNuxtPlugin(({ vueApp, $i18n }) => {
   vueApp.directive("translate", {
     mounted(el, binding) {
-      const value
-        = $i18n.locale.value === "et" ? binding.value.et : binding.value.en;
+      const value =
+        $i18n.locale.value === "et" ? binding.value.et : binding.value.en;
       el.innerHTML = value === undefined || value === null ? "" : value;
     },
     getSSRProps(binding) {
-      const value
-        = $i18n.locale.value === "et" ? binding.value.et : binding.value.en;
+      const value =
+        $i18n.locale.value === "et" ? binding.value.et : binding.value.en;
       return {
         innerText: value === undefined || value === null ? "" : value,
       };
@@ -16,9 +16,15 @@ export default defineNuxtPlugin(({ vueApp, $i18n }) => {
   function translate(translations) {
     return $i18n.locale.value === "et" ? translations.et : translations.en;
   }
+
+  function getLocale() {
+    return $i18n.locale.value;
+  }
+
   return {
     provide: {
       translate,
+      getLocale,
     },
   };
 });
