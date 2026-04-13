@@ -222,9 +222,11 @@
     "js_map_popup_occurrencecount": "Occurrence count",
     "calculating": "calculating...",
 
+    "taxon": "Taxon",
     "hightaxon": "Higher taxon",
     "species": "Species",
     "author": "Author",
+    "locality_label": "Locality",
     "locality": "Locality",
     "country": "Country, county",
     "stratigraphy": "Stratigraphy",

@@ -14,7 +14,7 @@ const stratigraphyURL = "https://geocollections.info/stratigraphy";
 const columns: TableColumn<any>[] = [
   {
     accessorKey: "taxon",
-    header: "Taxon",
+    header: `${$t("advancedsearch.taxon")}`,
     cell: ({ row }) => {
       const route = stateRoute({
         path: localePath(`/${row.original.taxon_id}`),
@@ -32,7 +32,7 @@ const columns: TableColumn<any>[] = [
   },
   {
     accessorKey: "author_year",
-    header: "Author",
+    header: `${$t("advancedsearch.author")}`,
   },
   {
     accessorKey: "fad_id",

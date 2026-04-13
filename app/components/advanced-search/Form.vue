@@ -16,7 +16,7 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
 <template>
   <UForm class="space-y-4" @submit="search">
     <div class="mt-4 grid grid-cols-2 gap-4">
-      <UFormField class="text-3xl" label="Taxon">
+      <UFormField class="text-3xl" :label="$t('advancedsearch.taxon')">
         <USelectMenu
           class="my-2 w-full"
           v-model="advancedSearchStore.higherTaxon"
@@ -44,7 +44,7 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
         />
       </UFormField>
 
-      <UFormField class="text-3xl" label="Stratigraphy">
+      <UFormField class="text-3xl" :label="$t('advancedsearch.stratigraphy')">
         <USelectMenu
           class="w-full"
           v-model="advancedSearchStore.stratigraphy"
@@ -63,7 +63,7 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
 
     <hr />
 
-    <UFormField class="text-3xl" label="Location">
+    <UFormField class="text-3xl" :label="$t('advancedsearch.locality_label')">
       <UInput
         class="w-full"
         size="xl"

@@ -228,9 +228,11 @@
     "js_map_popup_occurrencecount": "Esinemiste arv",
     "calculating": "arvutan...",
 
+    "taxon": "Takson",
     "hightaxon": "Kõrgtakson",
     "species": "Liik",
     "author": "Autor",
+    "locality_label": "Lokaliteet",
     "locality": "Leiukoht",
     "country": "Riik, maakond, vald",
     "stratigraphy": "Stratigraafia",

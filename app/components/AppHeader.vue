@@ -8,6 +8,7 @@ const state = reactive({
   selectedTaxon: null,
   isOpen: false,
 });
+const advancedSearchStore = useAdvancedSearchStore();
 const store = useRootStore();
 const { setLocale, locale, t } = useI18n();
 const { $apiFetch } = useNuxtApp();
@@ -105,6 +106,7 @@ function handleScroll() {
   state.scroll = document.documentElement.scrollTop > 1;
 }
 function handleLocaleChange(locale: string) {
+  advancedSearchStore.reset();
   setLocale(locale);
 }
 </script>
