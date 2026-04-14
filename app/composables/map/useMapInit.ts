@@ -1,5 +1,4 @@
 import type {
-  Map,
   FeatureGroup,
   Circle,
   Rectangle,
@@ -8,12 +7,13 @@ import type {
   TileLayer,
 } from "leaflet";
 
-export const useMapInit = (drawnItems: Ref) => {
-  const { $L, $FullScreen } = useNuxtApp();
-  const advancedSearchStore = useAdvancedSearchStore();
+import { FullScreen } from "leaflet.fullscreen";
+
+export const useMapInit = () => {
+  const { $L } = useNuxtApp();
+  const drawnItems = ref();
   const { buildPopupContent, showRecordsInSelectedArea, generatePopup } =
     useMapPopup(drawnItems);
-  const map = ref<Map>();
 
   function getBaseLayers() {
     return $L.tileLayer(
@@ -28,7 +28,12 @@ export const useMapInit = (drawnItems: Ref) => {
   function initMap() {
     const instance = $L.map("map");
 
-    instance.addControl(new $FullScreen());
+    instance.addControl(
+      new FullScreen({
+        position: "topleft",
+      }),
+    );
+
     instance.setView([0, 0], 1);
 
     // Initialise the FeatureGroup to store editable layers
@@ -85,10 +90,8 @@ export const useMapInit = (drawnItems: Ref) => {
       })
       .addTo(instance);
 
-    advancedSearchStore.setMap(instance);
-
-    map.value = markRaw(instance);
+    return instance;
   }
 
-  return { map, initMap };
+  return { initMap, drawnItems };
 };

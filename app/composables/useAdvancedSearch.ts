@@ -1,8 +1,8 @@
 // @ts-expect-error no types for this package
 import Wkt from "wicket/wicket";
-import type { Circle, Polygon, Rectangle } from "leaflet";
+import type { Circle, Map, Polygon, Rectangle } from "leaflet";
 
-export const useAdvancedSearch = () => {
+export const useAdvancedSearch = (map: Ref<Map | undefined>) => {
   const { $solrFetch, $L } = useNuxtApp();
   const advancedSearchStore = useAdvancedSearchStore();
 
@@ -13,7 +13,7 @@ export const useAdvancedSearch = () => {
     setDefaultOverlays,
     groupsInitialized,
     resetLayerGroups,
-  } = useLeafletMap();
+  } = useLeafletMap(map);
 
   function buildAutocompleteFilterSolrSearchValue(value: string) {
     const lowerFirstCh = value.charAt(0).toLowerCase();
@@ -105,9 +105,10 @@ export const useAdvancedSearch = () => {
   }
 
   async function fetchMapData() {
-    if (!advancedSearchStore.getMap()) {
+    if (!map.value) {
       return;
     }
+
     const start = [
       advancedSearchStore.pagination.pageSize *
         (advancedSearchStore.pagination.pageIndex - 1),
@@ -145,11 +146,10 @@ export const useAdvancedSearch = () => {
     });
 
     advancedSearchStore.$patch({ mapDataResults: res.response.docs });
+
     if (!groupsInitialized.value) {
       initGroups();
-      $L.control
-        .groupedLayers({}, groupedOverlays.value, {})
-        .addTo(advancedSearchStore.getMap());
+      $L.control.groupedLayers({}, groupedOverlays.value, {}).addTo(map.value);
       setDefaultOverlays();
     }
 

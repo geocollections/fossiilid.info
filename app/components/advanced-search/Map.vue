@@ -1,7 +1,15 @@
 <script setup lang="ts">
-const drawnItems = ref();
+import type { Map } from "leaflet";
 
-const { map, initMap } = useMapInit(drawnItems);
+const map: Ref<Map | undefined> = defineModel("map");
+const { initMap, drawnItems } = useMapInit();
+
+onMounted(() => {
+  const instance = initMap();
+
+  map.value = markRaw(instance);
+});
+
 const { getLocation, circle, nearMeLatLng } = useNearMe(map, drawnItems);
 const advancedSearchStore = useAdvancedSearchStore();
 
@@ -19,10 +27,6 @@ watch(
     getLocation();
   },
 );
-
-onMounted(() => {
-  initMap();
-});
 </script>
 <template>
   <div id="map" class="z-0 flex-1" style="cursor: pointer"></div>

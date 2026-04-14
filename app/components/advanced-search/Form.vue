@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import type { Map } from "leaflet";
+
 const advancedSearchStore = useAdvancedSearchStore();
-const { search } = useAdvancedSearch();
+const map: Ref<Map | undefined> = defineModel("map");
+const { search } = useAdvancedSearch(map);
 
 const higherTaxonSearchTerm = ref("");
 const higherTaxonSelectMenuResults = ref<TaxonOption[]>([]);

@@ -1,5 +1,7 @@
-import type { LatLngExpression, LayerGroup } from "leaflet";
-import { reactive, computed, markRaw } from "vue";
+import type { LatLngExpression, LayerGroup, Map } from "leaflet";
+import type { Ref } from "vue";
+import { reactive, toRefs } from "vue";
+import { useRootStore } from "~/stores/root";
 
 interface MapSearchResult {
   locality_id?: number;
@@ -8,160 +10,139 @@ interface MapSearchResult {
   latlong?: string;
   src?: number;
 }
-
-// Leaflet objects — completely outside Vue reactivity
-let layer1: LayerGroup | null = null;
-let layer2: LayerGroup | null = null;
-let layer3: LayerGroup | null = null;
-
-// Only plain primitives in reactive state
-const state = reactive({
-  groupsInitialized: false,
-  layers: {
-    1: { active: true, name: "Specimen" },
-    2: { active: true, name: "Taxon_occurrence" },
-    3: { active: true, name: "sample + conop_distribution" },
-  },
-});
-
-export function useLeafletMap() {
+export function useLeafletMap(map: Ref<Map | undefined>) {
   const { t, locale } = useI18n();
   const store = useRootStore();
-  const advancedSearchStore = useAdvancedSearchStore();
   const { $L } = useNuxtApp();
+  const state = reactive({
+    groupsInitialized: false,
+    groupedLayers: null,
+    layers: {
+      1: {
+        active: true,
+        name: "Specimen",
+        layerGroup: null as LayerGroup | null,
+      },
+      2: {
+        active: true,
+        name: "Taxon_occurrence",
+        layerGroup: null as LayerGroup | null,
+      },
+      3: {
+        active: true,
+        name: "sample + conop_distribution",
+        layerGroup: null as LayerGroup | null,
+      },
+    },
+  });
 
   function initGroups() {
-    if (state.groupsInitialized) return;
-    layer1 = markRaw($L.layerGroup([]));
-    layer2 = markRaw($L.layerGroup([]));
-    layer3 = markRaw($L.layerGroup([]));
+    state.layers[1].layerGroup = $L.layerGroup([]);
+    state.layers[2].layerGroup = $L.layerGroup([]);
+    state.layers[3].layerGroup = $L.layerGroup([]);
     state.groupsInitialized = true;
   }
 
-  function getLayers() {
-    return { 1: layer1, 2: layer2, 3: layer3 } as const;
-  }
-
-  const groupedOverlays = computed(() => ({
-    [t("map.overlay_title")]: {
-      [t("map.overlay_specimens")]: layer1,
-      [t("map.overlay_literature_based")]: layer2,
-      [t("map.overlay_in_samples")]: layer3,
-    },
-  }));
-
-  function setDefaultOverlays() {
-    const map = advancedSearchStore.getMap();
-    if (!map) return;
-    layer1?.addTo(map);
-    layer2?.addTo(map);
-    layer3?.addTo(map);
-  }
-
-  function setView() {
-    const map = advancedSearchStore.getMap();
-    if (!map) return;
-    if (store.mode === "in_global") map.setView([58.5, 20.5], 1);
-    else if (store.mode === "in_estonia") map.setView([58.5, 25.5], 6);
-    else map.setView([58.5, 25.5], 5);
-  }
-
-  function getCoords(string: string): LatLngExpression {
-    if (!string) return [0, 0];
-    const [lat, lng] = string.split(",");
-    return [Number(lat), Number(lng)];
-  }
-
   function setCustomSettings(type: number) {
+    let setting = {};
     switch (type) {
       case 1:
-        return {
+        setting = {
           color: "rgba(240, 95, 37,0.7)",
           opacity: 0.7,
           weight: 6,
           zIndexOffset: 1,
         };
+        break;
       case 2:
-        return {
+        setting = {
           color: "rgba(240, 85, 199,0.7)",
           opacity: 0.7,
           weight: 6,
           zIndexOffset: 2,
         };
+        break;
       case 3:
-        return {
+        setting = {
           color: "rgba(245, 134, 0,0.7)",
           opacity: 0.5,
           weight: 6,
           zIndexOffset: 3,
         };
+        break;
       default:
-        return {};
+        break;
+    }
+    return setting;
+  }
+  const groupedOverlays = computed(() => {
+    return {
+      [t("map.overlay_title")]: {
+        [t("map.overlay_specimens")]: state.layers[1].layerGroup,
+        [t("map.overlay_literature_based")]: state.layers[2].layerGroup,
+        [t("map.overlay_in_samples")]: state.layers[3].layerGroup,
+      },
+    };
+  });
+  function setDefaultOverlays() {
+    if (!map.value) return;
+    state.layers[1].layerGroup?.addTo(map.value);
+    state.layers[2].layerGroup?.addTo(map.value);
+    state.layers[3].layerGroup?.addTo(map.value);
+  }
+  function setView() {
+    if (!map.value) return;
+    if (store.mode) {
+      if (store.mode === "in_global") map.value.setView([58.5, 20.5], 1);
+      else if (store.mode === "in_estonia") map.value.setView([58.5, 25.5], 6);
+      else map.value.setView([58.5, 25.5], 5);
     }
   }
-
+  function getCoords(string: string): LatLngExpression {
+    if (string === undefined) return [0, 0];
+    const tokenizedCoords = string.split(",");
+    return [Number(tokenizedCoords[0]), Number(tokenizedCoords[1])];
+  }
   function populateLayerGroups(locations: MapSearchResult[]) {
-    const map = advancedSearchStore.getMap();
-
-    // Remove from map while populating — prevents a redraw per addLayer
-    layer1?.remove();
-    layer2?.remove();
-    layer3?.remove();
-
-    locations.forEach((element) => {
+    locations.forEach((element, index) => {
       if (
-        !element.locality ||
-        !element.locality_id ||
-        !element.latlong ||
-        !element.src
-      )
-        return;
+        element.locality &&
+        element.locality_id &&
+        element.latlong &&
+        element.src
+      ) {
+        const feature = {
+          id: index,
+          coords: getCoords(element.latlong),
+          type: element.src,
+          name: locale.value === "et" ? element.locality : element.locality_en,
+          locid: element.locality_id,
+        };
+        const layer = $L
+          .circle(feature.coords, setCustomSettings(feature.type))
+          .bindPopup(
+            `<a target="_blank" href="https://geocollections.info/locality/${feature.locid}">
+              ${feature.name}
+            </a>`,
+            { className: "custom-popup-text" },
+          );
 
-      const layer = $L
-        .circle(getCoords(element.latlong), setCustomSettings(element.src))
-        .bindPopup(
-          `<a target="_blank" href="https://geocollections.info/locality/${element.locality_id}">
-            ${locale.value === "et" ? element.locality : element.locality_en}
-          </a>`,
-          { className: "custom-popup-text" },
-        );
-
-      if (element.src === 1) layer1?.addLayer(layer);
-      else if (element.src === 2) layer2?.addLayer(layer);
-      else if (element.src === 3) layer3?.addLayer(layer);
+        state.layers[element.src as 1 | 2 | 3].layerGroup?.addLayer(layer);
+      }
     });
-
-    // Re-add to map all at once
-    if (map) {
-      layer1?.addTo(map);
-      layer2?.addTo(map);
-      layer3?.addTo(map);
-    }
   }
-
   function resetLayerGroups() {
-    layer1?.clearLayers();
-    layer2?.clearLayers();
-    layer3?.clearLayers();
+    state.layers[1].layerGroup?.clearLayers();
+    state.layers[2].layerGroup?.clearLayers();
+    state.layers[3].layerGroup?.clearLayers();
   }
-
-  function destroy() {
-    resetLayerGroups();
-    layer1 = null;
-    layer2 = null;
-    layer3 = null;
-    state.groupsInitialized = false;
-  }
-
   return {
     ...toRefs(state),
-    getLayers,
-    groupedOverlays,
     setView,
-    setDefaultOverlays,
     populateLayerGroups,
     initGroups,
+    groupedOverlays,
+    setDefaultOverlays,
     resetLayerGroups,
-    destroy,
   };
 }

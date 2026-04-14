@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Map, TileLayer } from "leaflet";
+
 import { useRootStore } from "~/stores/root";
 
 const props = defineProps<{ mapData: any[] }>();
@@ -18,10 +19,10 @@ const {
   groupsInitialized,
   resetLayerGroups,
   setView,
-} = useLeafletMap();
-const { $L, $FullScreen } = useNuxtApp();
-onMounted(() => {
-  loadMap();
+} = useLeafletMap(map);
+const { $L } = useNuxtApp();
+onMounted(async () => {
+  await loadMap();
   initGroups();
   state.groupControl = $L.control
     .groupedLayers({}, groupedOverlays.value, {})
@@ -66,10 +67,21 @@ watch(
   { immediate: false },
 );
 
-function loadMap() {
-  map.value = $L.map("map");
-  map.value.addControl(new $FullScreen());
+async function loadMap() {
+  // For some reason even though
+  // this component is wrapped in
+  // <ClientOnly>, if this import is not
+  // dynamic, then it will result in
+  // a "window is not defined" error
+  const { FullScreen } = await import("leaflet.fullscreen");
 
+  map.value = $L.map("map");
+
+  map.value.addControl(
+    new FullScreen({
+      position: "topleft",
+    }),
+  );
   setView();
   state.tileLayer = $L.tileLayer(
     "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",

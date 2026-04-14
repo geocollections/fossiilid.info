@@ -47,12 +47,6 @@ export const useAdvancedSearchStore = defineStore("advancedSearch", {
   },
 
   actions: {
-    setMap(instance: Map) {
-      _map = instance;
-    },
-    getMap() {
-      return _map;
-    },
     setSelectedArea(area: Circle | Rectangle | Polygon | null) {
       _selectedArea = area;
     },

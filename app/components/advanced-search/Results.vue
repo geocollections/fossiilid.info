@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui";
+import type { Map } from "leaflet";
 
 const advancedSearchStore = useAdvancedSearchStore();
-const { resetLayerGroups } = useLeafletMap();
+const map: Ref<Map | undefined> = defineModel("map");
+const { resetLayerGroups } = useLeafletMap(map);
 
 const { $getLocale } = useNuxtApp();
 const stateRoute = useStateRoute();
 const localePath = useLocalePath();
-const { search } = useAdvancedSearch();
+const { search } = useAdvancedSearch(map);
 
 const stratigraphyURL = "https://geocollections.info/stratigraphy";
 
@@ -81,6 +83,7 @@ const columns: TableColumn<any>[] = [
 <template>
   <div class="flex flex-col justify-between">
     <UTable
+      class="h-[65dvh]"
       :columns="columns"
       :data="advancedSearchStore.results"
       label-key="fossil_group_id"

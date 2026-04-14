@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const map = ref();
+</script>
 
 <template>
   <section class="container space-y-2">
@@ -14,11 +16,13 @@
       <hr class="my-2" />
 
       <div class="grid flex-1 grid-cols-2 gap-8">
-        <span class="flex flex-col justify-between">
-          <AdvancedSearchMap />
-          <AdvancedSearchForm />
+        <span class="flex h-full flex-col justify-between">
+          <ClientOnly>
+            <AdvancedSearchMap v-model:map="map" />
+          </ClientOnly>
+          <AdvancedSearchForm v-model:map="map" />
         </span>
-        <AdvancedSearchResults />
+        <AdvancedSearchResults v-model:map="map" />
       </div>
     </div>
   </section>
