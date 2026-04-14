@@ -1,7 +1,7 @@
 import type { Map, Circle, Rectangle, Polygon } from "leaflet";
 import { defineStore } from "pinia";
 
-interface State {
+export interface AdvancedSearchState {
   higherTaxon: TaxonOption | undefined;
   species: string;
   author: string;
@@ -25,7 +25,7 @@ let _map: Map | null = null;
 let _selectedArea: Circle | Rectangle | Polygon | null = null;
 
 export const useAdvancedSearchStore = defineStore("advancedSearch", {
-  state: (): State => {
+  state: (): AdvancedSearchState => {
     return {
       higherTaxon: undefined,
       species: "",

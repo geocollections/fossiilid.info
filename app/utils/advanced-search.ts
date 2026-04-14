@@ -9,7 +9,7 @@ export const buildAutocompleteFilterSolrSearchValue = (value: string) => {
   return `/.*[${upperFirstCh},${lowerFirstCh}]${str}.*/`;
 };
 
-export const buildSearchFilterQuery = (store?: any) => {
+export const buildSearchFilterQuery = (store: AdvancedSearchState) => {
   const result = [];
   if (store.higherTaxon) {
     result.push(`taxon_hierarchy:${store.higherTaxon.hierarchy_string}*`);

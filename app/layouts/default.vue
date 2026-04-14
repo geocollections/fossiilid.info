@@ -13,9 +13,9 @@ function toTop() {
 <template>
   <div class="flex min-h-screen flex-col">
     <AppHeader />
-    <div class="flex h-full flex-1 p-8">
+    <main class="flex h-full flex-1 p-8">
       <slot />
-    </div>
+    </main>
     <AppFooter class="mt-auto" />
     <ClientOnly>
       <Transition>
