@@ -256,8 +256,12 @@ const taxonTitle = computed(() => {
 });
 
 if (image) {
-  defineOgImage({
-    url: img(image.filename, { size: "large" }, { provider: "geocollections" }),
+  useSeoMeta({
+    ogImage: img(
+      image.filename,
+      { size: "large" },
+      { provider: "geocollections" },
+    ),
   });
 }
 

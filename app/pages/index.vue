@@ -2,8 +2,8 @@
 const { locale } = useI18n();
 const stateRoute = useStateRoute();
 const localePath = useLocalePath();
-defineOgImage({
-  url: "https://files.geocollections.info/img/fossiilid/fossiilid.png",
+useSeoMeta({
+  ogImage: "https://files.geocollections.info/img/fossiilid/fossiilid.png",
 });
 interface ApiListResponse<T> {
   count: number;
@@ -32,7 +32,7 @@ const { data: frontPage } = await useApiFetch<ApiListResponse<TaxonPage>>(
 <template>
   <section class="container mx-auto space-y-10">
     <h1
-      class="text-center text-3xl uppercase text-gray-500 dark:text-gray-300 sm:text-4xl md:text-5xl"
+      class="text-center text-3xl text-gray-500 uppercase sm:text-4xl md:text-5xl dark:text-gray-300"
     >
       fossiilid.info
     </h1>
@@ -56,7 +56,7 @@ const { data: frontPage } = await useApiFetch<ApiListResponse<TaxonPage>>(
             :alt="`${item.frontpage} (${item.taxon__taxon})`"
             width="150"
             height="150"
-          >
+          />
           {{ item.frontpage }}
         </NuxtLink>
       </div>
