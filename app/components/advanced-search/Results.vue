@@ -88,7 +88,7 @@ const columns: TableColumn<any>[] = [
 
     <span class="flex justify-between">
       <UPagination
-        :v-model:page="advancedSearchStore.pagination.pageIndex"
+        v-model:page="advancedSearchStore.pagination.pageIndex"
         :items-per-page="advancedSearchStore.pagination.pageSize"
         :total="advancedSearchStore.numberOfResults"
         :sibling-count="1"
