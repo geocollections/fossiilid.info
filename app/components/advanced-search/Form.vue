@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import type { AdvancedSearchState } from "~/utils/advanced-search";
+
 const { search } = defineProps(["search"]);
-const advancedSearchStore = useAdvancedSearchStore();
+const state = defineModel<AdvancedSearchState>({ required: true });
 const higherTaxonSearchTerm = ref("");
 const higherTaxonSelectMenuResults = ref<TaxonOption[]>([]);
 const stratigraphySearchTerm = ref("");
@@ -17,7 +19,7 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
     <div class="mt-4 grid grid-cols-2 gap-4">
       <UFormField class="text-3xl" :label="$t('advancedsearch.taxon')">
         <USelectMenu
-          v-model="advancedSearchStore.higherTaxon"
+          v-model="state.higherTaxon"
           v-model:search-term="higherTaxonSearchTerm"
           class="my-2 w-full"
           :items="higherTaxonSelectMenuResults"
@@ -29,14 +31,14 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
         />
 
         <UInput
-          v-model="advancedSearchStore.species"
+          v-model="state.species"
           class="w-full"
           size="xl"
           :placeholder="$t('advancedsearch.species')"
         />
 
         <UInput
-          v-model="advancedSearchStore.author"
+          v-model="state.author"
           class="w-full"
           size="xl"
           :placeholder="$t('advancedsearch.author')"
@@ -45,7 +47,7 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
 
       <UFormField class="text-3xl" :label="$t('advancedsearch.stratigraphy')">
         <USelectMenu
-          v-model="advancedSearchStore.stratigraphy"
+          v-model="state.stratigraphy"
           v-model:search-term="stratigraphySearchTerm"
           class="w-full"
           :items="stratigraphySelectMenuResults"
@@ -64,7 +66,7 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
 
     <UFormField class="text-3xl" :label="$t('advancedsearch.locality_label')">
       <UInput
-        v-model="advancedSearchStore.locality"
+        v-model="state.locality"
         class="w-full"
         size="xl"
         :placeholder="$t('advancedsearch.locality')"

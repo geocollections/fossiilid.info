@@ -1,7 +1,58 @@
 <script setup lang="ts">
-const map = ref();
+import type { Circle, Map, Polygon, Rectangle } from "leaflet";
+import type { AdvancedSearchState } from "~/utils/advanced-search";
 
-const { search, resetLayerGroups } = useAdvancedSearch(map);
+const map = ref<Map | undefined>();
+const selectedArea = ref<Circle | Rectangle | Polygon | undefined>();
+
+const state = reactive<AdvancedSearchState>(
+  {
+    higherTaxon: undefined,
+    species: "",
+    author: "",
+    locality: "",
+    stratigraphy: undefined,
+    isOutcrop: false,
+    isNearMe: false,
+    nearMeRangeInKM: 5,
+    results: [],
+    numberOfResults: 0,
+    pagination: {
+      pageIndex: 1,
+      pageSize: 14,
+    },
+    mapPaginateBy: 1000,
+    mapDataResults: [],
+  },
+);
+
+function createInitialState(): AdvancedSearchState {
+  return {
+    higherTaxon: undefined,
+    species: "",
+    author: "",
+    locality: "",
+    stratigraphy: undefined,
+    isOutcrop: false,
+    isNearMe: false,
+    nearMeRangeInKM: 5,
+    results: [],
+    numberOfResults: 0,
+    pagination: {
+      pageIndex: 1,
+      pageSize: 14,
+    },
+    mapPaginateBy: 1000,
+    mapDataResults: [],
+  };
+}
+
+const { search, resetLayerGroups } = useAdvancedSearch(map, selectedArea, state);
+
+function reset() {
+  resetLayerGroups();
+  Object.assign(state, createInitialState());
+}
 </script>
 
 <template>
@@ -20,11 +71,11 @@ const { search, resetLayerGroups } = useAdvancedSearch(map);
       <div class="grid flex-1 grid-cols-2 gap-8">
         <span class="flex h-full flex-col justify-between">
           <ClientOnly>
-            <AdvancedSearchMap v-model:map="map" />
+            <AdvancedSearchMap v-model="state" v-model:map="map" v-model:area="selectedArea" />
           </ClientOnly>
-          <AdvancedSearchForm :search="search" />
+          <AdvancedSearchForm v-model="state" :search="search" />
         </span>
-        <AdvancedSearchResults :search="search" :reset="resetLayerGroups" />
+        <AdvancedSearchResults v-model="state" :search="search" :reset="reset" />
       </div>
     </div>
   </section>

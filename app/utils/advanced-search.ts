@@ -1,47 +1,109 @@
-import type { Circle, Polygon, Rectangle } from "leaflet";
+import type { Circle, Map, Polygon, Rectangle } from "leaflet";
 // @ts-expect-error no types for this package
 import Wkt from "wicket/wicket";
 
-export const buildAutocompleteFilterSolrSearchValue = (value: string) => {
+export interface AdvancedSearchState {
+  higherTaxon: TaxonOption | undefined;
+  species: string;
+  author: string;
+  locality: string;
+  stratigraphy: StratigraphyOption | undefined;
+  isOutcrop: boolean;
+  isNearMe: boolean;
+  nearMeRangeInKM: number;
+  results: SearchResult[];
+  numberOfResults: number;
+  pagination: {
+    pageIndex: number;
+    pageSize: number;
+  };
+  mapPaginateBy: number;
+  mapDataResults: MapSearchResult[];
+}
+
+export interface StratigraphyOption {
+  id: number;
+  stratigraphy?: string;
+  stratigraphy_en?: string;
+  hierarchy_string?: string;
+}
+
+export interface TaxonOption {
+  id: number;
+  taxon?: string;
+  hierarchy_string?: string;
+}
+
+export interface SearchResult {
+  id: number;
+  taxon?: string;
+  taxon_id: number;
+  author_year?: string;
+  fossil_group?: string;
+  fossil_group_id?: number;
+  fad?: string;
+  fad_en?: string;
+  fad_id?: number;
+  lad?: string;
+  lad_en?: string;
+  lad_id?: number;
+  locality_en?: string;
+  locality_id?: number;
+  locality?: string;
+  latlong?: string;
+  src?: number;
+}
+
+export interface MapSearchResult {
+  locality_id?: number;
+  locality_en?: string;
+  locality?: string;
+  latlong?: string;
+  src?: number;
+}
+
+export function buildAutocompleteFilterSolrSearchValue(value: string) {
   const lowerFirstCh = value.charAt(0).toLowerCase();
   const upperFirstCh = value.charAt(0).toUpperCase();
   const str = value.substring(1).toLowerCase();
   return `/.*[${upperFirstCh},${lowerFirstCh}]${str}.*/`;
-};
+}
 
-export const buildSearchFilterQuery = (store: AdvancedSearchState) => {
+export function buildSearchFilterQuery(state: AdvancedSearchState) {
   const result = [];
-  if (store.higherTaxon) {
-    result.push(`taxon_hierarchy:${store.higherTaxon.hierarchy_string}*`);
-  }
-  if (store.stratigraphy) {
+  if (state.higherTaxon !== undefined) {
     result.push(
-      `stratigraphy_hierarchy:${store.stratigraphy.hierarchy_string}* OR global_stratigraphy_hierarchy:${store.stratigraphy.hierarchy_string}*`,
+      `taxon_hierarchy:${state.higherTaxon.hierarchy_string}*`,
     );
   }
-  if (store.species) {
+  if (state.stratigraphy !== undefined) {
     result.push(
-      `taxon:${buildAutocompleteFilterSolrSearchValue(store.species)}`,
+      `stratigraphy_hierarchy:${state.stratigraphy.hierarchy_string}* OR global_stratigraphy_hierarchy:${state.stratigraphy.hierarchy_string}*`,
     );
   }
-  if (store.author) {
+  if (state.species !== "") {
     result.push(
-      `author_year:${buildAutocompleteFilterSolrSearchValue(store.author)}`,
+      `taxon:${buildAutocompleteFilterSolrSearchValue(state.species)}`,
     );
   }
-  if (store.locality) {
+  if (state.author !== "") {
     result.push(
-      `locality:${buildAutocompleteFilterSolrSearchValue(
-        store.locality,
-      )} OR locality_en:${buildAutocompleteFilterSolrSearchValue(store.locality)}`,
+      `author_year:${buildAutocompleteFilterSolrSearchValue(state.author)}`,
     );
   }
-  if (store.isOutcrop) result.push("-locality:*puurauk");
+  if (state.locality !== "") {
+    result.push(
+      `locality:${buildAutocompleteFilterSolrSearchValue(state.locality)} OR locality_en:${buildAutocompleteFilterSolrSearchValue(state.locality)}`,
+    );
+  }
+  if (state.isOutcrop) {
+    result.push("-locality:*puurauk");
+  }
 
   return result;
-};
+}
 
-export const getFilterQueryForWKT = (polygon: string) => {
+export function getFilterQueryForWKT(polygon: string) {
   const coordsPairs = polygon.split(",");
   let reversedPairs = [] as string[];
 
@@ -53,24 +115,25 @@ export const getFilterQueryForWKT = (polygon: string) => {
     const coordsPairs_ = coordsPairs.slice(1, coordsPairs.length - 1);
     reversedPairs.push(coordsPairs[0]);
     reversedPairs = reversedPairs.concat(coordsPairs_.reverse());
-    reversedPairs.push(coordsPairs[coordsPairs.length - 1]);
+    reversedPairs.push(coordsPairs.at(-1));
   }
 
-  const changedWkt =
-    reversedPairs.length > 0 ? reversedPairs.join(",") : coordsPairs.join(",");
+  const changedWkt
+    = reversedPairs.length > 0 ? reversedPairs.join(",") : coordsPairs.join(",");
   return `{!field f=latlong}isWithin(${changedWkt})`;
-};
+}
 
-export const getFilterQueryForCircle = (circle: Circle) => {
+export function getFilterQueryForCircle(circle: Circle) {
   const latlng = circle.getLatLng();
   const radius = Math.round((circle.getRadius() / 1000) * 10) / 10; // convert to km (from m) and round to 1 decmial place
   return `{!geofilt sfield=latlong}&d=${radius}&pt=${latlng.lat},${latlng.lng}`;
-};
+}
 
-export const getGeoParam = (shape: Circle | Rectangle | Polygon) => {
+export function getGeoParam(shape: Circle | Rectangle | Polygon) {
   if ("getRadius" in shape) {
     return getFilterQueryForCircle(shape);
-  } else {
+  }
+  else {
     const wkt = new Wkt.Wkt();
     const geojson = shape.toGeoJSON();
     const geostr = JSON.stringify(geojson);
@@ -79,4 +142,4 @@ export const getGeoParam = (shape: Circle | Rectangle | Polygon) => {
 
     return getFilterQueryForWKT(wkt.write());
   }
-};
+}

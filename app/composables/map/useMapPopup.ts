@@ -1,14 +1,14 @@
 import type {
   Circle,
-  Rectangle,
-  Polygon,
-  Map,
   LatLngExpression,
+  Map,
+  Polygon,
+  Rectangle,
 } from "leaflet";
+import type { AdvancedSearchState } from "~/utils/advanced-search";
 
-export const useMapPopup = (drawnItems: Ref) => {
+export function useMapPopup(drawnItems: Ref, state: AdvancedSearchState, selectedArea: Ref<Circle | Rectangle | Polygon | undefined>) {
   const { $L, $solrFetch } = useNuxtApp();
-  const advancedSearchStore = useAdvancedSearchStore();
   const { t } = useI18n();
 
   function resetDrawnItemsColor() {
@@ -18,7 +18,7 @@ export const useMapPopup = (drawnItems: Ref) => {
   const showRecordsInSelectedArea = (layer: Circle | Rectangle | Polygon) => {
     resetDrawnItemsColor();
     layer.setStyle({ color: "#ff2a12" });
-    advancedSearchStore.setSelectedArea(layer);
+    selectedArea.value = layer;
   };
 
   const buildPopupContent = async (
@@ -34,7 +34,7 @@ export const useMapPopup = (drawnItems: Ref) => {
           fl: "taxon",
           sort: "fossil_group asc,taxon asc",
           fq: [
-            ...buildSearchFilterQuery(advancedSearchStore),
+            ...buildSearchFilterQuery(state),
             geomParams,
             "{!collapse field=locality}",
             "rank:[14 TO 17]",
@@ -52,7 +52,7 @@ export const useMapPopup = (drawnItems: Ref) => {
           fl: "taxon",
           sort: "fossil_group asc,taxon asc",
           fq: [
-            ...buildSearchFilterQuery(advancedSearchStore),
+            ...buildSearchFilterQuery(state),
             geomParams,
             "{!collapse field=taxon}",
             "rank:[14 TO 17]",
@@ -79,8 +79,8 @@ export const useMapPopup = (drawnItems: Ref) => {
 
     if (numberOfDrawnLayers > 1) {
       const button = document.createElement("button");
-      button.className =
-        "border flex items-center px-2 py-1 rounded bg-tomato text-white";
+      button.className
+        = "border flex items-center px-2 py-1 rounded bg-tomato text-white";
       button.innerHTML = `
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
           <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
@@ -118,4 +118,4 @@ export const useMapPopup = (drawnItems: Ref) => {
   }
 
   return { buildPopupContent, showRecordsInSelectedArea, generatePopup };
-};
+}

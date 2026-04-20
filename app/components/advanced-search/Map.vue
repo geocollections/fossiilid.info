@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import type { Map } from "leaflet";
+import type { Circle, Map, Polygon, Rectangle } from "leaflet";
+import type { AdvancedSearchState } from "~/utils/advanced-search";
 
 const map: Ref<Map | undefined> = defineModel("map");
-const { initMap, drawnItems } = useMapInit();
+const selectedArea: Ref<Circle | Rectangle | Polygon | undefined> = defineModel("area");
+const state = defineModel<AdvancedSearchState>({ required: true });
+const { initMap, drawnItems } = useMapInit(selectedArea, state.value);
 
 onMounted(() => {
   const instance = initMap();
@@ -10,24 +13,24 @@ onMounted(() => {
   map.value = markRaw(instance);
 });
 
-const { getLocation, circle, nearMeLatLng } = useNearMe(map, drawnItems);
-const advancedSearchStore = useAdvancedSearchStore();
+const { getLocation, circle, nearMeLatLng } = useNearMe(map, drawnItems, selectedArea, state.value);
 
 watch(
-  () => advancedSearchStore.isNearMe,
+  () => state.value.isNearMe,
   () => {
-    if (!advancedSearchStore.isNearMe) {
+    if (!state.value.isNearMe) {
       circle.value.remove();
       map.value?.closePopup();
-      advancedSearchStore.nearMeRangeInKM = 5;
+      state.value.nearMeRangeInKM = 5;
       nearMeLatLng.value = null;
       return;
     }
-    advancedSearchStore.isOutcrop = true;
+    state.value.isOutcrop = true;
     getLocation();
   },
 );
 </script>
+
 <template>
-  <div id="map" class="z-0 flex-1" style="cursor: pointer"></div>
+  <div id="map" class="z-0 flex-1" style="cursor: pointer" />
 </template>

@@ -1,19 +1,19 @@
 import type {
-  FeatureGroup,
   Circle,
-  Rectangle,
-  Polygon,
+  FeatureGroup,
   LeafletMouseEvent,
+  Polygon,
+  Rectangle,
   TileLayer,
 } from "leaflet";
 
 import { FullScreen } from "leaflet.fullscreen";
 
-export const useMapInit = () => {
+export function useMapInit(selectedArea: Ref<Circle | Rectangle | Polygon | undefined>, state: AdvancedSearchState) {
   const { $L } = useNuxtApp();
   const drawnItems = ref();
-  const { buildPopupContent, showRecordsInSelectedArea, generatePopup } =
-    useMapPopup(drawnItems);
+  const { buildPopupContent, showRecordsInSelectedArea, generatePopup }
+    = useMapPopup(drawnItems, state, selectedArea);
 
   function getBaseLayers() {
     return $L.tileLayer(
@@ -60,7 +60,10 @@ export const useMapInit = () => {
     });
 
     instance.on("pm:create", ({ layer }) => {
-      if (!instance) return;
+      if (instance === undefined) {
+        return;
+      }
+
       drawnItems.value.addLayer(layer);
       generatePopup(layer as Circle | Rectangle | Polygon, [0, 0], instance);
       layer.on("click", (e: LeafletMouseEvent) => {
@@ -75,11 +78,12 @@ export const useMapInit = () => {
       layer.openPopup();
       const numberOfDrawnLayers = drawnItems.value.getLayers().length ?? 0;
 
-      if (numberOfDrawnLayers < 2)
+      if (numberOfDrawnLayers < 2) {
         showRecordsInSelectedArea(layer as Circle | Rectangle | Polygon);
+      }
     });
 
-    instance.addLayer(getBaseLayers() as TileLayer);
+    instance.addLayer(getBaseLayers());
 
     $L.control
       // @ts-expect-error no types for this package
@@ -94,4 +98,4 @@ export const useMapInit = () => {
   }
 
   return { initMap, drawnItems };
-};
+}

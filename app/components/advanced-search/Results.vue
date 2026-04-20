@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui";
+import type { AdvancedSearchState } from "~/utils/advanced-search";
 
 const { search, reset } = defineProps(["search", "reset"]);
-const advancedSearchStore = useAdvancedSearchStore();
+const state = defineModel<AdvancedSearchState>({ required: true });
 const { $getLocale } = useNuxtApp();
 const stateRoute = useStateRoute();
 const localePath = useLocalePath();
@@ -82,20 +83,20 @@ const columns: TableColumn<any>[] = [
     <UTable
       class="h-[65dvh]"
       :columns="columns"
-      :data="advancedSearchStore.results"
+      :data="state.results"
       label-key="fossil_group_id"
     />
 
     <span class="flex justify-between">
       <UPagination
-        v-model:page="advancedSearchStore.pagination.pageIndex"
-        :items-per-page="advancedSearchStore.pagination.pageSize"
-        :total="advancedSearchStore.numberOfResults"
+        v-model:page="state.pagination.pageIndex"
+        :items-per-page="state.pagination.pageSize"
+        :total="state.numberOfResults"
         :sibling-count="1"
         show-edges
         @update:page="
           (p) => {
-            advancedSearchStore.pagination.pageIndex = p;
+            state.pagination.pageIndex = p;
             search();
           }
         "
@@ -105,12 +106,7 @@ const columns: TableColumn<any>[] = [
         variant="outline"
         color="neutral"
         icon="i-heroicons-trash"
-        @click="
-          () => {
-            advancedSearchStore.reset();
-            reset();
-          }
-        "
+        @click="reset"
       >
         {{ $t("advancedsearch.btn_clear") }}
       </UButton>

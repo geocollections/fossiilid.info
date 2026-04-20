@@ -1,10 +1,11 @@
+import type { Circle, Map, Polygon, Rectangle } from "leaflet";
+import type { AdvancedSearchState } from "~/utils/advanced-search";
+
 // @ts-expect-error no types for this package
 import Wkt from "wicket/wicket";
-import type { Circle, Map, Polygon, Rectangle } from "leaflet";
 
-export const useAdvancedSearch = (map: Ref<Map | undefined>) => {
+export function useAdvancedSearch(map: Ref<Map | undefined>, selectedArea: Ref<Circle | Polygon | Rectangle | undefined>, state: AdvancedSearchState) {
   const { $solrFetch, $L } = useNuxtApp();
-  const advancedSearchStore = useAdvancedSearchStore();
 
   const {
     populateLayerGroups,
@@ -14,53 +15,6 @@ export const useAdvancedSearch = (map: Ref<Map | undefined>) => {
     groupsInitialized,
     resetLayerGroups,
   } = useLeafletMap(map);
-
-  function buildAutocompleteFilterSolrSearchValue(value: string) {
-    const lowerFirstCh = value.charAt(0).toLowerCase();
-    const upperFirstCh = value.charAt(0).toUpperCase();
-    const str = value.substring(1).toLowerCase();
-    return `/.*[${upperFirstCh},${lowerFirstCh}]${str}.*/`;
-  }
-
-  function buildSearchFilterQuery() {
-    const result = [];
-    if (advancedSearchStore.higherTaxon) {
-      result.push(
-        `taxon_hierarchy:${advancedSearchStore.higherTaxon.hierarchy_string}*`,
-      );
-    }
-    if (advancedSearchStore.stratigraphy) {
-      result.push(
-        `stratigraphy_hierarchy:${advancedSearchStore.stratigraphy.hierarchy_string}* OR global_stratigraphy_hierarchy:${advancedSearchStore.stratigraphy.hierarchy_string}*`,
-      );
-    }
-    if (advancedSearchStore.species) {
-      result.push(
-        `taxon:${buildAutocompleteFilterSolrSearchValue(
-          advancedSearchStore.species,
-        )}`,
-      );
-    }
-    if (advancedSearchStore.author) {
-      result.push(
-        `author_year:${buildAutocompleteFilterSolrSearchValue(
-          advancedSearchStore.author,
-        )}`,
-      );
-    }
-    if (advancedSearchStore.locality) {
-      result.push(
-        `locality:${buildAutocompleteFilterSolrSearchValue(
-          advancedSearchStore.locality,
-        )} OR locality_en:${buildAutocompleteFilterSolrSearchValue(
-          advancedSearchStore.locality,
-        )}`,
-      );
-    }
-    if (advancedSearchStore.isOutcrop) result.push("-locality:*puurauk");
-
-    return result;
-  }
 
   function getFilterQueryForWKT(polygon: string) {
     const coordsPairs = polygon.split(",");
@@ -74,11 +28,11 @@ export const useAdvancedSearch = (map: Ref<Map | undefined>) => {
       const coordsPairs_ = coordsPairs.slice(1, coordsPairs.length - 1);
       reversedPairs.push(coordsPairs[0]);
       reversedPairs = reversedPairs.concat(coordsPairs_.reverse());
-      reversedPairs.push(coordsPairs[coordsPairs.length - 1]);
+      reversedPairs.push(coordsPairs.at(-1));
     }
 
-    const changedWkt =
-      reversedPairs.length > 0
+    const changedWkt
+      = reversedPairs.length > 0
         ? reversedPairs.join(",")
         : coordsPairs.join(",");
     return `{!field f=latlong}isWithin(${changedWkt})`;
@@ -93,7 +47,8 @@ export const useAdvancedSearch = (map: Ref<Map | undefined>) => {
   function getGeoParam(shape: Circle | Rectangle | Polygon) {
     if ("getRadius" in shape) {
       return getFilterQueryForCircle(shape);
-    } else {
+    }
+    else {
       const wkt = new Wkt.Wkt();
       const geojson = shape.toGeoJSON();
       const geostr = JSON.stringify(geojson);
@@ -110,26 +65,21 @@ export const useAdvancedSearch = (map: Ref<Map | undefined>) => {
     }
 
     const start = [
-      advancedSearchStore.pagination.pageSize *
-        (advancedSearchStore.pagination.pageIndex - 1),
+      state.pagination.pageSize
+      * (state.pagination.pageIndex - 1),
     ];
     const fl = `locality_en,locality_id,locality,latlong,src`;
     const fq = [
-      ...buildSearchFilterQuery(),
+      ...buildSearchFilterQuery(state),
       "{!collapse field=taxon}",
       "rank:[14 TO 17]",
     ];
-    if (advancedSearchStore.isNearMe) {
-      const nearMeArea = getFilterQueryForCircle(
-        advancedSearchStore.getSelectedArea() as Circle,
-      );
+    if (state.isNearMe) {
+      const nearMeArea = getFilterQueryForCircle(selectedArea.value as Circle);
       fq.push(nearMeArea);
-    } else if (advancedSearchStore.getSelectedArea()) {
-      fq.push(
-        getGeoParam(
-          advancedSearchStore.getSelectedArea() as Circle | Rectangle | Polygon,
-        ),
-      );
+    }
+    else if (selectedArea.value) {
+      fq.push(getGeoParam(selectedArea.value));
     }
     const res = await $solrFetch<{
       response: { docs: MapSearchResult[]; numFound: number };
@@ -139,13 +89,14 @@ export const useAdvancedSearch = (map: Ref<Map | undefined>) => {
         fl,
         sort: "fossil_group asc,taxon asc",
         fq,
-        rows: advancedSearchStore.pagination.pageSize,
+        rows: state.pagination.pageSize,
         start,
         format: "json",
       },
     });
 
-    advancedSearchStore.$patch({ mapDataResults: res.response.docs });
+    const results = res.response.docs;
+    state.mapDataResults = results;
 
     if (!groupsInitialized.value) {
       initGroups();
@@ -155,27 +106,22 @@ export const useAdvancedSearch = (map: Ref<Map | undefined>) => {
 
     resetLayerGroups();
 
-    populateLayerGroups(advancedSearchStore.mapDataResults);
+    populateLayerGroups(results);
   }
 
   async function search() {
     const fl = `taxon_id,taxon,id,author_year,fossil_group,fossil_group_id,fad,fad_en,fad_id,lad,lad_en,lad_id,locality_en,locality_id,locality,latlong,src`;
     const fq = [
-      ...buildSearchFilterQuery(),
+      ...buildSearchFilterQuery(state),
       "{!collapse field=taxon}",
       "rank:[14 TO 17]",
     ];
-    if (advancedSearchStore.isNearMe) {
-      const nearMeArea = getFilterQueryForCircle(
-        advancedSearchStore.getSelectedArea() as Circle,
-      );
+    if (state.isNearMe) {
+      const nearMeArea = getFilterQueryForCircle(selectedArea.value as Circle);
       fq.push(nearMeArea);
-    } else if (advancedSearchStore.getSelectedArea()) {
-      fq.push(
-        getGeoParam(
-          advancedSearchStore.getSelectedArea() as Circle | Rectangle | Polygon,
-        ),
-      );
+    }
+    else if (selectedArea.value) {
+      fq.push(getGeoParam(selectedArea.value));
     }
     const res = await $solrFetch<{
       response: { docs: SearchResult[]; numFound: number };
@@ -185,22 +131,22 @@ export const useAdvancedSearch = (map: Ref<Map | undefined>) => {
         fl,
         fq,
         sort: "fossil_group asc,taxon asc",
-        rows: advancedSearchStore.pagination.pageSize,
+        rows: state.pagination.pageSize,
         start:
-          advancedSearchStore.pagination.pageSize *
-          (advancedSearchStore.pagination.pageIndex - 1),
+          state.pagination.pageSize
+          * (state.pagination.pageIndex - 1),
         format: "json",
       },
     });
 
-    advancedSearchStore.$patch({ results: res.response.docs });
-    advancedSearchStore.$patch({ numberOfResults: res.response.numFound });
+    state.results = res.response.docs;
+    state.numberOfResults = res.response.numFound;
 
-    fetchMapData();
+    await fetchMapData();
   }
 
   return {
     search,
     resetLayerGroups,
   };
-};
+}
