@@ -79,19 +79,8 @@ async function search(value: string) {
   return taxa.results;
 }
 
-let currentQuery = "";
-
 const debouncedSearch = useDebounceFn(async (value) => {
-  currentQuery = value;
-
-  const results = await search(value);
-
-  // race condition protection
-  if (currentQuery !== value) {
-    return;
-  }
-
-  items.value = results;
+  items.value = await search(value);
 }, 300);
 
 watch(searchTerm, (newValue) => {
