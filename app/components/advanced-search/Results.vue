@@ -1,15 +1,11 @@
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui";
-import type { Map } from "leaflet";
 
+const { search, reset } = defineProps(["search", "reset"]);
 const advancedSearchStore = useAdvancedSearchStore();
-const map: Ref<Map | undefined> = defineModel("map");
-const { resetLayerGroups } = useLeafletMap(map);
-
 const { $getLocale } = useNuxtApp();
 const stateRoute = useStateRoute();
 const localePath = useLocalePath();
-const { search } = useAdvancedSearch(map);
 
 const stratigraphyURL = "https://geocollections.info/stratigraphy";
 
@@ -80,6 +76,7 @@ const columns: TableColumn<any>[] = [
   },
 ];
 </script>
+
 <template>
   <div class="flex flex-col justify-between">
     <UTable
@@ -94,14 +91,14 @@ const columns: TableColumn<any>[] = [
         :v-model:page="advancedSearchStore.pagination.pageIndex"
         :items-per-page="advancedSearchStore.pagination.pageSize"
         :total="advancedSearchStore.numberOfResults"
+        :sibling-count="1"
+        show-edges
         @update:page="
           (p) => {
             advancedSearchStore.pagination.pageIndex = p;
             search();
           }
         "
-        :sibling-count="1"
-        show-edges
       />
 
       <UButton
@@ -111,7 +108,7 @@ const columns: TableColumn<any>[] = [
         @click="
           () => {
             advancedSearchStore.reset();
-            resetLayerGroups();
+            reset();
           }
         "
       >

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 const map = ref();
+
+const { search, resetLayerGroups } = useAdvancedSearch(map);
 </script>
 
 <template>
@@ -13,16 +15,16 @@ const map = ref();
         </h1>
       </span>
 
-      <hr class="my-2" />
+      <hr class="my-2">
 
       <div class="grid flex-1 grid-cols-2 gap-8">
         <span class="flex h-full flex-col justify-between">
           <ClientOnly>
             <AdvancedSearchMap v-model:map="map" />
           </ClientOnly>
-          <AdvancedSearchForm v-model:map="map" />
+          <AdvancedSearchForm :search="search" />
         </span>
-        <AdvancedSearchResults v-model:map="map" />
+        <AdvancedSearchResults :search="search" :reset="resetLayerGroups" />
       </div>
     </div>
   </section>

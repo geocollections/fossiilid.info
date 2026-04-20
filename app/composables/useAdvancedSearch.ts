@@ -201,5 +201,6 @@ export const useAdvancedSearch = (map: Ref<Map | undefined>) => {
 
   return {
     search,
+    resetLayerGroups,
   };
 };

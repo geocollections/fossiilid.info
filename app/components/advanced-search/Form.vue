@@ -1,10 +1,6 @@
 <script setup lang="ts">
-import type { Map } from "leaflet";
-
+const { search } = defineProps(["search"]);
 const advancedSearchStore = useAdvancedSearchStore();
-const map: Ref<Map | undefined> = defineModel("map");
-const { search } = useAdvancedSearch(map);
-
 const higherTaxonSearchTerm = ref("");
 const higherTaxonSelectMenuResults = ref<TaxonOption[]>([]);
 const stratigraphySearchTerm = ref("");
@@ -21,56 +17,56 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
     <div class="mt-4 grid grid-cols-2 gap-4">
       <UFormField class="text-3xl" :label="$t('advancedsearch.taxon')">
         <USelectMenu
-          class="my-2 w-full"
           v-model="advancedSearchStore.higherTaxon"
           v-model:search-term="higherTaxonSearchTerm"
+          class="my-2 w-full"
           :items="higherTaxonSelectMenuResults"
           label-key="taxon"
           by="id"
           size="xl"
-          @update:search-term="searchHigherTaxon"
           :placeholder="$t('advancedsearch.hightaxon')"
+          @update:search-term="searchHigherTaxon"
         />
 
         <UInput
+          v-model="advancedSearchStore.species"
           class="w-full"
           size="xl"
-          v-model="advancedSearchStore.species"
           :placeholder="$t('advancedsearch.species')"
         />
 
         <UInput
+          v-model="advancedSearchStore.author"
           class="w-full"
           size="xl"
-          v-model="advancedSearchStore.author"
           :placeholder="$t('advancedsearch.author')"
         />
       </UFormField>
 
       <UFormField class="text-3xl" :label="$t('advancedsearch.stratigraphy')">
         <USelectMenu
-          class="w-full"
           v-model="advancedSearchStore.stratigraphy"
           v-model:search-term="stratigraphySearchTerm"
+          class="w-full"
           :items="stratigraphySelectMenuResults"
           :label-key="
             $getLocale() === 'et' ? 'stratigraphy' : 'stratigraphy_en'
           "
           by="id"
-          @update:search-term="searchStratigraphy"
           :placeholder="$t('advancedsearch.stratigraphy')"
           size="xl"
+          @update:search-term="searchStratigraphy"
         />
       </UFormField>
     </div>
 
-    <hr />
+    <hr>
 
     <UFormField class="text-3xl" :label="$t('advancedsearch.locality_label')">
       <UInput
+        v-model="advancedSearchStore.locality"
         class="w-full"
         size="xl"
-        v-model="advancedSearchStore.locality"
         :placeholder="$t('advancedsearch.locality')"
       />
 
