@@ -29,7 +29,7 @@ const isNumberOfLocalitiesOnMapOver1000 = computed(() => {
 </script>
 
 <template>
-  <UCard v-if="map.length > 0" class="p-0" :ui="{ body: { padding: '' } }">
+  <UCard v-if="map.length > 0" :ui="{ body: 'p-0 sm:p-0' }">
     <ClientOnly>
       <MapComponent class="rounded-lg" :map-data="map" />
       <template #fallback>
