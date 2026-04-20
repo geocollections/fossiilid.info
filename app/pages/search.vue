@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import type { Circle, Map, Polygon, Rectangle } from "leaflet";
+import type { Circle, FeatureGroup, Map, Polygon, Rectangle } from "leaflet";
 import type { AdvancedSearchState } from "~/utils/advanced-search";
 
 const map = ref<Map | undefined>();
 const selectedArea = ref<Circle | Rectangle | Polygon | undefined>();
+const drawnItems = ref<FeatureGroup>();
 
 const state = reactive<AdvancedSearchState>(
   {
@@ -51,6 +52,7 @@ const { search, resetLayerGroups } = useAdvancedSearch(map, selectedArea, state)
 
 function reset() {
   resetLayerGroups();
+  drawnItems.value?.clearLayers();
   Object.assign(state, createInitialState());
 }
 </script>
@@ -71,7 +73,7 @@ function reset() {
       <div class="grid flex-1 grid-cols-2 gap-8">
         <span class="flex h-full flex-col justify-between">
           <ClientOnly>
-            <AdvancedSearchMap v-model="state" v-model:map="map" v-model:area="selectedArea" />
+            <AdvancedSearchMap v-model="state" v-model:drawn="drawnItems" v-model:map="map" v-model:area="selectedArea" />
           </ClientOnly>
           <AdvancedSearchForm v-model="state" :search="search" />
         </span>
