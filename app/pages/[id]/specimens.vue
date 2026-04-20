@@ -53,7 +53,7 @@ watch(page, (newValue) => {
 <template>
   <UPagination
     v-model:page="page"
-    :ui="{ base: 'ml-auto mb-2' }"
+    :ui="{ root: 'ml-auto mb-2' }"
     :total="specimenRes?.response.numFound ?? 0"
     :items-per-page="paginateBy"
   />
@@ -63,7 +63,7 @@ watch(page, (newValue) => {
   />
   <UPagination
     v-model:page="page"
-    :ui="{ base: 'ml-auto mt-2' }"
+    :ui="{ root: 'ml-auto mt-2' }"
     :total="specimenRes?.response.numFound ?? 0"
     :items-per-page="paginateBy"
   />
