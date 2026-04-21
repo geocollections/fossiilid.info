@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import dayjs from "dayjs";
 import type { Taxon } from "../pages/[id].vue";
+import dayjs from "dayjs";
 
 const props = defineProps<{
   taxon: Taxon;

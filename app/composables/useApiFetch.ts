@@ -1,7 +1,7 @@
 import type { UseFetchOptions } from "nuxt/app";
 import { defu } from "defu";
 
-export function useApiFetch<T>(url: string, options: UseFetchOptions<T> = {}) {
+export async function useApiFetch<T>(url: string, options: UseFetchOptions<T> = {}) {
   const defaults: UseFetchOptions<T> = {
     baseURL: "https://rwapi.geoloogia.info/api/v0/public",
   };
@@ -10,7 +10,7 @@ export function useApiFetch<T>(url: string, options: UseFetchOptions<T> = {}) {
   return useFetch(url, params);
 }
 
-export function useNewApiFetch<T>(
+export async function useNewApiFetch<T>(
   url: string,
   options: UseFetchOptions<T> = {},
 ) {
@@ -22,7 +22,7 @@ export function useNewApiFetch<T>(
   return useFetch(url, params);
 }
 
-export function useSolrFetch<T>(url: string, options: UseFetchOptions<T> = {}) {
+export async function useSolrFetch<T>(url: string, options: UseFetchOptions<T> = {}) {
   const defaults: UseFetchOptions<T> = {
     baseURL: "https://api.geoloogia.info/solr",
   };

@@ -4,14 +4,13 @@ import type {
   LeafletMouseEvent,
   Polygon,
   Rectangle,
-  TileLayer,
 } from "leaflet";
 
 import { FullScreen } from "leaflet.fullscreen";
 
 export function useMapInit(selectedArea: Ref<Circle | Rectangle | Polygon | undefined>, state: AdvancedSearchState) {
   const { $L } = useNuxtApp();
-  const drawnItems = ref();
+  const drawnItems = ref<FeatureGroup>();
   const { buildPopupContent, showRecordsInSelectedArea, generatePopup }
     = useMapPopup(drawnItems, state, selectedArea);
 
@@ -38,7 +37,7 @@ export function useMapInit(selectedArea: Ref<Circle | Rectangle | Polygon | unde
 
     // Initialise the FeatureGroup to store editable layers
     drawnItems.value = $L.featureGroup();
-    instance.addLayer(drawnItems.value as FeatureGroup);
+    instance.addLayer(drawnItems.value);
 
     // Initialise Leaflet-Geoman
     instance.pm.addControls({
@@ -64,19 +63,25 @@ export function useMapInit(selectedArea: Ref<Circle | Rectangle | Polygon | unde
         return;
       }
 
-      drawnItems.value.addLayer(layer);
+      drawnItems.value?.addLayer(layer);
       generatePopup(layer as Circle | Rectangle | Polygon, [0, 0], instance);
       layer.on("click", (e: LeafletMouseEvent) => {
         instance?.closePopup();
 
-        buildPopupContent(e.target, instance).then((content) => {
-          const latlng = e.target.getBounds().getCenter();
-          e.target.getPopup().setLatLng(latlng);
-          e.target.setPopupContent(content);
-        });
+        buildPopupContent(e.target as Circle | Rectangle | Polygon, instance)
+          .then((content) => {
+            const shape = e.target as Circle | Rectangle | Polygon;
+            const latlng = shape.getBounds().getCenter();
+            shape.getPopup()?.setLatLng(latlng);
+            shape.setPopupContent(content);
+          })
+          .catch(() => {
+
+          })
+        ;
       });
       layer.openPopup();
-      const numberOfDrawnLayers = drawnItems.value.getLayers().length ?? 0;
+      const numberOfDrawnLayers = drawnItems.value?.getLayers().length ?? 0;
 
       if (numberOfDrawnLayers < 2) {
         showRecordsInSelectedArea(layer as Circle | Rectangle | Polygon);
@@ -86,7 +91,6 @@ export function useMapInit(selectedArea: Ref<Circle | Rectangle | Polygon | unde
     instance.addLayer(getBaseLayers());
 
     $L.control
-      // @ts-expect-error no types for this package
       .coordinates({
         position: "bottomright",
         useLatLngOrder: true,

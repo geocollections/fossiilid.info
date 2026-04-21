@@ -8,7 +8,7 @@ export function useStateRoute() {
   return (to: RouteLocationRaw): RouteLocation => {
     const resolved = router.resolve(to);
 
-    if (route.query.mode) {
+    if (isDefinedAndNotNull(route.query.mode)) {
       return {
         ...resolved,
         query: route.query,

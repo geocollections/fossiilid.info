@@ -27,8 +27,7 @@ function translate(value: { et?: string; en?: string }) {
     <span v-if="specimen.stratigraphy_txt?.length">
       |
       <template v-for="(txt, index) in specimen.stratigraphy_txt" :key="index">
-        <span>{{ txt }}</span
-        ><span v-if="index < specimen.stratigraphy_txt.length - 1">,</span>
+        <span>{{ txt }}</span><span v-if="index < specimen.stratigraphy_txt.length - 1">,</span>
       </template>
     </span>
   </div>

@@ -19,7 +19,7 @@ workflows:
       - deployment/ssh_push_docker_image:
           context:
             - machine-sarv-apps
-          requires: 
+          requires:
             - deployment/build_docker_image
           filters:
             <<: *filters-production
@@ -54,7 +54,7 @@ workflows:
       - deployment/ssh_push_docker_image:
           context:
             - machine-sarv-apps
-          requires: 
+          requires:
             - deployment/build_docker_image
           filters:
             <<: *filters-dev

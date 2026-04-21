@@ -197,14 +197,16 @@ const {
 const router = useRouter();
 const getRouteBaseName = useRouteBaseName();
 
-if (imageCount < 1 && getRouteBaseName(route) === "id-gallery")
+if (imageCount < 1 && getRouteBaseName(route) === "id-gallery") {
   router.replace(
     localePath({ name: "id", params: route.params, query: route.query }),
   );
-if (specimenCount < 1 && getRouteBaseName(route) === "id-specimens")
+}
+if (specimenCount < 1 && getRouteBaseName(route) === "id-specimens") {
   router.replace(
     localePath({ name: "id", params: route.params, query: route.query }),
   );
+}
 
 const links = computed(() => {
   const links: HorizontalNavigationLink[] = [
@@ -245,13 +247,16 @@ const links = computed(() => {
 });
 
 const titleImage = computed(() => {
-  if (!taxon?.fossil_group) return;
+  if (!taxon?.fossil_group)
+    return;
   return img(`/fossilgroups/${taxon.fossil_group.id}.png`);
 });
 
 const taxonTitle = computed(() => {
-  if (taxonPage && taxonPage.title) return taxonPage.title;
-  if (commonNames.length > 0) return commonNames[0].name;
+  if (taxonPage && taxonPage.title)
+    return taxonPage.title;
+  if (commonNames.length > 0)
+    return commonNames[0].name;
   return null;
 });
 
@@ -266,7 +271,8 @@ if (image) {
 }
 
 function isHigherTaxon(rank: string | undefined | null) {
-  if (!rank) return false;
+  if (!rank)
+    return false;
   return !["Species", "Subspecies", "Genus", "Supergenus", "Subgenus"].includes(
     rank,
   );
@@ -304,7 +310,7 @@ function handleTitleImageError() {
             :alt="taxon.fossil_group.name"
             :title="taxon.fossil_group.name"
             @error="handleTitleImageError"
-          />
+          >
         </NuxtLink>
       </ClientOnly>
       <div>

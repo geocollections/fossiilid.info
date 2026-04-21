@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import isEmpty from "lodash/isEmpty";
 import type { Taxon } from "~/pages/[id].vue";
+import isEmpty from "lodash/isEmpty";
 
 const props = defineProps<{
   taxon: Taxon;

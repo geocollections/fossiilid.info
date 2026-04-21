@@ -1,7 +1,4 @@
-export const useAdvancedSearchFilters = (
-  higherTaxonResults: any,
-  stratigraphyResults: any,
-) => {
+export function useAdvancedSearchFilters(higherTaxonResults: Ref<TaxonOption[]>, stratigraphyResults: Ref<StratigraphyOption[]>) {
   const { $solrFetch } = useNuxtApp();
 
   const searchHigherTaxon = useDebounceFn(async (taxon: string) => {
@@ -25,7 +22,7 @@ export const useAdvancedSearchFilters = (
       },
     });
 
-    if (!taxonOptionsRes) {
+    if (taxonOptionsRes === undefined) {
       return;
     }
 
@@ -55,7 +52,7 @@ export const useAdvancedSearchFilters = (
       },
     });
 
-    if (!stratigraphyOptionsRes) {
+    if (stratigraphyOptionsRes === undefined) {
       return;
     }
 
@@ -66,4 +63,4 @@ export const useAdvancedSearchFilters = (
     searchHigherTaxon,
     searchStratigraphy,
   };
-};
+}

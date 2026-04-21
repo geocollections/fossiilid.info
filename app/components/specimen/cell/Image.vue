@@ -17,7 +17,7 @@ defineProps<{
       class="rounded border p-1"
       :src="specimen.image_preview_url"
       style="max-height: 6rem; max-width: 3rem"
-    />
+    >
   </a>
 
   <div v-else />

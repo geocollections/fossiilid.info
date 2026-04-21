@@ -1,13 +1,13 @@
-type State = {
-  sorting: any;
-  paginateBy: any;
+interface State {
+  sorting: Ref<{
+    id: string;
+    desc: boolean;
+  }[]>;
+  paginateBy: Ref<number>;
   page: Ref<number, number>;
-};
+}
 
-export const useSpecimenTable = async (
-  { sorting, paginateBy, page }: State,
-  hierarchy_string: any,
-) => {
+export async function useSpecimenTable({ sorting, paginateBy, page }: State, hierarchy_string: string) {
   const { locale } = useI18n();
 
   const sortKeyMap = {
@@ -29,7 +29,8 @@ export const useSpecimenTable = async (
   } as const;
 
   const getSortKey = (columnKey: keyof typeof sortKeyMap) => {
-    if (typeof sortKeyMap[columnKey] === "string") return sortKeyMap[columnKey];
+    if (typeof sortKeyMap[columnKey] === "string")
+      return sortKeyMap[columnKey];
 
     return locale.value === "et"
       ? sortKeyMap[columnKey].et
@@ -53,4 +54,4 @@ export const useSpecimenTable = async (
   });
 
   return { specimenRes };
-};
+}

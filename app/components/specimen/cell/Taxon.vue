@@ -21,8 +21,7 @@ function translate(value: { et?: string; en?: string }) {
       <span v-if="specimen.taxon_txt?.length">
         |
         <template v-for="(txt, index) in specimen.taxon_txt" :key="index">
-          <i>{{ txt }}</i
-          ><span v-if="index < specimen.taxon_txt.length - 1">,</span>
+          <i>{{ txt }}</i><span v-if="index < specimen.taxon_txt.length - 1">,</span>
         </template>
       </span>
     </div>
@@ -34,9 +33,9 @@ function translate(value: { et?: string; en?: string }) {
 
       <span
         v-if="
-          (specimen.rock_txt || specimen.rock_txt_en) &&
-          (specimen.rock !== specimen.rock_txt ||
-            specimen.rock_en !== specimen.rock_txt_en)
+          (specimen.rock_txt || specimen.rock_txt_en)
+            && (specimen.rock !== specimen.rock_txt
+              || specimen.rock_en !== specimen.rock_txt_en)
         "
       >
         |

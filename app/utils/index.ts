@@ -1,5 +1,5 @@
 export function isDefinedAndNotNull(value: any) {
-  return !!value && value !== null;
+  return value !== undefined && value !== null;
 }
 
 export function openUrl(params: {

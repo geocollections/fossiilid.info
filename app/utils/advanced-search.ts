@@ -1,5 +1,4 @@
-import type { Circle, Map, Polygon, Rectangle } from "leaflet";
-// @ts-expect-error no types for this package
+import type { Circle, Polygon, Rectangle } from "leaflet";
 import Wkt from "wicket/wicket";
 
 export interface AdvancedSearchState {
@@ -71,14 +70,14 @@ export function buildAutocompleteFilterSolrSearchValue(value: string) {
 
 export function buildSearchFilterQuery(state: AdvancedSearchState) {
   const result = [];
-  if (state.higherTaxon !== undefined) {
+  if (isDefinedAndNotNull(state.higherTaxon)) {
     result.push(
-      `taxon_hierarchy:${state.higherTaxon.hierarchy_string}*`,
+      `taxon_hierarchy:${state.higherTaxon!.hierarchy_string}*`,
     );
   }
-  if (state.stratigraphy !== undefined) {
+  if (isDefinedAndNotNull(state.stratigraphy)) {
     result.push(
-      `stratigraphy_hierarchy:${state.stratigraphy.hierarchy_string}* OR global_stratigraphy_hierarchy:${state.stratigraphy.hierarchy_string}*`,
+      `stratigraphy_hierarchy:${state.stratigraphy!.hierarchy_string}* OR global_stratigraphy_hierarchy:${state.stratigraphy!.hierarchy_string}*`,
     );
   }
   if (state.species !== "") {
@@ -105,17 +104,27 @@ export function buildSearchFilterQuery(state: AdvancedSearchState) {
 
 export function getFilterQueryForWKT(polygon: string) {
   const coordsPairs = polygon.split(",");
+  if (coordsPairs[0] === undefined || coordsPairs[1] === undefined) {
+    return;
+  }
   let reversedPairs = [] as string[];
 
   // second and fourth pairs' places are changed because solr getting error
-  const firstLatCoord = coordsPairs[0].replace("POLYGON((", "").split(" ")[0];
-  const secondLatCoord = coordsPairs[1].split(" ")[0];
+  const firstLatCoord = coordsPairs[0].replace("POLYGON((", "").split(" ")[0]!;
+  const secondLatCoord = coordsPairs[1].split(" ")[0]!;
 
   if (Number.parseFloat(firstLatCoord) <= Number.parseFloat(secondLatCoord)) {
     const coordsPairs_ = coordsPairs.slice(1, coordsPairs.length - 1);
     reversedPairs.push(coordsPairs[0]);
     reversedPairs = reversedPairs.concat(coordsPairs_.reverse());
-    reversedPairs.push(coordsPairs.at(-1));
+
+    const lastPair = coordsPairs.at(-1);
+
+    if (lastPair === undefined) {
+      return;
+    }
+
+    reversedPairs.push(lastPair);
   }
 
   const changedWkt

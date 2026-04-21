@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { TableColumn } from "@nuxt/ui";
 import type { Taxon } from "#shared/types/taxon";
+import type { TableColumn } from "@nuxt/ui";
 
 const props = defineProps(["specimens"]);
 const sorting = defineModel();
@@ -9,7 +9,17 @@ const geocollectionUrl = "https://geocollections.info" as const;
 
 const { t, locale } = useI18n();
 
-const sortBy = (column: any, label: string) => {
+const ClientOnly = resolveComponent("ClientOnly");
+const UButton = resolveComponent("UButton");
+const SpecimenCellNumber = resolveComponent("SpecimenCellNumber");
+const SpecimenCellTaxon = resolveComponent("SpecimenCellTaxon");
+const SpecimenCellLocality = resolveComponent("SpecimenCellNumber");
+const SpecimenCellDepth = resolveComponent("SpecimenCellDepth");
+const SpecimenCellStratigraphy = resolveComponent("SpecimenCellStratigraphy");
+const SpecimenCellStatus = resolveComponent("SpecimenCellStatus");
+const SpecimenCellImage = resolveComponent("SpecimenCellImage");
+
+function sortBy(column: any, label: string) {
   const isSorted = column.getIsSorted();
 
   return h(UButton, {
@@ -24,17 +34,7 @@ const sortBy = (column: any, label: string) => {
     class: "-mx-2.5",
     onClick: () => column.toggleSorting(isSorted === "asc"),
   });
-};
-
-const ClientOnly = resolveComponent("ClientOnly");
-const UButton = resolveComponent("UButton");
-const SpecimenCellNumber = resolveComponent("SpecimenCellNumber");
-const SpecimenCellTaxon = resolveComponent("SpecimenCellTaxon");
-const SpecimenCellLocality = resolveComponent("SpecimenCellNumber");
-const SpecimenCellDepth = resolveComponent("SpecimenCellDepth");
-const SpecimenCellStratigraphy = resolveComponent("SpecimenCellStratigraphy");
-const SpecimenCellStatus = resolveComponent("SpecimenCellStatus");
-const SpecimenCellImage = resolveComponent("SpecimenCellImage");
+}
 
 const columns: TableColumn<Taxon>[] = [
   {
@@ -110,10 +110,11 @@ const columns: TableColumn<Taxon>[] = [
   },
 ];
 </script>
+
 <template>
   <UTable
-    class="rounded border bg-white"
     v-model:sorting="sorting"
+    class="rounded border bg-white"
     :columns="columns"
     :data="props.specimens"
   />

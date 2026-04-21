@@ -1,9 +1,6 @@
 import type { Circle, Map, Polygon, Rectangle } from "leaflet";
 import type { AdvancedSearchState } from "~/utils/advanced-search";
 
-// @ts-expect-error no types for this package
-import Wkt from "wicket/wicket";
-
 export function useAdvancedSearch(map: Ref<Map | undefined>, selectedArea: Ref<Circle | Polygon | Rectangle | undefined>, state: AdvancedSearchState) {
   const { $solrFetch, $L } = useNuxtApp();
 
@@ -15,49 +12,6 @@ export function useAdvancedSearch(map: Ref<Map | undefined>, selectedArea: Ref<C
     groupsInitialized,
     resetLayerGroups,
   } = useLeafletMap(map);
-
-  function getFilterQueryForWKT(polygon: string) {
-    const coordsPairs = polygon.split(",");
-    let reversedPairs = [] as string[];
-
-    // second and fourth pairs' places are changed because solr getting error
-    const firstLatCoord = coordsPairs[0].replace("POLYGON((", "").split(" ")[0];
-    const secondLatCoord = coordsPairs[1].split(" ")[0];
-
-    if (Number.parseFloat(firstLatCoord) <= Number.parseFloat(secondLatCoord)) {
-      const coordsPairs_ = coordsPairs.slice(1, coordsPairs.length - 1);
-      reversedPairs.push(coordsPairs[0]);
-      reversedPairs = reversedPairs.concat(coordsPairs_.reverse());
-      reversedPairs.push(coordsPairs.at(-1));
-    }
-
-    const changedWkt
-      = reversedPairs.length > 0
-        ? reversedPairs.join(",")
-        : coordsPairs.join(",");
-    return `{!field f=latlong}isWithin(${changedWkt})`;
-  }
-
-  function getFilterQueryForCircle(circle: Circle) {
-    const latlng = circle.getLatLng();
-    const radius = Math.round((circle.getRadius() / 1000) * 10) / 10; // convert to km (from m) and round to 1 decmial place
-    return `{!geofilt sfield=latlong}&d=${radius}&pt=${latlng.lat},${latlng.lng}`;
-  }
-
-  function getGeoParam(shape: Circle | Rectangle | Polygon) {
-    if ("getRadius" in shape) {
-      return getFilterQueryForCircle(shape);
-    }
-    else {
-      const wkt = new Wkt.Wkt();
-      const geojson = shape.toGeoJSON();
-      const geostr = JSON.stringify(geojson);
-
-      wkt.read(geostr);
-
-      return getFilterQueryForWKT(wkt.write());
-    }
-  }
 
   async function fetchMapData() {
     if (!map.value) {

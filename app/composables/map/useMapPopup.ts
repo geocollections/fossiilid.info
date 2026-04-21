@@ -1,5 +1,6 @@
 import type {
   Circle,
+  FeatureGroup,
   LatLngExpression,
   Map,
   Polygon,
@@ -7,12 +8,12 @@ import type {
 } from "leaflet";
 import type { AdvancedSearchState } from "~/utils/advanced-search";
 
-export function useMapPopup(drawnItems: Ref, state: AdvancedSearchState, selectedArea: Ref<Circle | Rectangle | Polygon | undefined>) {
+export function useMapPopup(drawnItems: Ref<FeatureGroup | undefined>, state: AdvancedSearchState, selectedArea: Ref<Circle | Rectangle | Polygon | undefined>) {
   const { $L, $solrFetch } = useNuxtApp();
   const { t } = useI18n();
 
   function resetDrawnItemsColor() {
-    drawnItems.value.setStyle({ color: "#bada55" });
+    drawnItems.value?.setStyle({ color: "#bada55" });
   }
 
   const showRecordsInSelectedArea = (layer: Circle | Rectangle | Polygon) => {
@@ -63,7 +64,7 @@ export function useMapPopup(drawnItems: Ref, state: AdvancedSearchState, selecte
       },
     );
 
-    const numberOfDrawnLayers = drawnItems.value.getLayers().length ?? 0;
+    const numberOfDrawnLayers = drawnItems.value?.getLayers().length ?? 0;
     const rootDiv = document.createElement("div");
     const localityCountDiv = document.createElement("div");
     localityCountDiv.innerHTML = `${t(
@@ -114,7 +115,10 @@ export function useMapPopup(drawnItems: Ref, state: AdvancedSearchState, selecte
 
       layer.bindPopup(popup);
       layer.openPopup();
-    });
+    }).catch(() => {
+
+    })
+    ;
   }
 
   return { buildPopupContent, showRecordsInSelectedArea, generatePopup };

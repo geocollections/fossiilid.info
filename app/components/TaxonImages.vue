@@ -51,34 +51,34 @@ function setFancyBoxCaption(el: any, type: string) {
   // if(this.isHigherTaxon(this.taxon.rank__rank_en)) {}
   text
     += `<div><button type="button" class="bg-tomato-500 px-4 py-2 rounded-md text-lg font-bold" onclick="window.open('${
-     fossilsUrl
-     }/${
-     additionalInfo.navigateId
-     }?mode=in_baltoscandia&lang=en')">Read more</button></div>`;
+      fossilsUrl
+    }/${
+      additionalInfo.navigateId
+    }?mode=in_baltoscandia&lang=en')">Read more</button></div>`;
 
   if (additionalInfo.infoId) {
     infoBtn
       = `<button type="button" class="bg-blue-500 rounded-md px-4 py-2 font-bold" onclick="window.open('${
-       geocollectionUrl
-       }/specimen/${
-       additionalInfo.infoId
-       }')">INFO</button>`;
+        geocollectionUrl
+      }/specimen/${
+        additionalInfo.infoId
+      }')">INFO</button>`;
   }
   if (additionalInfo.imageId) {
     imgBtn
       = ` <button type="button" class="bg-gray-200 rounded-md px-4 py-2 text-black font-bold" onclick="window.open('${
-       geocollectionUrl
-       }/file/${
-       additionalInfo.imageId
-       }')">IMAGE</button>`;
+        geocollectionUrl
+      }/file/${
+        additionalInfo.imageId
+      }')">IMAGE</button>`;
   }
   text
     += `<div class='mt-3'><span>${
-     additionalInfo.imageName
-     }</span>&ensp;&ensp;${
-     infoBtn
-     }${imgBtn
-     }</div>`;
+      additionalInfo.imageName
+    }</span>&ensp;&ensp;${
+      infoBtn
+    }${imgBtn
+    }</div>`;
   return text;
 }
 

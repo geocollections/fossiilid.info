@@ -56,7 +56,7 @@ const { data: frontPage } = await useApiFetch<ApiListResponse<TaxonPage>>(
             :alt="`${item.frontpage} (${item.taxon__taxon})`"
             width="150"
             height="150"
-          />
+          >
           {{ item.frontpage }}
         </NuxtLink>
       </div>

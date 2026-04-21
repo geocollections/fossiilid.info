@@ -24,7 +24,7 @@ const { data: mapData } = await useSolrFetch<{ response: { docs: any[]; numFound
 const map = computed(() => mapData.value?.response.docs ?? []);
 
 const isNumberOfLocalitiesOnMapOver1000 = computed(() => {
-  return mapData.value?.response !== undefined && mapData.value.response.numFound > 1000;
+  return isDefinedAndNotNull(mapData.value?.response) && mapData.value.response.numFound > 1000;
 });
 </script>
 

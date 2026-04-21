@@ -48,38 +48,38 @@ function setImageSrc(el: any) {
   if (el.type === "higher_taxon") {
     el.thumbnail
       = `${state.fileUrl
-       }/small/${
-       el.filename.substring(0, 2)
-       }/${
-       el.filename.substring(2, 4)
-       }/${
-       el.filename}`;
+      }/small/${
+        el.filename.substring(0, 2)
+      }/${
+        el.filename.substring(2, 4)
+      }/${
+        el.filename}`;
     el.src
       = `${state.fileUrl
-       }/large/${
-       el.filename.substring(0, 2)
-       }/${
-       el.filename.substring(2, 4)
-       }/${
-       el.filename}`;
+      }/large/${
+        el.filename.substring(0, 2)
+      }/${
+        el.filename.substring(2, 4)
+      }/${
+        el.filename}`;
   }
   else if (el.type === "non_higher_taxon") {
     el.thumbnail
       = `${state.fileUrl
-       }/small/${
-       el.uuid_filename.substring(0, 2)
-       }/${
-       el.uuid_filename.substring(2, 4)
-       }/${
-       el.uuid_filename}`;
+      }/small/${
+        el.uuid_filename.substring(0, 2)
+      }/${
+        el.uuid_filename.substring(2, 4)
+      }/${
+        el.uuid_filename}`;
     el.src
       = `${state.fileUrl
-       }/large/${
-       el.uuid_filename.substring(0, 2)
-       }/${
-       el.uuid_filename.substring(2, 4)
-       }/${
-       el.uuid_filename}`;
+      }/large/${
+        el.uuid_filename.substring(0, 2)
+      }/${
+        el.uuid_filename.substring(2, 4)
+      }/${
+        el.uuid_filename}`;
   }
   else if (el.type === "selected_image") {
     el.thumbnail = el.preview_url;
@@ -128,34 +128,34 @@ function setFancyBoxCaption(el: any) {
   // if(this.isHigherTaxon(this.taxon.rank__rank_en)) {}
   text
     += `<div><button type="button" class="bg-tomato-500 px-4 py-2 rounded-md text-lg font-bold" onclick="window.open('${
-     state.fossilsUrl
-     }/${
-     additionalInfo.navigateId
-     }?mode=in_baltoscandia&lang=en')">Read more</button></div>`;
+      state.fossilsUrl
+    }/${
+      additionalInfo.navigateId
+    }?mode=in_baltoscandia&lang=en')">Read more</button></div>`;
 
   if (additionalInfo.infoId) {
     infoBtn
       = `<button type="button" class="bg-blue-500 rounded-md px-4 py-2 font-bold" onclick="window.open('${
-       state.geocollectionUrl
-       }/specimen/${
-       additionalInfo.infoId
-       }')">INFO</button>`;
+        state.geocollectionUrl
+      }/specimen/${
+        additionalInfo.infoId
+      }')">INFO</button>`;
   }
   if (additionalInfo.imageId) {
     imgBtn
       = ` <button type="button" class="bg-gray-200 rounded-md px-4 py-2 text-black font-bold" onclick="window.open('${
-       state.geocollectionUrl
-       }/file/${
-       additionalInfo.imageId
-       }')">IMAGE</button>`;
+        state.geocollectionUrl
+      }/file/${
+        additionalInfo.imageId
+      }')">IMAGE</button>`;
   }
   text
     += `<div class='mt-3'><span>${
-     additionalInfo.imageName
-     }</span>&ensp;&ensp;${
-     infoBtn
-     }${imgBtn
-     }</div>`;
+      additionalInfo.imageName
+    }</span>&ensp;&ensp;${
+      infoBtn
+    }${imgBtn
+    }</div>`;
   return text;
 }
 function composeImageRequest(taxonImages: any[]) {

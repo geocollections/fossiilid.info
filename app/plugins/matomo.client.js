@@ -1,5 +1,7 @@
 /* eslint-disable node/prefer-global/process */
+import { defineNuxtPlugin } from "nuxt/app";
 import VueMatomo from "vue-matomo";
+
 // For configurations visit:  https://github.com/AmazingDreams/vue-matomo
 export default defineNuxtPlugin((nuxtApp) => {
   if (process.env.NODE_ENV !== "production")

@@ -48,7 +48,6 @@ const currentContent = computed(() => {
 </template>
 
 <style>
-
 @reference "tailwindcss";
 
 h1 {

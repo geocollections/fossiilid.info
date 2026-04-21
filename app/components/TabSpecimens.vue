@@ -35,7 +35,7 @@ const sort = ref<{ column: string; direction: "asc" | "desc" }>({
   column: "specimen_number",
   direction: "asc",
 });
-const { data: specimenRes } = await useSolrFetch<{ response: { docs: any[];numFound: number } }>("/specimen", {
+const { data: specimenRes } = await useSolrFetch<{ response: { docs: any[]; numFound: number } }>("/specimen", {
   query: computed(() => ({
     q: `hierarchy_string:(${props.taxon.hierarchy_string}*)`,
     rows: store.searchParameters.specimens.paginateBy,

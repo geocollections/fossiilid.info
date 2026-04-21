@@ -89,7 +89,7 @@ async function loadMap() {
       minZoom: 1,
       maxZoom: 18,
       attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors &copy; <a href=\"https://carto.com/attributions\">CARTO</a>",
     },
   );
   state.tileLayer.addTo(map.value);

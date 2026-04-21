@@ -37,7 +37,7 @@ const columns: TableColumn<any>[] = [
     accessorKey: "fad_id",
     header: "FAD",
     cell: ({ row }) => {
-      if ($getLocale() == "et") {
+      if ($getLocale() === "et") {
         return h(
           "a",
           {
@@ -58,7 +58,7 @@ const columns: TableColumn<any>[] = [
     accessorKey: "lad_id",
     header: "LAD",
     cell: ({ row }) => {
-      if ($getLocale() == "et") {
+      if ($getLocale() === "et") {
         return h(
           "a",
           {

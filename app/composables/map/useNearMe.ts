@@ -1,11 +1,11 @@
-import type { Circle, Map, Polygon, Rectangle } from "leaflet";
+import type { Circle, FeatureGroup, LatLngExpression, LeafletEvent, Map, Polygon, Rectangle } from "leaflet";
 import type { AdvancedSearchState } from "~/utils/advanced-search";
 
-export function useNearMe(map: Ref<Map | undefined>, drawnItems: Ref, selectedArea: Ref<Circle | Rectangle | Polygon | undefined>, state: AdvancedSearchState) {
+export function useNearMe(map: Ref<Map | undefined>, drawnItems: Ref<FeatureGroup>, selectedArea: Ref<Circle | Rectangle | Polygon | undefined>, state: AdvancedSearchState) {
   const { $L } = useNuxtApp();
   const { generatePopup } = useMapPopup(drawnItems, state, selectedArea);
-  const nearMeLatLng = ref();
-  const circle = ref();
+  const nearMeLatLng = ref<LatLngExpression>();
+  const circle = ref<Circle>();
 
   const metersInKM = 1000;
 
@@ -38,18 +38,17 @@ export function useNearMe(map: Ref<Map | undefined>, drawnItems: Ref, selectedAr
       dashArray: "4",
     });
     selectedArea.value = circle.value;
-    circle.value.on("add", ({ target }) => {
+    circle.value.on("add", (e: LeafletEvent) => {
       if (!map.value)
         return;
-      generatePopup(target, target._latlng, map.value);
+
+      const target = e.target as Circle;
+      generatePopup(target, target.getLatLng(), map.value);
     });
     circle.value.addTo(map.value);
   };
 
   const getLocation = () => {
-    if (!navigator.geolocation) {
-      return;
-    }
     navigator.geolocation.getCurrentPosition(
       (position) => {
         if (!map.value) {

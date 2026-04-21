@@ -1,5 +1,12 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  typescript: {
+    tsConfig: {
+      compilerOptions: {
+        typeRoots: ["./types", "./node_modules/@types"],
+      },
+    },
+  },
   alias: {
     "#shared": "~/shared",
     "#components": "~/app/components",
@@ -65,7 +72,7 @@ export default defineNuxtConfig({
   },
   googleFonts: {
     families: {
-      Merriweather: {
+      "Merriweather": {
         wght: [300, 400, 700, 900],
         ital: [300, 400, 700, 900],
       },

@@ -85,31 +85,37 @@ export function useLeafletMap(map: Ref<Map | undefined>) {
     };
   });
   function setDefaultOverlays() {
-    if (!map.value) return;
+    if (!map.value)
+      return;
     state.layers[1].layerGroup?.addTo(map.value);
     state.layers[2].layerGroup?.addTo(map.value);
     state.layers[3].layerGroup?.addTo(map.value);
   }
   function setView() {
-    if (!map.value) return;
+    if (!map.value)
+      return;
     if (store.mode) {
-      if (store.mode === "in_global") map.value.setView([58.5, 20.5], 1);
-      else if (store.mode === "in_estonia") map.value.setView([58.5, 25.5], 6);
+      if (store.mode === "in_global")
+        map.value.setView([58.5, 20.5], 1);
+      else if (store.mode === "in_estonia")
+        map.value.setView([58.5, 25.5], 6);
       else map.value.setView([58.5, 25.5], 5);
     }
   }
   function getCoords(string: string): LatLngExpression {
-    if (string === undefined) return [0, 0];
+    if (string === undefined)
+      return [0, 0];
     const tokenizedCoords = string.split(",");
     return [Number(tokenizedCoords[0]), Number(tokenizedCoords[1])];
   }
   function populateLayerGroups(locations: MapSearchResult[]) {
     locations.forEach((element, index) => {
       if (
-        element.locality &&
-        element.locality_id &&
-        element.latlong &&
-        element.src
+
+        isDefinedAndNotNull(element.locality)
+        && isDefinedAndNotNull(element.locality_id)
+        && isDefinedAndNotNull(element.latlong)
+        && isDefinedAndNotNull(element.src)
       ) {
         const feature = {
           id: index,
