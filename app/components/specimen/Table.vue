@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import type { Taxon } from "#shared/types/taxon";
 import type { TableColumn } from "@nuxt/ui";
+import { ClientOnly, UButton } from "#components";
+import SpecimenCellDepth from "./cell/Depth.vue";
+import SpecimenCellImage from "./cell/Image.vue";
+import SpecimenCellLocality from "./cell/Locality.vue";
+import SpecimenCellNumber from "./cell/Number.vue";
+import SpecimenCellStatus from "./cell/Status.vue";
+import SpecimenCellStratigraphy from "./cell/Stratigraphy.vue";
+import SpecimenCellTaxon from "./cell/Taxon.vue";
 
 const props = defineProps(["specimens"]);
 const sorting = defineModel();
@@ -8,16 +16,6 @@ const sorting = defineModel();
 const geocollectionUrl = "https://geocollections.info" as const;
 
 const { t, locale } = useI18n();
-
-const ClientOnly = resolveComponent("ClientOnly");
-const UButton = resolveComponent("UButton");
-const SpecimenCellNumber = resolveComponent("SpecimenCellNumber");
-const SpecimenCellTaxon = resolveComponent("SpecimenCellTaxon");
-const SpecimenCellLocality = resolveComponent("SpecimenCellNumber");
-const SpecimenCellDepth = resolveComponent("SpecimenCellDepth");
-const SpecimenCellStratigraphy = resolveComponent("SpecimenCellStratigraphy");
-const SpecimenCellStatus = resolveComponent("SpecimenCellStatus");
-const SpecimenCellImage = resolveComponent("SpecimenCellImage");
 
 function sortBy(column: any, label: string) {
   const isSorted = column.getIsSorted();
