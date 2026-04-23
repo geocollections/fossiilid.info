@@ -1,6 +1,3 @@
-/* eslint-disable ts/no-unsafe-assignment */
-/* eslint-disable ts/no-unsafe-call */
-/* eslint-disable ts/no-unsafe-return */
 import { asSitemapUrl, defineSitemapEventHandler } from "#imports";
 
 export default defineSitemapEventHandler(async () => {

@@ -1,7 +1,22 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  typescript: {
+    tsConfig: {
+      compilerOptions: {
+        typeRoots: ["./types", "./node_modules/@types"],
+      },
+    },
+  },
+  alias: {
+    "#shared": "~/shared",
+    "#components": "~/app/components",
+  },
   devtools: { enabled: true },
-  css: ["~/assets/scss/main.scss"],
+  css: [
+    "~/assets/css/main.css",
+    "leaflet/dist/leaflet.css",
+    "leaflet.fullscreen/dist/Control.FullScreen.css",
+  ],
   app: {
     head: {
       title: "Fossiilid.info",
@@ -31,7 +46,7 @@ export default defineNuxtConfig({
   },
   modules: [
     "@pinia/nuxt",
-    "@pinia-plugin-persistedstate/nuxt",
+    "pinia-plugin-persistedstate/nuxt",
     "@nuxtjs/i18n",
     "@nuxt/ui",
     "@nuxtjs/google-fonts",
