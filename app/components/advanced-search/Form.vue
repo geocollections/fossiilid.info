@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { AdvancedSearchState } from "~/utils/advanced-search";
 
-const { search } = defineProps(["search"]);
+const { search, reset } = defineProps(["search", "reset"]);
 const state = defineModel<AdvancedSearchState>({ required: true });
 const higherTaxonSearchTerm = ref("");
 const higherTaxonSelectMenuResults = ref<TaxonOption[]>([]);
@@ -15,7 +15,7 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
 </script>
 
 <template>
-  <UForm class="space-y-4" @submit="search">
+  <UForm class="flex flex-col justify-between" @submit="search">
     <div class="mt-4 grid grid-cols-2 gap-4">
       <UFormField class="text-3xl" :label="$t('advancedsearch.taxon')">
         <USelectMenu
@@ -45,34 +45,32 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
         />
       </UFormField>
 
-      <UFormField class="text-3xl" :label="$t('advancedsearch.stratigraphy')">
-        <USelectMenu
-          v-model="state.stratigraphy"
-          v-model:search-term="stratigraphySearchTerm"
-          class="w-full"
-          :items="stratigraphySelectMenuResults"
-          :label-key="
-            $getLocale() === 'et' ? 'stratigraphy' : 'stratigraphy_en'
-          "
-          by="id"
-          :placeholder="$t('advancedsearch.stratigraphy')"
-          size="xl"
-          @update:search-term="searchStratigraphy"
-        />
-      </UFormField>
-    </div>
+      <div class="flex flex-col justify-between">
+        <UFormField class="text-3xl" :label="$t('advancedsearch.stratigraphy')">
+          <USelectMenu
+            v-model="state.stratigraphy"
+            v-model:search-term="stratigraphySearchTerm"
+            class="w-full"
+            :items="stratigraphySelectMenuResults"
+            :label-key="
+              $getLocale() === 'et' ? 'stratigraphy' : 'stratigraphy_en'
+            "
+            by="id"
+            :placeholder="$t('advancedsearch.stratigraphy')"
+            size="xl"
+            @update:search-term="searchStratigraphy"
+          />
+        </UFormField>
 
-    <hr>
+        <UFormField class="text-3xl" :label="$t('advancedsearch.locality_label')">
+          <UInput
+            v-model="state.locality"
+            class="w-full"
+            size="xl"
+            :placeholder="$t('advancedsearch.locality')"
+          />
 
-    <UFormField class="text-3xl" :label="$t('advancedsearch.locality_label')">
-      <UInput
-        v-model="state.locality"
-        class="w-full"
-        size="xl"
-        :placeholder="$t('advancedsearch.locality')"
-      />
-
-      <!-- Disabled for the moment because it doesn't work
+          <!-- Disabled for the moment because it doesn't work
       <span class="grid grid-cols-2">
         <div>
           <USwitch
@@ -106,10 +104,25 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
         </UForm>
       </span>
       -->
-    </UFormField>
+        </UFormField>
+      </div>
+    </div>
 
-    <UButton class="w-full justify-center" type="submit" size="xl">
-      {{ $t("advancedsearch.btn_search") }}
-    </UButton>
+    <div class="flex gap-3">
+      <UButton class="w-5/7 justify-center hover:scale-105" type="submit" size="xl">
+        {{ $t("advancedsearch.btn_search").toUpperCase() }}
+      </UButton>
+
+      <UButton
+        class="flex-1 justify-center hover:scale-105"
+        variant="outline"
+        size="xl"
+        color="neutral"
+        icon="i-heroicons-trash"
+        @click="reset"
+      >
+        {{ $t("advancedsearch.btn_clear").toUpperCase() }}
+      </UButton>
+    </div>
   </UForm>
 </template>

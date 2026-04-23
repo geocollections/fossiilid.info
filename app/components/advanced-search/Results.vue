@@ -2,7 +2,7 @@
 import type { TableColumn } from "@nuxt/ui";
 import type { AdvancedSearchState } from "~/utils/advanced-search";
 
-const { search, reset } = defineProps(["search", "reset"]);
+const { search } = defineProps(["search", "reset"]);
 const state = defineModel<AdvancedSearchState>({ required: true });
 const { $getLocale } = useNuxtApp();
 const stateRoute = useStateRoute();
@@ -80,14 +80,7 @@ const columns: TableColumn<any>[] = [
 
 <template>
   <div class="flex flex-col justify-between">
-    <UTable
-      class="h-[65dvh]"
-      :columns="columns"
-      :data="state.results"
-      label-key="fossil_group_id"
-    />
-
-    <span class="flex justify-between">
+    <div class="flex justify-between">
       <UPagination
         v-model:page="state.pagination.pageIndex"
         :items-per-page="state.pagination.pageSize"
@@ -110,6 +103,27 @@ const columns: TableColumn<any>[] = [
       >
         {{ $t("advancedsearch.btn_clear") }}
       </UButton>
-    </span>
+    </div>
+
+    <UTable
+      class="my-4"
+      :columns="columns"
+      :data="state.results"
+      label-key="fossil_group_id"
+    />
+
+    <UPagination
+      v-model:page="state.pagination.pageIndex"
+      :items-per-page="state.pagination.pageSize"
+      :total="state.numberOfResults"
+      :sibling-count="1"
+      show-edges
+      @update:page="
+        (p) => {
+          state.pagination.pageIndex = p;
+          search();
+        }
+      "
+    />
   </div>
 </template>
