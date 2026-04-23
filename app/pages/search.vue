@@ -71,7 +71,7 @@ function reset() {
       <hr class="my-2">
 
       <div class="flex flex-col md:flex-row h-full justify-between gap-4">
-        <AdvancedSearchForm v-model="state" class="w-full md:w-1/2" :search="search" />
+        <AdvancedSearchForm v-model="state" class="w-full md:w-1/2" :search="search" :reset="reset" />
         <ClientOnly>
           <AdvancedSearchMap v-model="state" v-model:drawn="drawnItems" v-model:map="map" v-model:area="selectedArea" />
         </ClientOnly>
@@ -82,7 +82,7 @@ function reset() {
       v-if="state.results.length > 0"
       class="flex flex-col rounded border bg-white p-4 md:col-span-1 dark:border-gray-700 dark:bg-gray-800"
     >
-      <AdvancedSearchResults v-model="state" :search="search" :reset="reset" />
+      <AdvancedSearchResults v-model="state" :search="search" />
     </div>
   </section>
 </template>
