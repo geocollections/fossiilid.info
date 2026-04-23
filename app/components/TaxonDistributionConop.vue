@@ -4,7 +4,7 @@ import type { Taxon } from "~/pages/[id].vue";
 const props = defineProps<{
   taxon: Taxon;
 }>();
-const { data } = useNewApiFetch<any[]>(`/taxa/${props.taxon.id}/conop-distribution/`, {
+const { data } = await useNewApiFetch<any[]>(`/taxa/${props.taxon.id}/conop-distribution/`, {
   query: {
     format: "json",
   },
