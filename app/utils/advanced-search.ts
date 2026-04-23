@@ -14,7 +14,7 @@ export interface AdvancedSearchState {
   numberOfResults: number;
   pagination: {
     pageIndex: number;
-    pageSize: number;
+    pageSize: 10 | 25 | 50 | 100;
   };
   mapPaginateBy: number;
   mapDataResults: MapSearchResult[];

@@ -1,98 +1,39 @@
 <script setup lang="ts">
-import type { TableColumn } from "@nuxt/ui";
 import type { AdvancedSearchState } from "~/utils/advanced-search";
 
-const { search, reset } = defineProps(["search", "reset"]);
+const { search } = defineProps(["search"]);
 const state = defineModel<AdvancedSearchState>({ required: true });
-const { $getLocale } = useNuxtApp();
 const stateRoute = useStateRoute();
 const localePath = useLocalePath();
 
 const stratigraphyURL = "https://geocollections.info/stratigraphy";
 
-const columns: TableColumn<any>[] = [
-  {
-    accessorKey: "taxon",
-    header: `${$t("advancedsearch.taxon")}`,
-    cell: ({ row }) => {
-      const route = stateRoute({
-        path: localePath(`/${row.original.taxon_id}`),
-      });
-      return h(
-        "a",
-        {
-          href: `${route.fullPath}`,
-          class: "text-primary",
-          target: "_blank",
-        },
-        row.original.taxon,
-      );
-    },
-  },
-  {
-    accessorKey: "author_year",
-    header: `${$t("advancedsearch.author")}`,
-  },
-  {
-    accessorKey: "fad_id",
-    header: "FAD",
-    cell: ({ row }) => {
-      if ($getLocale() === "et") {
-        return h(
-          "a",
-          {
-            href: `${stratigraphyURL}/${row.original.fad_id}`,
-            target: "_blank",
-          },
-          row.original.fad,
-        );
-      }
-      return h(
-        "a",
-        { href: `${stratigraphyURL}/${row.original.fad_id}`, target: "_blank" },
-        row.original.fad_en,
-      );
-    },
-  },
-  {
-    accessorKey: "lad_id",
-    header: "LAD",
-    cell: ({ row }) => {
-      if ($getLocale() === "et") {
-        return h(
-          "a",
-          {
-            href: `${stratigraphyURL}/${row.original.lad_id}`,
-            target: "_blank",
-          },
-          row.original.lad,
-        );
-      }
-      return h(
-        "a",
-        { href: `${stratigraphyURL}/${row.original.lad_id}`, target: "_blank" },
-        row.original.lad_en,
-      );
-    },
-  },
-];
+const pageSizes = ref([25, 50, 100]);
 </script>
 
 <template>
-  <div class="flex flex-col justify-between">
-    <UTable
-      class="h-[65dvh]"
-      :columns="columns"
-      :data="state.results"
-      label-key="fossil_group_id"
-    />
-
-    <span class="flex justify-between">
+  <div class="flex flex-col items-center md:items-start justify-between">
+    <div class="flex justify-between w-full">
       <UPagination
         v-model:page="state.pagination.pageIndex"
         :items-per-page="state.pagination.pageSize"
         :total="state.numberOfResults"
         :sibling-count="1"
+        class="lg:hidden"
+        @update:page="
+          (p) => {
+            state.pagination.pageIndex = p;
+            search();
+          }
+        "
+      />
+
+      <UPagination
+        v-model:page="state.pagination.pageIndex"
+        class="hidden lg:block"
+        :items-per-page="state.pagination.pageSize"
+        :total="state.numberOfResults"
+        :sibling-count="0"
         show-edges
         @update:page="
           (p) => {
@@ -102,14 +43,86 @@ const columns: TableColumn<any>[] = [
         "
       />
 
-      <UButton
-        variant="outline"
-        color="neutral"
-        icon="i-heroicons-trash"
-        @click="reset"
+      <USelectMenu
+        v-model="state.pagination.pageSize"
+        class="hidden lg:block" :items="pageSizes" @update:model-value="() => {
+          state.pagination.pageIndex = 1;
+          search()
+        }"
+      />
+    </div>
+
+    <table class="hidden lg:table w-full my-2">
+      <template
+        v-for="(result, idx) in state.results" :key="result.id"
       >
-        {{ $t("advancedsearch.btn_clear") }}
-      </UButton>
-    </span>
+        <tr v-if="result.fossil_group_id !== state.results[idx - 1]?.fossil_group_id">
+          <td colspan="2">
+            <hr v-if="idx !== 0" class="my-2">
+            <NuxtLink :to="stateRoute({ path: localePath(`/${result.fossil_group_id}`) })" class="flex items-center gap-3">
+              <img width="70px" height="70px" :src="`https://files.geocollections.info/img/fossiilid/fossilgroups/${result.fossil_group_id}.png`" @error="(e) => (e.target as HTMLImageElement).style.display = 'none'">
+              <span class="text-3xl">
+                {{ result.fossil_group }}
+              </span>
+            </NuxtLink>
+          </td>
+        </tr>
+        <tr>
+          <td class="pl-4">
+            <NuxtLink :href="stateRoute({ path: localePath(`/${result.taxon_id}`) })" target="_blank">
+              <span class="font-bold italic">{{ result.taxon }}</span> {{ result.author_year }}
+            </NuxtLink>
+          </td>
+          <td>
+            <NuxtLink :href="`${stratigraphyURL}/${result.fad_id}`" target="_blank">
+              {{ $getLocale() === "et" ? result.fad : result.fad_en }}
+            </NuxtLink>
+            <span v-if="result.lad && result.fad_id !== result.lad_id">
+              ->
+              <NuxtLink :href="`${stratigraphyURL}/${result.lad_id}`" target="_blank">
+                {{ $getLocale() === "et" ? result.lad : result.lad_en }}
+              </NuxtLink>
+            </span>
+          </td>
+        </tr>
+      </template>
+    </table>
+
+    <div class="lg:hidden space-y-3 my-3 w-full">
+      <UCard v-for="result in state.results" :key="result.fossil_group_id">
+        <NuxtLink :href="stateRoute({ path: localePath(`/${result.taxon_id}`) })">
+          {{ result.taxon }}
+        </NuxtLink>
+      </UCard>
+    </div>
+
+    <UPagination
+      v-model:page="state.pagination.pageIndex"
+      :items-per-page="state.pagination.pageSize"
+      :total="state.numberOfResults"
+      :sibling-count="1"
+      class="lg:hidden"
+      @update:page="
+        (p) => {
+          state.pagination.pageIndex = p;
+          search();
+        }
+      "
+    />
+
+    <UPagination
+      v-model:page="state.pagination.pageIndex"
+      class="hidden lg:block"
+      :items-per-page="state.pagination.pageSize"
+      :total="state.numberOfResults"
+      :sibling-count="0"
+      show-edges
+      @update:page="
+        (p) => {
+          state.pagination.pageIndex = p;
+          search();
+        }
+      "
+    />
   </div>
 </template>
