@@ -9,6 +9,8 @@ const state = reactive({
   isOpen: false,
 });
 const store = useRootStore();
+const stateRoute = useStateRoute();
+const localePath = useLocalePath();
 const { setLocale, locale, t } = useI18n();
 const { $apiFetch } = useNuxtApp();
 const quickSearch = ref();
@@ -145,7 +147,7 @@ function handleLocaleChange(locale: string) {
           color="neutral"
           variant="outline"
           icon="i-heroicons-adjustments-vertical-20-solid"
-          to="/search"
+          :to="stateRoute({ path: localePath('/search') })"
           :aria-label="$t('menu.detail_search')"
         >
           <span class="hidden xl:block">
