@@ -79,44 +79,71 @@ const columns: TableColumn<any>[] = [
 </script>
 
 <template>
-  <div class="flex flex-col justify-between">
-    <div class="flex justify-between">
-      <UPagination
-        v-model:page="state.pagination.pageIndex"
-        :items-per-page="state.pagination.pageSize"
-        :total="state.numberOfResults"
-        :sibling-count="1"
-        show-edges
-        @update:page="
-          (p) => {
-            state.pagination.pageIndex = p;
-            search();
-          }
-        "
-      />
+  <div class="flex flex-col items-center md:items-start justify-between">
+    <UPagination
+      v-model:page="state.pagination.pageIndex"
+      :items-per-page="state.pagination.pageSize"
+      :total="state.numberOfResults"
+      :sibling-count="1"
+      class="lg:hidden"
+      @update:page="
+        (p) => {
+          state.pagination.pageIndex = p;
+          search();
+        }
+      "
+    />
 
-      <UButton
-        variant="outline"
-        color="neutral"
-        icon="i-heroicons-trash"
-        @click="reset"
-      >
-        {{ $t("advancedsearch.btn_clear") }}
-      </UButton>
-    </div>
+    <UPagination
+      v-model:page="state.pagination.pageIndex"
+      class="hidden lg:block"
+      :items-per-page="state.pagination.pageSize"
+      :total="state.numberOfResults"
+      :sibling-count="0"
+      show-edges
+      @update:page="
+        (p) => {
+          state.pagination.pageIndex = p;
+          search();
+        }
+      "
+    />
 
     <UTable
-      class="my-4"
+      class="my-4 hidden lg:block"
       :columns="columns"
       :data="state.results"
       label-key="fossil_group_id"
     />
+
+    <div class="lg:hidden space-y-3 my-3 w-full">
+      <UCard v-for="result in state.results" :key="result.fossil_group_id">
+        <NuxtLink :href="stateRoute({ path: localePath(`/${result.taxon_id}`) })">
+          {{ result.taxon }}
+        </NuxtLink>
+      </UCard>
+    </div>
 
     <UPagination
       v-model:page="state.pagination.pageIndex"
       :items-per-page="state.pagination.pageSize"
       :total="state.numberOfResults"
       :sibling-count="1"
+      class="lg:hidden"
+      @update:page="
+        (p) => {
+          state.pagination.pageIndex = p;
+          search();
+        }
+      "
+    />
+
+    <UPagination
+      v-model:page="state.pagination.pageIndex"
+      class="hidden lg:block"
+      :items-per-page="state.pagination.pageSize"
+      :total="state.numberOfResults"
+      :sibling-count="0"
       show-edges
       @update:page="
         (p) => {

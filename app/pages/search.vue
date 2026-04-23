@@ -20,7 +20,7 @@ const state = reactive<AdvancedSearchState>(
     numberOfResults: 0,
     pagination: {
       pageIndex: 1,
-      pageSize: 25,
+      pageSize: mediaQuery(10, 25),
     },
     mapPaginateBy: 1000,
     mapDataResults: [],
@@ -41,7 +41,7 @@ function createInitialState(): AdvancedSearchState {
     numberOfResults: 0,
     pagination: {
       pageIndex: 1,
-      pageSize: 25,
+      pageSize: mediaQuery(10, 25),
     },
     mapPaginateBy: 1000,
     mapDataResults: [],
@@ -58,20 +58,20 @@ function reset() {
 </script>
 
 <template>
-  <section class="container flex flex-col gap-2">
+  <section class="w-full md:container flex flex-col gap-2">
     <div
-      class="flex h-125 flex-col rounded border bg-white p-4 lg:col-span-1 dark:border-gray-700 dark:bg-gray-800"
+      class="flex h-250 md:h-175 lg:h-125 flex-col rounded border bg-white p-4 lg:col-span-1 dark:border-gray-700 dark:bg-gray-800"
     >
       <span class="flex justify-between">
-        <h1 class="text-center text-4xl">
+        <h1 class="text-center text-2xl lg:text-4xl">
           {{ $t("menu.detail_search") }}
         </h1>
       </span>
 
       <hr class="my-2">
 
-      <div class="flex h-full justify-between gap-4">
-        <AdvancedSearchForm v-model="state" class="w-1/2" :search="search" />
+      <div class="flex flex-col md:flex-row h-full justify-between gap-4">
+        <AdvancedSearchForm v-model="state" class="w-full md:w-1/2" :search="search" />
         <ClientOnly>
           <AdvancedSearchMap v-model="state" v-model:drawn="drawnItems" v-model:map="map" v-model:area="selectedArea" />
         </ClientOnly>
@@ -80,7 +80,7 @@ function reset() {
 
     <div
       v-if="state.results.length > 0"
-      class="flex h-full flex-col rounded border bg-white p-4 lg:col-span-1 dark:border-gray-700 dark:bg-gray-800"
+      class="flex flex-col rounded border bg-white p-4 md:col-span-1 dark:border-gray-700 dark:bg-gray-800"
     >
       <AdvancedSearchResults v-model="state" :search="search" :reset="reset" />
     </div>

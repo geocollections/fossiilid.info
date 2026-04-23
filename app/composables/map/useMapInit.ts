@@ -40,16 +40,19 @@ export function useMapInit(selectedArea: Ref<Circle | Rectangle | Polygon | unde
     instance.addLayer(drawnItems.value);
 
     // Initialise Leaflet-Geoman
-    instance.pm.addControls({
-      position: "topleft",
-      drawCircleMarker: false,
-      drawMarker: false,
-      drawPolyline: false,
-      drawCircle: false, // Disabled temporarily because doesn't work
-      drawPolygon: false, // Disabled for same reason
-      drawText: false,
-      editControls: false,
-    });
+    if (!isMobile()) {
+      instance.pm.addControls({
+        position: "topleft",
+        drawCircleMarker: false,
+        drawMarker: false,
+        drawPolyline: false,
+        drawCircle: false, // Disabled temporarily because doesn't work
+        drawPolygon: false, // Disabled for same reason
+        drawText: false,
+        editControls: false,
+      });
+    }
+
     instance.pm.setGlobalOptions({
       allowSelfIntersection: false,
       snappable: false,
