@@ -75,12 +75,12 @@ const pageSizes = ref([25, 50, 100]);
           </td>
           <td>
             <NuxtLink :href="`${stratigraphyURL}/${result.fad_id}`" target="_blank">
-              {{ result.fad }}
+              {{ $getLocale() === "et" ? result.fad : result.fad_en }}
             </NuxtLink>
             <span v-if="result.lad && result.fad_id !== result.lad_id">
               ->
               <NuxtLink :href="`${stratigraphyURL}/${result.lad_id}`" target="_blank">
-                {{ result.lad }}
+                {{ $getLocale() === "et" ? result.lad : result.lad_en }}
               </NuxtLink>
             </span>
           </td>
