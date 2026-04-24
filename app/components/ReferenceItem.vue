@@ -1,43 +1,96 @@
 <script setup lang="ts">
-defineProps<{ reference: any }>();
+const props = defineProps<{ reference: any }>();
+const { t } = useI18n();
+
+async function copyCitation() {
+  const { data: citation } = await useNewApiFetch(`/references/${props.reference.id}`, {
+    query: {
+      format: "reference",
+      style: "apa",
+      reference_format: "json",
+    },
+  });
+  try {
+    await navigator.clipboard.writeText(citation.value?.text);
+  }
+  catch (err) {
+    console.error("Failed to copy:", err);
+  }
+}
 </script>
 
 <template>
-  <div
-    style="padding-left: 3em; text-indent: -3em"
-  >
-    <a :href="`https://kirjandus.geoloogia.info/reference/${reference.id}`">
-      {{ reference.author }}
-      {{ reference.year }}.
-    </a>
-    <span>{{ reference.title }}.</span>
-    <span v-if="reference.journal_name">
-      {{ " " }}
-      <em>{{ reference.journal_name }}</em>
-      {{ " " }}
-      <span v-if="reference.volume">
-        <strong>{{ reference.volume }}</strong>
-        <span>,</span>
+  <li class="flex justify-between">
+    <article
+      class="reference-citation"
+      style="padding-left: 3em; text-indent: -3em"
+      role="article"
+      :aria-label="t('reference.citation')"
+    >
+      <a
+        :href="`https://kirjandus.geoloogia.info/reference/${reference.id}`"
+        :aria-label="t('reference.viewFull')"
+      >
+        {{ reference.author }}
+        <time :datetime="reference.year">{{ reference.year }}</time>.
+      </a>
+
+      <cite class="reference-title">{{ reference.title }}.</cite>
+
+      <span
+        v-if="reference.journal_name"
+        class="journal-info"
+        role="group"
+        :aria-label="t('reference.journalDetails')"
+      >
+        {{ " " }}
+        <cite class="journal-name">{{ reference.journal_name }}</cite>
+        {{ " " }}
+        <span v-if="reference.volume" class="volume">
+          <strong :aria-label="t('reference.volume')">{{ reference.volume }}</strong>
+          <span aria-hidden="true">,</span>
+        </span>
+        {{ " " }}
+        <span v-if="reference.number" class="issue-number" :aria-label="t('reference.issue')">
+          {{ reference.number }}<span aria-hidden="true">,</span>
+        </span>
+        {{ " " }}
+        <span v-if="isDefinedAndNotNull(reference.pages)" class="pages" :aria-label="t('reference.pages')">
+          {{ reference.pages }}.
+        </span>
       </span>
-      {{ " " }}
-      <span v-if="reference.number"> {{ reference.number }},</span>
-      {{ " " }}
-      <span v-if="isDefinedAndNotNull(reference.pages)">
-        {{ reference.pages }}.</span>
-    </span>
-    <span v-else-if="isDefinedAndNotNull(reference.book)">
-      {{ " " }}
-      <em>{{ reference.book }}</em>, pp. {{ reference.pages }}.
-    </span>
-    <span v-else> pp. {{ reference.pages }}.</span>
-    <span v-if="reference.publisher">
-      {{ " " }}
-      {{ reference.publisher }}.
-    </span>
-    <span v-if="reference.doi">
-      <NuxtLink :href="`https://doi.org/${reference.doi}`">
-        DOI:{{ reference.doi }}
-      </NuxtLink>
-    </span>
-  </div>
+
+      <span
+        v-else-if="isDefinedAndNotNull(reference.book)"
+        class="book-info"
+        role="group"
+        :aria-label="t('reference.bookDetails')"
+      >
+        {{ " " }}
+        <cite class="book-title">{{ reference.book }}</cite>,
+        <span class="pages" :aria-label="t('reference.pages')">pp. {{ reference.pages }}.</span>
+      </span>
+
+      <span v-else class="pages" :aria-label="t('reference.pages')">
+        pp. {{ reference.pages }}.
+      </span>
+
+      <span v-if="reference.publisher" class="publisher" :aria-label="t('reference.publisher')">
+        {{ " " }}
+        {{ reference.publisher }}.
+      </span>
+
+      <span v-if="reference.doi" class="doi-link">
+        <NuxtLink
+          :href="`https://doi.org/${reference.doi}`"
+          :aria-label="t('reference.doi')"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          DOI:{{ reference.doi }}
+        </NuxtLink>
+      </span>
+    </article>
+    <UButton icon="i-lucide-copy" class="h-8" :aria-label="t('reference.copy')" @click="copyCitation" />
+  </li>
 </template>

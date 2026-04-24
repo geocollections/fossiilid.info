@@ -3,34 +3,32 @@ import type { Taxon } from "~/pages/[id].vue";
 
 const props = defineProps<{ taxon: Taxon }>();
 
-const { data: referencesRes } = await useNewApiFetch<{
-  results: any[];
-  count: number;
-}>(`/taxa/${props.taxon.id}/references/`, {
-  query: {
-    format: "json",
-    limit: 100,
-  },
-});
-
-const references = computed(() => referencesRes.value?.results ?? []);
+const { page, itemsPerPage, references, count } = await useReferences(props.taxon.id);
 </script>
 
 <template>
-  <UCard v-if="references.length > 0">
-    <template #header>
-      {{ $t("header.f_taxon_references") }}
-    </template>
-    <Foldable :el-length="references.length">
-      <template
-        v-for="(reference, idx) in references"
-        :key="idx"
-      >
-        <ReferenceItem
-          :class="idx === references.length - 1 ? '' : 'my-3'"
-          :reference="reference"
-        />
-      </template>
-    </Foldable>
-  </UCard>
+  <section v-if="count > 0" class="flex flex-col gap-2 justify-between container p-4 bg-white border rounded-2xl">
+    <div>
+      <h2 class="font-bold">
+        {{ $t("header.f_taxon_references") }}
+      </h2>
+
+      <hr class="-mx-4 my-4">
+
+      <ol class="flex flex-col gap-2">
+        <template v-for="(reference, idx) in references" :key="idx">
+          <ReferenceItem
+            :reference="reference"
+          />
+        </template>
+      </ol>
+    </div>
+
+    <UPagination
+      v-model:page="page"
+      :items-per-page="itemsPerPage"
+      :total="count"
+      :sibling-count="2"
+    />
+  </section>
 </template>
