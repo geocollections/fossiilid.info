@@ -1,5 +1,7 @@
 <script setup lang="ts">
-const props = defineProps<{ reference: any }>();
+const props = defineProps<{ reference: any; copiedReference: any }>();
+const emit = defineEmits(["copy"]);
+
 const { t } = useI18n();
 
 async function copyCitation() {
@@ -12,6 +14,7 @@ async function copyCitation() {
   });
   try {
     await navigator.clipboard.writeText(citation.value?.text);
+    emit("copy", props.reference.id);
   }
   catch (err) {
     console.error("Failed to copy:", err);
@@ -87,10 +90,10 @@ async function copyCitation() {
           rel="noopener noreferrer"
           target="_blank"
         >
-          DOI:{{ reference.doi }}
+          https://doi.org/{{ reference.doi }}
         </NuxtLink>
       </span>
     </article>
-    <UButton icon="i-lucide-copy" class="h-8" :aria-label="t('reference.copy')" @click="copyCitation" />
+    <UButton variant="outline" :icon="props.copiedReference === props.reference.id ? 'i-lucide-clipboard-check' : 'i-lucide-copy' " class="h-8 scale-90" :aria-label="t('reference.copy')" @click="copyCitation" />
   </li>
 </template>
