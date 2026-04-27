@@ -12,7 +12,7 @@ function handleCopy(referenceID: number) {
 </script>
 
 <template>
-  <section v-if="count > 0" aria-labelledby="references-heading" class="flex flex-col gap-2 justify-between container p-4 bg-white border rounded-2xl">
+  <section v-if="count > 0" aria-labelledby="references-heading" class="flex flex-col text-sm whitespace-break-spaces wrap-break-word md:text-base gap-2 justify-between container md:p-4 bg-white dark:bg-gray-800 dark:border-gray-700 border rounded-2xl">
     <div>
       <h2 id="references-heading" class="font-bold">
         {{ $t("header.f_taxon_references") }}
@@ -31,12 +31,21 @@ function handleCopy(referenceID: number) {
       </ol>
     </div>
 
-    <nav class="flex justify-between" aria-label="References pagination">
+    <nav class="flex flex-col gap-4 md:gap-0 md:flex-row mb-4 justify-between" aria-label="References pagination">
+      <UPagination
+        v-model:page="page"
+        :items-per-page="itemsPerPage"
+        :total="count"
+        :sibling-count="1"
+        class="md:hidden"
+      />
+
       <UPagination
         v-model:page="page"
         :items-per-page="itemsPerPage"
         :total="count"
         :sibling-count="2"
+        class="hidden md:block"
       />
 
       <USelectMenu v-model="itemsPerPage" :items="itemsPerPageSelection" />

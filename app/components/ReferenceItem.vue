@@ -30,7 +30,7 @@ async function copyCitation() {
 </script>
 
 <template>
-  <li class="flex justify-between">
+  <li class="flex justify-between group hover:ring ring-gray-200 md:p-2 rounded">
     <article
       class="reference-citation"
       style="padding-left: 3em; text-indent: -3em"
@@ -84,7 +84,7 @@ async function copyCitation() {
         {{ reference.publisher }}.
       </span>
 
-      <span v-if="reference.doi" class="doi-link">
+      <span v-if="reference.doi" class="doi-link whitespace-break-spaces break-all">
         <NuxtLink
           :href="`https://doi.org/${reference.doi}`"
           :aria-label="t('reference.doi')"
@@ -95,6 +95,6 @@ async function copyCitation() {
         </NuxtLink>
       </span>
     </article>
-    <UButton variant="outline" :icon="selected ? 'i-lucide-clipboard-check' : 'i-lucide-copy' " class="h-8 scale-90 " :aria-label="t('reference.copy')" @click="copyCitation" />
+    <UButton variant="outline" :icon="selected ? 'i-lucide-clipboard-check' : 'i-lucide-copy' " class="h-8 scale-90 md:opacity-0 group-hover:opacity-90 " :aria-label="t('reference.copy')" @click="copyCitation" />
   </li>
 </template>
