@@ -59,44 +59,35 @@ const visibleSynonyms = computed(() => {
 </script>
 
 <template>
-  <UCard v-if="synonyms.length > 0">
-    <template #header>
+  <section v-if="synonyms.length > 0" class="container bg-white border rounded-xl dark:bg-gray-800 dark:border-gray-700">
+    <h2 class="font-bold my-2">
       {{ $t("header.f_species_synonymy") }}
-    </template>
-    <div
-      v-for="(item, index) in visibleSynonyms"
-      :key="index"
-      class="py-1"
-      :class="index === synonyms.length - 1 ? '' : 'border-b'"
-    >
-      <span v-if="item.reference">
-        <a :href="`https://kirjandus.geoloogia.info/reference/${item.reference}`">
-          <!-- NOTE: year is not always set on the synonym -->
-          {{ item.year }}
-        </a>
-      </span>
-      <span v-else>
-        {{ item.year }}
-      </span>
-      &nbsp;&nbsp;&nbsp;
-      <em>{{ item.synonym }}</em>
-      &mdash; {{ item.author }}
-      <span v-if="item.pages">, {{ $t("abbreviation.pp") }}. {{ item.pages }}</span>
-      <span v-if="item.figures">, {{ $t("abbreviation.fig") }}. {{ item.figures }}</span>
-    </div>
-    <div class="w-100 flex justify-center pt-4">
-      <UButton
-        :icon="
-          !showMore
-            ? 'i-heroicons-chevron-down'
-            : 'i-heroicons-chevron-up'
-        "
-        variant="outline"
-        size="xl"
-        @click="handleShowMore"
+    </h2>
+
+    <div div class="border-t border-gray-200 -mx-4 my-4" />
+
+    <ul>
+      <li
+        v-for="(item, index) in visibleSynonyms"
+        :key="index"
+        class="flex gap-4 my-4"
       >
-        {{ !showMore ? $t("main.btnViewMore") : $t("main.btnViewLess") }}
-      </UButton>
-    </div>
-  </UCard>
+        <span v-if="item.reference">
+          <a :href="`https://kirjandus.geoloogia.info/reference/${item.reference}`">
+            <!-- NOTE: year is not always set on the synonym -->
+            {{ item.year }}
+          </a>
+        </span>
+        <span v-else>
+          {{ item.year }}
+        </span>
+        <div>
+          <em>{{ item.synonym }}</em>
+          &mdash; {{ item.author }}
+          <span v-if="item.pages">, {{ $t("abbreviation.pp") }}. {{ item.pages }}</span>
+          <span v-if="item.figures">, {{ $t("abbreviation.fig") }}. {{ item.figures }}</span>
+        </div>
+      </li>
+    </ul>
+  </section>
 </template>
