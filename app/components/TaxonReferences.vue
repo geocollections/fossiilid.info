@@ -2,36 +2,36 @@
 import type { Taxon } from "~/pages/[id].vue";
 
 const props = defineProps<{ taxon: Taxon }>();
-const copiedReference = ref();
+const copiedReferenceID = ref<number>(-1);
 const itemsPerPageSelection = ref([10, 20, 50, 100]);
 
 const { page, itemsPerPage, references, count } = await useReferences(props.taxon.id);
 function handleCopy(referenceID: number) {
-  copiedReference.value = referenceID;
+  copiedReferenceID.value = referenceID;
 }
 </script>
 
 <template>
-  <section v-if="count > 0" class="flex flex-col gap-2 justify-between container p-4 bg-white border rounded-2xl">
+  <section v-if="count > 0" aria-labelledby="references-heading" class="flex flex-col gap-2 justify-between container p-4 bg-white border rounded-2xl">
     <div>
-      <h2 class="font-bold">
+      <h2 id="references-heading" class="font-bold">
         {{ $t("header.f_taxon_references") }}
       </h2>
 
-      <hr class="-mx-4 my-4">
+      <div div class="border-t border-gray-200 -mx-4 my-4" />
 
       <ol class="flex flex-col gap-2">
-        <template v-for="(reference, idx) in references" :key="idx">
-          <ReferenceItem
-            :reference="reference"
-            :copied-reference="copiedReference"
-            @copy="handleCopy"
-          />
-        </template>
+        <ReferenceItem
+          v-for="reference in references"
+          :key="reference.id"
+          :reference="reference"
+          :copied-reference-id="copiedReferenceID"
+          @copy="handleCopy"
+        />
       </ol>
     </div>
 
-    <div class="flex justify-between">
+    <nav class="flex justify-between" aria-label="References pagination">
       <UPagination
         v-model:page="page"
         :items-per-page="itemsPerPage"
@@ -40,6 +40,6 @@ function handleCopy(referenceID: number) {
       />
 
       <USelectMenu v-model="itemsPerPage" :items="itemsPerPageSelection" />
-    </div>
+    </nav>
   </section>
 </template>

@@ -1,3 +1,5 @@
+import type { Reference } from "~/pages/[id].vue";
+
 export async function useReferences(taxonId: number) {
   const page = ref(1);
   const itemsPerPage = ref(10);
@@ -9,7 +11,7 @@ export async function useReferences(taxonId: number) {
   }));
 
   const { data: referencesRes } = await useNewApiFetch<{
-    results: any[];
+    results: Reference[];
     count: number;
   }>(() => `/taxa/${taxonId}/references/`, {
     query: queryParams,

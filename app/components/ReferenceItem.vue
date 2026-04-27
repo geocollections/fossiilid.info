@@ -1,19 +1,26 @@
 <script setup lang="ts">
-const props = defineProps<{ reference: any; copiedReference: any }>();
-const emit = defineEmits(["copy"]);
+import type { Reference } from "~/pages/[id].vue";
 
+const props = defineProps<{ reference: Reference; copiedReferenceId: number }>();
+const emit = defineEmits(["copy"]);
 const { t } = useI18n();
+const selected = computed(() => props.copiedReferenceId === props.reference.id);
 
 async function copyCitation() {
-  const { data: citation } = await useNewApiFetch(`/references/${props.reference.id}`, {
+  const { data: citation } = await useNewApiFetch<{ text: string }>(`/references/${props.reference.id}`, {
     query: {
       format: "reference",
       style: "apa",
       reference_format: "json",
     },
   });
+
+  if (citation.value === undefined) {
+    return;
+  }
+
   try {
-    await navigator.clipboard.writeText(citation.value?.text);
+    await navigator.clipboard.writeText(citation.value.text);
     emit("copy", props.reference.id);
   }
   catch (err) {
@@ -27,8 +34,6 @@ async function copyCitation() {
     <article
       class="reference-citation"
       style="padding-left: 3em; text-indent: -3em"
-      role="article"
-      :aria-label="t('reference.citation')"
     >
       <a
         :href="`https://kirjandus.geoloogia.info/reference/${reference.id}`"
@@ -43,22 +48,20 @@ async function copyCitation() {
       <span
         v-if="reference.journal_name"
         class="journal-info"
-        role="group"
-        :aria-label="t('reference.journalDetails')"
       >
         {{ " " }}
         <cite class="journal-name">{{ reference.journal_name }}</cite>
         {{ " " }}
         <span v-if="reference.volume" class="volume">
-          <strong :aria-label="t('reference.volume')">{{ reference.volume }}</strong>
+          <strong>{{ reference.volume }}</strong>
           <span aria-hidden="true">,</span>
         </span>
         {{ " " }}
-        <span v-if="reference.number" class="issue-number" :aria-label="t('reference.issue')">
+        <span v-if="reference.number" class="issue-number">
           {{ reference.number }}<span aria-hidden="true">,</span>
         </span>
         {{ " " }}
-        <span v-if="isDefinedAndNotNull(reference.pages)" class="pages" :aria-label="t('reference.pages')">
+        <span v-if="isDefinedAndNotNull(reference.pages)" class="pages">
           {{ reference.pages }}.
         </span>
       </span>
@@ -66,19 +69,17 @@ async function copyCitation() {
       <span
         v-else-if="isDefinedAndNotNull(reference.book)"
         class="book-info"
-        role="group"
-        :aria-label="t('reference.bookDetails')"
       >
         {{ " " }}
         <cite class="book-title">{{ reference.book }}</cite>,
-        <span class="pages" :aria-label="t('reference.pages')">pp. {{ reference.pages }}.</span>
+        <span class="pages">pp. {{ reference.pages }}.</span>
       </span>
 
-      <span v-else class="pages" :aria-label="t('reference.pages')">
+      <span v-else class="pages">
         pp. {{ reference.pages }}.
       </span>
 
-      <span v-if="reference.publisher" class="publisher" :aria-label="t('reference.publisher')">
+      <span v-if="reference.publisher" class="publisher">
         {{ " " }}
         {{ reference.publisher }}.
       </span>
@@ -94,6 +95,6 @@ async function copyCitation() {
         </NuxtLink>
       </span>
     </article>
-    <UButton variant="outline" :icon="props.copiedReference === props.reference.id ? 'i-lucide-clipboard-check' : 'i-lucide-copy' " class="h-8 scale-90" :aria-label="t('reference.copy')" @click="copyCitation" />
+    <UButton variant="outline" :icon="selected ? 'i-lucide-clipboard-check' : 'i-lucide-copy' " class="h-8 scale-90 " :aria-label="t('reference.copy')" @click="copyCitation" />
   </li>
 </template>
