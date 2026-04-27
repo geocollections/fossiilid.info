@@ -1,12 +1,21 @@
 <script setup lang="ts">
 import type { Taxon } from "~/pages/[id].vue";
 
+interface TaxonDescription {
+  description: string;
+  reference: {
+    id: number;
+    reference: string;
+    year: number;
+  };
+}
+
 const props = defineProps<{
   taxon: Taxon;
 }>();
 
 const { data: taxonDescriptions } = await useNewApiFetch<{
-  results: any[];
+  results: TaxonDescription[];
   count: number;
 }>(`/taxa/${props.taxon.id}/taxon-descriptions/`, {
   query: {
@@ -17,6 +26,7 @@ const { data: taxonDescriptions } = await useNewApiFetch<{
     ordering: "-id",
   },
 });
+
 const descriptions = computed(() => taxonDescriptions.value?.results ?? []);
 
 const sortedDescriptions = computed(() => {
@@ -42,25 +52,27 @@ const sortedDescriptions = computed(() => {
 </script>
 
 <template>
-  <UCard
-    v-if="taxonDescriptions && taxonDescriptions.count > 0"
-    :ui="{ body: { base: 'space-y-2' } }"
-  >
-    <template #header>
+  <section v-if="taxonDescriptions && taxonDescriptions.count > 0" class="my-2 p-4 rounded-xl border border-gray-200 container bg-white dark:bg-gray-800 dark:border-gray-700">
+    <h2 class="font-bold">
       {{ $t("header.f_taxon_description_diagnosis") }}
-    </template>
-    <Foldable :el-length="sortedDescriptions.length">
-      <div v-for="(item, index) in sortedDescriptions" :key="index">
-        <h3 v-if="item.description">
+    </h2>
+
+    <div div class="border-t border-gray-200 -mx-4 my-4" />
+
+    <ul>
+      <li v-for="(item, index) in sortedDescriptions" :key="index" class="my-3">
+        <h3
+          v-if="item.description"
+        >
           <a
             v-if="item.reference"
             :href="`https://kirjandus.geoloogia.info/reference/${item.reference.id}`"
           >
-            <strong>{{ item.reference.reference }}</strong>
+            {{ item.reference.reference }}
           </a>
         </h3>
         <div v-html="item.description" />
-      </div>
-    </Foldable>
-  </UCard>
+      </li>
+    </ul>
+  </section>
 </template>
