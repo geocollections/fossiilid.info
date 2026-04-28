@@ -1,10 +1,18 @@
 <script setup lang="ts">
 import type { Reference } from "~/pages/[id].vue";
 
-const props = defineProps<{ reference: Reference; copiedReferenceId: number }>();
-const emit = defineEmits(["copy"]);
+const props = defineProps<{ reference: Reference }>();
 const { t } = useI18n();
-const selected = computed(() => props.copiedReferenceId === props.reference.id);
+const selected = ref(false);
+
+function handleCopy() {
+  selected.value = true;
+  useTimeout(3000, {
+    callback: () => {
+      selected.value = false;
+    },
+  });
+}
 
 async function copyCitation() {
   const { data: citation } = await useNewApiFetch<{ text: string }>(`/references/${props.reference.id}`, {
@@ -21,7 +29,7 @@ async function copyCitation() {
 
   try {
     await navigator.clipboard.writeText(citation.value.text);
-    emit("copy", props.reference.id);
+    handleCopy();
   }
   catch (err) {
     console.error("Failed to copy:", err);

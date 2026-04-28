@@ -2,13 +2,9 @@
 import type { Taxon } from "~/pages/[id].vue";
 
 const props = defineProps<{ taxon: Taxon }>();
-const copiedReferenceID = ref<number>(-1);
 const itemsPerPageSelection = ref([10, 20, 50, 100]);
 
 const { page, itemsPerPage, references, count } = await useReferences(props.taxon.id);
-function handleCopy(referenceID: number) {
-  copiedReferenceID.value = referenceID;
-}
 </script>
 
 <template>
@@ -25,8 +21,6 @@ function handleCopy(referenceID: number) {
           v-for="reference in references"
           :key="reference.id"
           :reference="reference"
-          :copied-reference-id="copiedReferenceID"
-          @copy="handleCopy"
         />
       </ol>
     </div>
