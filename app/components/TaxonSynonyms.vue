@@ -59,12 +59,11 @@ const visibleSynonyms = computed(() => {
 </script>
 
 <template>
-  <section v-if="synonyms.length > 0" class="container bg-white border rounded-xl dark:bg-gray-800 dark:border-gray-700">
-    <h2 class="font-bold my-2">
+  <section v-if="synonyms.length > 0">
+    <UCard>
+      <template #header>
       {{ $t("header.f_species_synonymy") }}
-    </h2>
-
-    <div div class="border-t border-gray-200 -mx-4 my-4" />
+      </template>
 
     <ul>
       <li
