@@ -111,7 +111,18 @@
     "logOut": "Logi välja",
     "view": "Vaata"
   },
-
+  "reference": {
+    "citation": "Viide",
+    "viewFull": "Vaata täisviide",
+    "journalDetails": "Ajakirja andmed",
+    "bookDetails": "Raamatu andmed",
+    "volume": "Köide",
+    "issue": "Number",
+    "pages": "Leheküljed",
+    "publisher": "Kirjastaja",
+    "doi": "DOI link",
+    "copy": "Kopeeri viide"
+  },
   "menu": {
     "fossils": "Fossiilid",
     "collecting": "Kogumine",

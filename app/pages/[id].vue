@@ -6,6 +6,20 @@ const { t, locale } = useI18n();
 const stateRoute = useStateRoute();
 const localePath = useLocalePath();
 
+export interface Reference {
+  id: number | string;
+  author: string;
+  year: number;
+  title: string;
+  journal_name?: string;
+  volume?: string;
+  number?: string;
+  pages?: string;
+  book?: string;
+  publisher?: string;
+  doi?: string;
+}
+
 export interface Taxon {
   id: number;
   name: string;

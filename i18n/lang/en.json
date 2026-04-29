@@ -108,6 +108,18 @@
     "settings": "Settings",
     "logOut": "Log out"
   },
+  "reference": {
+    "citation": "Reference citation",
+    "viewFull": "View full reference",
+    "journalDetails": "Journal details",
+    "bookDetails": "Book details",
+    "volume": "Volume",
+    "issue": "Issue",
+    "pages": "Pages",
+    "publisher": "Publisher",
+    "doi": "DOI link",
+    "copy": "Copy citation"
+  },
   "menu": {
     "fossils": "Fossils",
     "collecting": "Collecting",
