@@ -24,6 +24,7 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
         <USelectMenu
           v-model="state.higherTaxon"
           v-model:search-term="higherTaxonSearchTerm"
+          clear
           class="my-2 w-full"
           :items="higherTaxonSelectMenuResults"
           label-key="taxon"
@@ -36,16 +37,48 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
         <UInput
           v-model="state.species"
           class="w-full"
+          clear
           size="xl"
           :placeholder="$t('advancedsearch.species')"
-        />
+        >
+          <template v-if="state.species.length > 0" #trailing>
+            <UButton
+              color="neutral"
+              variant="link"
+              size="sm"
+              icon="i-lucide-x"
+              aria-label="Clear input"
+              @click="
+                () => {
+                  state.species = '';
+                }
+              "
+            />
+          </template>
+        </UInput>
 
         <UInput
           v-model="state.author"
+          clear
           class="w-full"
           size="xl"
           :placeholder="$t('advancedsearch.author')"
-        />
+        >
+          <template v-if="state.author.length > 0" #trailing>
+            <UButton
+              color="neutral"
+              variant="link"
+              size="sm"
+              icon="i-lucide-x"
+              aria-label="Clear input"
+              @click="
+                () => {
+                  state.author = '';
+                }
+              "
+            />
+          </template>
+        </UInput>
       </UFormField>
 
       <div class="flex flex-col justify-between">
@@ -56,6 +89,7 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
           <USelectMenu
             v-model="state.stratigraphy"
             v-model:search-term="stratigraphySearchTerm"
+            clear
             class="w-full"
             :items="stratigraphySelectMenuResults"
             :label-key="
@@ -75,9 +109,25 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
           <UInput
             v-model="state.locality"
             class="w-full"
+            clear
             size="xl"
             :placeholder="$t('advancedsearch.locality')"
-          />
+          >
+            <template v-if="state.locality.length > 0" #trailing>
+              <UButton
+                color="neutral"
+                variant="link"
+                size="sm"
+                icon="i-lucide-x"
+                aria-label="Clear input"
+                @click="
+                  () => {
+                    state.locality = '';
+                  }
+                "
+              />
+            </template>
+          </UInput>
 
           <!-- Disabled for the moment because it doesn't work
       <span class="grid grid-cols-2">
