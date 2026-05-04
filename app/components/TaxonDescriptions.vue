@@ -52,27 +52,25 @@ const sortedDescriptions = computed(() => {
 </script>
 
 <template>
-  <section v-if="taxonDescriptions && taxonDescriptions.count > 0">
-    <UCard>
-      <template #header>
-        {{ $t("header.f_taxon_description_diagnosis") }}
-      </template>
+  <UCard v-if="taxonDescriptions && taxonDescriptions.count > 0" as="section">
+    <template #header>
+      {{ $t("header.f_taxon_description_diagnosis") }}
+    </template>
 
-      <ul>
-        <li v-for="(item, index) in sortedDescriptions" :key="index" class="my-3">
-          <h3
-            v-if="item.description"
+    <ul>
+      <li v-for="(item, index) in sortedDescriptions" :key="index" class="space-y-3">
+        <h3
+          v-if="item.description"
+        >
+          <a
+            v-if="item.reference"
+            :href="`https://kirjandus.geoloogia.info/reference/${item.reference.id}`"
           >
-            <a
-              v-if="item.reference"
-              :href="`https://kirjandus.geoloogia.info/reference/${item.reference.id}`"
-            >
-              {{ item.reference.reference }}
-            </a>
-          </h3>
-          <div v-html="item.description" />
-        </li>
-      </ul>
-    </UCard>
-  </section>
+            {{ item.reference.reference }}
+          </a>
+        </h3>
+        <div v-html="item.description" />
+      </li>
+    </ul>
+  </UCard>
 </template>
