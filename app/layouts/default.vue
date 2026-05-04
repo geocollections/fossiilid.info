@@ -11,7 +11,7 @@ function toTop() {
 </script>
 
 <template>
-  <div class="flex min-h-screen flex-col">
+  <div id="root" class="flex min-h-screen flex-col">
     <AppHeader />
     <main class="flex h-full flex-1 md:p-8">
       <slot />
@@ -19,13 +19,14 @@ function toTop() {
     <AppFooter class="mt-auto" />
     <ClientOnly>
       <Transition>
-        <UButton
-          v-if="y > 0"
-          size="lg"
-          icon="i-heroicons-arrow-up"
-          class="fixed right-2 bottom-2 rounded-full"
-          @click="toTop"
-        />
+        <div v-if="y > 0">
+          <UButton
+            size="lg"
+            icon="i-heroicons-arrow-up"
+            class="fixed right-2 bottom-2 rounded-full"
+            @click="toTop"
+          />
+        </div>
       </Transition>
     </ClientOnly>
   </div>
