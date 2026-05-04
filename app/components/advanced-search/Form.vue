@@ -15,7 +15,15 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
 </script>
 
 <template>
-  <UForm class="flex flex-col justify-between" @submit="search">
+  <UForm
+    class="flex flex-col justify-between"
+    @submit="
+      () => {
+        state.pagination.pageIndex = 1;
+        search();
+      }
+    "
+  >
     <div class="mt-4 flex flex-col gap-4 lg:grid lg:grid-cols-2">
       <UFormField
         class="text-xl lg:text-3xl"
