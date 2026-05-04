@@ -57,8 +57,8 @@ const sortedDescriptions = computed(() => {
       {{ $t("header.f_taxon_description_diagnosis") }}
     </template>
 
-    <ul>
-      <li v-for="(item, index) in sortedDescriptions" :key="index" class="space-y-3">
+    <ul class="space-y-3">
+      <li v-for="(item, index) in sortedDescriptions" :key="index">
         <h3
           v-if="item.description"
         >
