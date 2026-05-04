@@ -9,6 +9,11 @@ const localePath = useLocalePath();
 const stratigraphyURL = "https://geocollections.info/stratigraphy";
 
 const pageSizes = ref([25, 50, 100]);
+const pageStart = computed(
+  () =>
+    (state.value.pagination.pageIndex - 1) * state.value.pagination.pageSize +
+    1,
+);
 </script>
 
 <template>
@@ -87,6 +92,7 @@ const pageSizes = ref([25, 50, 100]);
         </tr>
         <tr>
           <td class="pl-4">
+            {{ pageStart + idx }}.
             <NuxtLink
               :href="stateRoute({ path: localePath(`/${result.taxon_id}`) })"
               target="_blank"
