@@ -26,7 +26,7 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
   >
     <div class="mt-4 flex flex-col gap-4 lg:grid lg:grid-cols-2">
       <UFormField
-        class="text-xl lg:text-3xl"
+        class="text-xl lg:text-2xl"
         :label="$t('advancedsearch.taxon')"
       >
         <USelectMenu
@@ -91,7 +91,7 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
 
       <div class="flex flex-col justify-between">
         <UFormField
-          class="text-xl lg:text-3xl"
+          class="text-xl lg:text-2xl"
           :label="$t('advancedsearch.stratigraphy')"
         >
           <USelectMenu
@@ -111,7 +111,7 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
         </UFormField>
 
         <UFormField
-          class="text-xl lg:text-3xl"
+          class="text-xl lg:text-2xl"
           :label="$t('advancedsearch.locality_label')"
         >
           <UInput
