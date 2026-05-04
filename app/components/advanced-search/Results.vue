@@ -18,6 +18,10 @@ const pageStart = computed(
 
 <template>
   <div class="flex flex-col items-center justify-between md:items-start">
+    <h3 class="mt-2 mb-4 text-xl font-bold">
+      Results: {{ state.numberOfResults }}
+    </h3>
+
     <div class="flex w-full justify-between">
       <UPagination
         v-model:page="state.pagination.pageIndex"
