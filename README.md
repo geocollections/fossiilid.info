@@ -1,41 +1,25 @@
-# Nuxt 3 Minimal Starter
+# Fossiilid.info
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Interface for simplifying scientific work related to fossils.  
+Fossiilid.info serves records collected by TalTech.
 
-## Setup
+![Release](https://img.shields.io/github/v/release/geocollections/fossiilid.info)
+![CircleCI](https://img.shields.io/circleci/build/github/geocollections/fossiilid.info)
+![last commit](https://img.shields.io/github/last-commit/geocollections/fossiilid.info)
+![license](https://img.shields.io/github/license/geocollections/fossiilid.info)
 
-Make sure to install the dependencies:
+## Tech Stack
+
+- **Frontend:** Nuxt 4
+- **Build tool:** Vite
+- **CI/CD:** CircleCI
+
+## Quick start
 
 ```bash
-# npm
+git clone https://github.com/geocollections/fossiilid.info.git
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
 npm run dev
-
-# pnpm
-pnpm run dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
 ## Production
@@ -43,33 +27,19 @@ bun run dev
 Build the application for production:
 
 ```bash
-# npm
 npm run build
-
-# pnpm
-pnpm run build
-
-# yarn
-yarn build
-
-# bun
-bun run build
 ```
 
 Locally preview production build:
 
 ```bash
-# npm
 npm run preview
-
-# pnpm
-pnpm run preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## Deployment
+   
+   Deployments are automated via CircleCI:
+   - Pull requests trigger dev CI builds
+   - GitHub releases trigger production deployments
+   
+   Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
