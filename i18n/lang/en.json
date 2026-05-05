@@ -134,7 +134,9 @@
     "geocollections": "Geocollections portal"
   },
   "footer": {
-    "licence": "Except where otherwise noted, content on this site is licensed under CC BY-NC Licence.",
+    "title": "License",
+    "partners": "Partner organizations",
+    "licence": "Except where otherwise noted, content on this site is licensed under CC BY Licence.",
     "collections": "Geological collections in",
     "estonia": "Estonia",
     "sweden": "Sweden",

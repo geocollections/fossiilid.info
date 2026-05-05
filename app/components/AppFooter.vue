@@ -1,16 +1,40 @@
 <script setup lang="ts">
-const relatedWebResources = new Map([
-  ["https://elurikkus.ee", "eElurikkus"],
-  ["https://geoloogia.info/en", "eMaapõu"],
-  ["https://www.geocase.eu", "GeoCASe"],
-  ["https://www.gbif.org/", "GBIF"],
-  ["https://open-up.eu", "OpenUp!"],
-]);
+const relatedWebResources = [
+  {
+    href: "https://elurikkus.ee",
+    label: "eElurikkus",
+  },
+  {
+    href: "https://geoloogia.info",
+    label: "eMaapõu",
+  },
+  {
+    href: "https://www.geocase.eu",
+    label: "GeoCASe",
+  },
+  {
+    href: "https://www.gbif.org",
+    label: "GBIF",
+  },
+  {
+    href: "https://open-up.eu",
+    label: "OpenUp",
+  },
+];
 
-const foundingInsitutions = new Map([
-  ["https://taltech.ee/geoloogia-instituut", $t("footer.gi")],
-  ["https://natmuseum.ut.ee", $t("footer.ut")],
-  ["https://loodusmuuseum.ee", $t("footer.elm")],
+const foundingInsitutions = computed(() => [
+  {
+    href: "https://taltech.ee/geoloogia-instituut",
+    label: $t("footer.gi"),
+  },
+  {
+    href: "https://natmuseum.ut.ee",
+    label: $t("footer.ut"),
+  },
+  {
+    href: "https://loodusmuuseum.ee",
+    label: $t("footer.elm"),
+  },
 ]);
 
 const relatedOrganizations = [
@@ -51,15 +75,15 @@ const relatedOrganizations = [
               </span>
 
               <span
-                v-for="[url, name] in Array.from(relatedWebResources)"
-                :key="name"
+                v-for="link in relatedWebResources"
+                :key="link.label"
               >
                 <a
-                  :href="url"
+                  :href="link.href"
                   target="_blank"
                   class="link-right"
                 >
-                  {{ name }}
+                  {{ link.label }}
                 </a>
               </span>
             </div>
@@ -104,15 +128,15 @@ const relatedOrganizations = [
               </span>
 
               <span
-                v-for="[url, name] in Array.from(foundingInsitutions)"
-                :key="name"
+                v-for="link in foundingInsitutions"
+                :key="link.label"
               >
                 <a
-                  :href="url"
+                  :href="link.href"
                   class="link-left"
                   target="_blank"
                 >
-                  {{ name }}
+                  {{ link.label }}
                 </a>
               </span>
             </div>
@@ -123,7 +147,7 @@ const relatedOrganizations = [
 
     <div class="my-4 flex flex-col items-center">
       <h2 class="my-2 font-bold">
-        PARTNER ORGANIZATIONS
+        {{ $t("footer.partners").toUpperCase() }}
       </h2>
       <div
         class="flex w-full md:w-2/3 space-x-4 justify-around py-4 dark:border-gray-400 dark:bg-gray-500"
