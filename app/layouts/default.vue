@@ -11,7 +11,7 @@ function toTop() {
 </script>
 
 <template>
-  <div id="root" class="flex min-h-screen flex-col">
+  <div class="flex min-h-screen flex-col">
     <AppHeader />
     <main class="flex h-full flex-1 md:p-8">
       <slot />
