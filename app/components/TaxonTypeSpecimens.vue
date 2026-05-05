@@ -91,7 +91,7 @@ function isAtLeastOneDefinedAndNotEmpty(arr: any) {
       :key="idx"
       :class="idx === typeSpecimens.length - 1 ? '' : 'border-bottom my-3'"
     >
-      <UDivider v-if="idx > 0" />
+      <USeparator v-if="idx > 0" />
       <div class="flex">
         <div>
           <span v-if="typeSpecimen.type" class="capitalize font-bold">
