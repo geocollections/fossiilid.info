@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import type { Taxon } from "~/pages/[id].vue";
+import type { Reference, Taxon } from "~/pages/[id].vue";
+
 import isEmpty from "lodash/isEmpty";
 
 const props = defineProps<{
   taxon: Taxon;
 }>();
 
-const { locale } = useI18n();
+const { t, locale } = useI18n();
 const img = useImage();
 
 interface TaxonTypeSpecimen {
@@ -42,6 +43,7 @@ interface TaxonTypeSpecimen {
   };
   locality_free?: string;
   locality_free_en?: string;
+  reference: Reference;
 }
 
 const { data: typeSpecimensRes } = await useNewApiFetch<{
@@ -204,7 +206,13 @@ function isAtLeastOneDefinedAndNotEmpty(arr: any) {
           </span>
           <div v-if="typeSpecimen.reference" class="mt-2">
             <span class="italic">Reference: </span>
-            <ReferenceItem :reference="typeSpecimen.reference" />
+            <a
+              :href="`https://kirjandus.geoloogia.info/reference/${typeSpecimen.reference.id}`"
+              :aria-label="t('reference.viewFull')"
+            >
+              {{ typeSpecimen.reference.author }}
+              <time :datetime="typeSpecimen.reference.year">{{ typeSpecimen.reference.year }}</time>.
+            </a>
           </div>
         </div>
         <span v-if="typeSpecimen.attachment" class="pl-3">
