@@ -50,14 +50,6 @@ const langOptions = computed(() => [
     label: "ENG",
     value: "en",
   },
-  {
-    label: "FIN",
-    value: "fi",
-  },
-  {
-    label: "SWE",
-    value: "sv",
-  },
 ]);
 
 const pageItems = computed(() => [
@@ -162,26 +154,22 @@ function handleLocaleChange(locale: string) {
             icon="i-heroicons-globe-europe-africa-20-solid"
             :items="modeOptions"
           />
-          <USelect
-            :model-value="locale"
-            size="md"
-            :items="langOptions"
-            icon="i-heroicons-language-20-solid"
-            @update:model-value="handleLocaleChange"
-          />
+          <div class="flex space-x-4 px-2">
+            <UButton
+              v-for="loc in langOptions"
+              :key="loc.label"
+              color="neutral"
+              variant="outline"
+              class="transition-all duration-200 ease-out hover:bg-neutral-100 hover:-translate-y-0.5 hover:shadow-sm focus:outline-none focus:ring-1 focus:ring-primary/70 dark:focus:ring-1 dark:focus:ring-primary active:translate-y-0 active:shadow-none"
+              :class="[
+                locale === loc.value && 'ring-1 ring-primary/70 dark:ring-primary',
+              ]"
+              @click="handleLocaleChange(loc.value)"
+            >
+              {{ loc.label }}
+            </UButton>
+          </div>
           <ColorModeSwitch />
-          <UDropdownMenu :items="pageItems">
-            <template #default>
-              <UButton
-                :label="$t('menu.more')"
-                :aria-label="$t('menu.more')"
-                size="md"
-                color="neutral"
-                variant="outline"
-                trailing-icon="i-heroicons-chevron-down-20-solid"
-              />
-            </template>
-          </UDropdownMenu>
         </div>
         <UButton
           class="ml-auto lg:hidden"
