@@ -138,7 +138,9 @@
   },
 
   "footer": {
-    "licence": "Kui ei ole märgitud teisiti, siis on lehe sisu kasutatav CC BY-NC litsentsi alusel.",
+    "title": "Litsents",
+    "partners": "Koostöö partnerid",
+    "licence": "Kui ei ole märgitud teisiti, siis on lehe sisu kasutatav CC BY litsentsi alusel.",
     "collections": "Geoloogilised kollektsioonid",
     "estonia": "Eestis",
     "sweden": "Rootsis",

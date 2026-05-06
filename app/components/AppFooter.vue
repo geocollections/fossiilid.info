@@ -1,99 +1,162 @@
+<script setup lang="ts">
+const relatedWebResources = [
+  {
+    href: "https://elurikkus.ee",
+    label: "eElurikkus",
+  },
+  {
+    href: "https://geoloogia.info",
+    label: "eMaapõu",
+  },
+  {
+    href: "https://www.geocase.eu",
+    label: "GeoCASe",
+  },
+  {
+    href: "https://www.gbif.org",
+    label: "GBIF",
+  },
+  {
+    href: "https://open-up.eu",
+    label: "OpenUp",
+  },
+];
+
+const foundingInsitutions = computed(() => [
+  {
+    href: "https://taltech.ee/geoloogia-instituut",
+    label: $t("footer.gi"),
+  },
+  {
+    href: "https://natmuseum.ut.ee",
+    label: $t("footer.ut"),
+  },
+  {
+    href: "https://loodusmuuseum.ee",
+    label: $t("footer.elm"),
+  },
+]);
+
+const relatedOrganizations = [
+  {
+    href: "https://geoloogia.info",
+    src: "https://files.geocollections.info/img/sarv_logo.svg",
+    alt: "SARV",
+    title: "SARV: geokogude infosüsteem",
+  },
+  {
+    href: "https://natarc.ut.ee",
+    src: "https://elurikkus.ee/assets/images/natarc_logo_black.svg",
+    alt: "Natural History Archives and Information Network (NATARC)",
+    title: "SARV is part of national infrastructure Natural History Archives and Information Network (NATARC)",
+  },
+  {
+    href: "https://www.struktuurifondid.ee",
+    src: "https://files.geocollections.info/img/EL_mv.png",
+    alt: "EU",
+    title: "Euroopa Liit",
+  },
+];
+</script>
+
 <template>
   <footer class="border-t font-serif text-sm dark:border-gray-800">
-    <div class="container mx-auto my-2">
-      <table
-        style="
-          width: 100%;
-          border-top: solid 0px #ccc;
-          border-bottom: solid 0px #ccc;
-        "
-      >
+    <div class="container">
+      <table class="w-full">
         <tbody>
-          <tr>
-            <td valign="top" align="center" style="width: 33%">
-              <strong>{{ $t("footer.related") }}:</strong>
-              <br>
-              <a href="https://elurikkus.ee">eElurikkus</a>
-              <br>
-              <a href="https://naturforskaren.se">Naturforskaren</a>
-              <br>
-              <a href="https://www.geocase.eu">GeoCASe</a>
-              <br>
-              <a href="https://open-up.eu">OpenUp!</a>
-              <br>
-            </td>
-            <td
-              valign="top"
-              align="center"
-              style="border-left: solid 0px #ccc; border-right: dotted 0px #ccc"
-            >
-              {{ $t("footer.licence") }}
-              <div>
-                <br>
-                <a
-                  class="cc-large"
-                  href="https://creativecommons.org/licenses/by-nc/3.0/"
+          <tr class="flex flex-col items-center space-y-6 md:flex-row md:items-start md:space-y-0">
+            <!-- Related -->
+            <td class="w-full align-top text-center md:w-1/3">
+              <div class="flex w-full flex-col space-y-1 md:items-start">
+                <span class="my-2">
+                  <strong
+                    class="relative after:absolute after:-bottom-1 after:left-0 after:mt-4 after:h-0.5 after:w-6 after:bg-primary after:content-['']"
+                  >
+                    {{ $t("footer.related").toUpperCase() }}
+                  </strong>
+                </span>
+
+                <span
+                  v-for="link in relatedWebResources"
+                  :key="link.label"
                 >
+                  <a
+                    :href="link.href"
+                    target="_blank"
+                    class="relative inline-block transition-transform duration-200 ease-out after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:bg-current after:content-[''] after:transition-transform after:duration-200 hover:translate-x-1 hover:after:scale-x-100"
+                  >
+                    {{ link.label }}
+                  </a>
+                </span>
+              </div>
+            </td>
+
+            <!-- License -->
+            <td class="w-full align-top text-center md:w-1/3">
+              <div class="flex flex-col space-y-5 md:items-center">
+                <span class="my-2">
+                  <strong
+                    class="relative after:absolute after:-bottom-1 after:left-0 after:mt-4 after:h-0.5 after:w-6 after:bg-primary after:content-['']"
+                  >
+                    {{ $t("footer.title").toUpperCase() }}
+                  </strong>
+                </span>
+
+                <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">
                   <img
-                    width="88px"
-                    height="31px"
                     alt="Creative Commons Licence"
-                    src="/ccbync.png"
+                    src="https://creativecommons.org/wp-content/themes/vocabulary-theme/vocabulary/svg/cc/license_badges/big/by.svg"
                     typeof="foaf:Image"
                   >
                 </a>
-                <br>
+
+                <p class="max-w-70 text-xs wrap-break-word whitespace-break-spaces">
+                  {{ $t("footer.licence") }}
+                </p>
               </div>
             </td>
-            <td valign="top" align="center" style="width: 33%">
-              <strong>{{ $t("footer.founders") }}:</strong>
-              <br>
-              <a href="https://taltech.ee/geoloogia-instituut">
-                {{ $t("footer.gi") }}
-              </a>
-              <br>
-              <a href="https://natmuseum.ut.ee">
-                {{ $t("footer.ut") }}
-              </a>
-              <br>
-              <a href="https://loodusmuuseum.ee">
-                {{ $t("footer.elm") }}
-              </a>
-              <br>
-              <br>
+
+            <!-- Founders -->
+            <td class="w-full align-top text-center md:w-1/3">
+              <div class="flex flex-col space-y-1 md:items-end">
+                <span class="my-2">
+                  <strong
+                    class="relative after:absolute after:-bottom-1 after:left-0 after:mt-4 after:h-0.5 after:w-6 after:bg-primary after:content-['']"
+                  >
+                    {{ $t("footer.founders").toUpperCase() }}
+                  </strong>
+                </span>
+
+                <span
+                  v-for="link in foundingInsitutions"
+                  :key="link.label"
+                >
+                  <a
+                    :href="link.href"
+                    class="relative inline-block transition-transform duration-200 ease-out after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-full after:origin-right after:scale-x-0 after:bg-current after:content-[''] after:transition-transform after:duration-200 hover:-translate-x-1 hover:after:scale-x-100"
+                    target="_blank"
+                  >
+                    {{ link.label }}
+                  </a>
+                </span>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
-      <div class="flex justify-center">
+
+      <div class="my-4 flex flex-col items-center">
+        <h2 class="my-2 font-bold">
+          {{ $t("footer.partners").toUpperCase() }}
+        </h2>
         <div
-          class="flex w-fit gap-x-6 rounded border px-4 py-4 dark:border-gray-400 dark:bg-gray-500"
+          class="flex w-full justify-around space-x-4 py-4 dark:border-gray-400 dark:bg-gray-500 md:w-2/3"
         >
-          <a href="https://geoloogia.info">
+          <a v-for="(link, idx) in relatedOrganizations" :key="idx" class="w-32" :href="link.href">
             <img
-              border="0"
-              style="height: 50px"
-              src="https://files.geocollections.info/img/sarv_logo.svg"
-              alt="SARV"
-              title="SARV: geokogude infosüsteem"
-            >
-          </a>
-          <a href="https://natarc.ut.ee">
-            <img
-              border="0"
-              style="height: 50px"
-              src="https://elurikkus.ee/assets/images/natarc_logo_black.svg"
-              alt="Natural History Archives and Information Network (NATARC)"
-              title="SARV is part of national infrastructure Natural History Archives and Information Network (NATARC)"
-            >
-          </a>
-          <a href="https://www.struktuurifondid.ee">
-            <img
-              border="0"
-              style="height: 50px"
-              src="https://files.geocollections.info/img/EL_mv.png"
-              alt="EU"
-              title="Euroopa Liit"
+              :src="link.src"
+              :alt="link.alt"
+              :title="link.title"
             >
           </a>
         </div>
