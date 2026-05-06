@@ -60,172 +60,107 @@ const relatedOrganizations = [
 </script>
 
 <template>
-  <footer class="container border-t font-serif text-sm dark:border-gray-800">
-    <table class="w-full">
-      <tbody>
-        <tr class="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0">
-          <td valign="top" align="center">
-            <div class="flex flex-col md:items-start w-full space-y-1">
-              <span class="my-2">
-                <strong
-                  class="after:bg-primary relative after:absolute after:mt-4 after:left-0 after:-bottom-1 after:h-0.5 after:w-6 after:content-['']"
-                >
-                  {{ $t("footer.related").toUpperCase() }}
-                </strong>
-              </span>
+  <footer class="border-t font-serif text-sm dark:border-gray-800">
+    <div class="container">
+      <table class="w-full">
+        <tbody>
+          <tr class="flex flex-col items-center space-y-6 md:flex-row md:items-start md:space-y-0">
+            <!-- Related -->
+            <td class="w-full align-top text-center md:w-1/3">
+              <div class="flex w-full flex-col space-y-1 md:items-start">
+                <span class="my-2">
+                  <strong
+                    class="relative after:absolute after:-bottom-1 after:left-0 after:mt-4 after:h-0.5 after:w-6 after:bg-primary after:content-['']"
+                  >
+                    {{ $t("footer.related").toUpperCase() }}
+                  </strong>
+                </span>
 
-              <span
-                v-for="link in relatedWebResources"
-                :key="link.label"
-              >
-                <a
-                  :href="link.href"
-                  target="_blank"
-                  class="link-right"
+                <span
+                  v-for="link in relatedWebResources"
+                  :key="link.label"
                 >
-                  {{ link.label }}
+                  <a
+                    :href="link.href"
+                    target="_blank"
+                    class="relative inline-block transition-transform duration-200 ease-out after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:bg-current after:content-[''] after:transition-transform after:duration-200 hover:translate-x-1 hover:after:scale-x-100"
+                  >
+                    {{ link.label }}
+                  </a>
+                </span>
+              </div>
+            </td>
+
+            <!-- License -->
+            <td class="w-full align-top text-center md:w-1/3">
+              <div class="flex flex-col space-y-5 md:items-center">
+                <span class="my-2">
+                  <strong
+                    class="relative after:absolute after:-bottom-1 after:left-0 after:mt-4 after:h-0.5 after:w-6 after:bg-primary after:content-['']"
+                  >
+                    {{ $t("footer.title").toUpperCase() }}
+                  </strong>
+                </span>
+
+                <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">
+                  <img
+                    alt="Creative Commons Licence"
+                    src="https://creativecommons.org/wp-content/themes/vocabulary-theme/vocabulary/svg/cc/license_badges/big/by.svg"
+                    typeof="foaf:Image"
+                  >
                 </a>
-              </span>
-            </div>
-          </td>
 
-          <td valign="top" align="center">
-            <div class="flex flex-col md:items-center space-y-3">
-              <span class="my-2">
-                <strong
-                  class="after:bg-primary relative after:absolute after:mt-4 after:left-0 after:-bottom-1 after:h-0.5 after:w-6 after:content-['']"
+                <p class="max-w-70 text-xs wrap-break-word whitespace-break-spaces">
+                  {{ $t("footer.licence") }}
+                </p>
+              </div>
+            </td>
+
+            <!-- Founders -->
+            <td class="w-full align-top text-center md:w-1/3">
+              <div class="flex flex-col space-y-1 md:items-end">
+                <span class="my-2">
+                  <strong
+                    class="relative after:absolute after:-bottom-1 after:left-0 after:mt-4 after:h-0.5 after:w-6 after:bg-primary after:content-['']"
+                  >
+                    {{ $t("footer.founders").toUpperCase() }}
+                  </strong>
+                </span>
+
+                <span
+                  v-for="link in foundingInsitutions"
+                  :key="link.label"
                 >
-                  {{ $t("footer.title").toUpperCase() }}
+                  <a
+                    :href="link.href"
+                    class="relative inline-block transition-transform duration-200 ease-out after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-full after:origin-right after:scale-x-0 after:bg-current after:content-[''] after:transition-transform after:duration-200 hover:-translate-x-1 hover:after:scale-x-100"
+                    target="_blank"
+                  >
+                    {{ link.label }}
+                  </a>
+                </span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-                </strong>
-              </span>
-
-              <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">
-                <img
-                  alt="Creative Commons Licence"
-                  src="https://creativecommons.org/wp-content/themes/vocabulary-theme/vocabulary/svg/cc/license_badges/big/by.svg"
-                  typeof="foaf:Image"
-                >
-              </a>
-
-              <p
-                class="max-w-70 text-xs wrap-break-word whitespace-break-spaces"
-              >
-                {{ $t("footer.licence") }}
-              </p>
-            </div>
-          </td>
-
-          <td valign="top" align="center">
-            <div class="flex flex-col md:items-end space-y-1">
-              <span class="my-2">
-                <strong
-                  class="after:bg-primary relative after:absolute after:mt-4 after:left-0 after:-bottom-1 after:h-0.5 after:w-6 after:content-['']"
-                >
-                  {{ $t("footer.founders").toUpperCase() }}
-
-                </strong>
-              </span>
-
-              <span
-                v-for="link in foundingInsitutions"
-                :key="link.label"
-              >
-                <a
-                  :href="link.href"
-                  class="link-left"
-                  target="_blank"
-                >
-                  {{ link.label }}
-                </a>
-              </span>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="my-4 flex flex-col items-center">
-      <h2 class="my-2 font-bold">
-        {{ $t("footer.partners").toUpperCase() }}
-      </h2>
-      <div
-        class="flex w-full md:w-2/3 space-x-4 justify-around py-4 dark:border-gray-400 dark:bg-gray-500"
-      >
-        <a v-for="(link, idx) in relatedOrganizations" :key="idx" class="w-32" :href="link.href">
-          <img
-            :src="link.src"
-            :alt="link.alt"
-            :title="link.title"
-          >
-        </a>
+      <div class="my-4 flex flex-col items-center">
+        <h2 class="my-2 font-bold">
+          {{ $t("footer.partners").toUpperCase() }}
+        </h2>
+        <div
+          class="flex w-full justify-around space-x-4 py-4 dark:border-gray-400 dark:bg-gray-500 md:w-2/3"
+        >
+          <a v-for="(link, idx) in relatedOrganizations" :key="idx" class="w-32" :href="link.href">
+            <img
+              :src="link.src"
+              :alt="link.alt"
+              :title="link.title"
+            >
+          </a>
+        </div>
       </div>
     </div>
   </footer>
 </template>
-
-<style>
-@media(min-width: 768px) {
-  td{
-    width: 33.3%;
-  }
-}
-
-td{
-  width: 100%;
-}
-
-.link-right {
-  position: relative;
-  display: inline-block;
-  transition: transform 200ms ease-out;
-}
-
-.link-right::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -0.25rem;
-  height: 2px;
-  width: 100%;
-  background-color: currentColor;
-  transform-origin: left;
-  transform: scaleX(0);
-  transition: transform 200ms ease-out;
-}
-
-.link-right:hover {
-  transform: translateX(0.25rem);
-}
-
-.link-right:hover::after {
-  transform: scaleX(1);
-}
-
-.link-left {
-  position: relative;
-  display: inline-block;
-  transition: transform 200ms ease-out;
-}
-
-.link-left::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -0.25rem;
-  height: 2px;
-  width: 100%;
-  background-color: currentColor;
-  transform-origin: right;
-  transform: scaleX(0);
-  transition: transform 200ms ease-out;
-}
-
-.link-left:hover {
-  transform: translateX(-0.25rem);
-}
-
-.link-left:hover::after {
-  transform: scaleX(1);
-}
-</style>
