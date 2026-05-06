@@ -255,5 +255,9 @@
     "btn_search": "Otsi fossiile",
     "btn_clear": "Tühjenda väljad",
     "msg_add_criteria": "Perekondade/liikide nimekirja kuvamiseks täida vähemalt üks otsinguparameeter."
+  },
+
+  "aria": {
+    "clear": "Tühjenda väli"
   }
 }

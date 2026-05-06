@@ -15,12 +15,24 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
 </script>
 
 <template>
-  <UForm class="flex flex-col justify-between" @submit="search">
-    <div class="mt-4 flex flex-col lg:grid lg:grid-cols-2 gap-4">
-      <UFormField class="text-xl lg:text-3xl" :label="$t('advancedsearch.taxon')">
+  <UForm
+    class="flex flex-col justify-between"
+    @submit="
+      () => {
+        state.pagination.pageIndex = 1;
+        search();
+      }
+    "
+  >
+    <div class="mt-4 flex flex-col gap-4 lg:grid lg:grid-cols-2">
+      <UFormField
+        class="text-xl lg:text-2xl"
+        :label="$t('advancedsearch.taxon')"
+      >
         <USelectMenu
           v-model="state.higherTaxon"
           v-model:search-term="higherTaxonSearchTerm"
+          clear
           class="my-2 w-full"
           :items="higherTaxonSelectMenuResults"
           label-key="taxon"
@@ -35,21 +47,47 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
           class="w-full"
           size="xl"
           :placeholder="$t('advancedsearch.species')"
-        />
+        >
+          <template v-if="state.species.length > 0" #trailing>
+            <UButton
+              color="neutral"
+              variant="link"
+              size="sm"
+              icon="i-lucide-x"
+              :aria-label="$t('aria.clear')"
+              @click="state.species = ''"
+            />
+          </template>
+        </UInput>
 
         <UInput
           v-model="state.author"
           class="w-full"
           size="xl"
           :placeholder="$t('advancedsearch.author')"
-        />
+        >
+          <template v-if="state.author.length > 0" #trailing>
+            <UButton
+              color="neutral"
+              variant="link"
+              size="sm"
+              icon="i-lucide-x"
+              :aria-label="$t('aria.clear')"
+              @click="state.author = ''"
+            />
+          </template>
+        </UInput>
       </UFormField>
 
       <div class="flex flex-col justify-between">
-        <UFormField class="text-xl lg:text-3xl" :label="$t('advancedsearch.stratigraphy')">
+        <UFormField
+          class="text-xl lg:text-2xl"
+          :label="$t('advancedsearch.stratigraphy')"
+        >
           <USelectMenu
             v-model="state.stratigraphy"
             v-model:search-term="stratigraphySearchTerm"
+            clear
             class="w-full"
             :items="stratigraphySelectMenuResults"
             :label-key="
@@ -62,13 +100,27 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
           />
         </UFormField>
 
-        <UFormField class="text-xl lg:text-3xl" :label="$t('advancedsearch.locality_label')">
+        <UFormField
+          class="text-xl lg:text-2xl"
+          :label="$t('advancedsearch.locality_label')"
+        >
           <UInput
             v-model="state.locality"
             class="w-full"
             size="xl"
             :placeholder="$t('advancedsearch.locality')"
-          />
+          >
+            <template v-if="state.locality.length > 0" #trailing>
+              <UButton
+                color="neutral"
+                variant="link"
+                size="sm"
+                icon="i-lucide-x"
+                :aria-label="$t('aria.clear')"
+                @click="state.locality = ''"
+              />
+            </template>
+          </UInput>
 
           <!-- Disabled for the moment because it doesn't work
       <span class="grid grid-cols-2">
@@ -108,13 +160,17 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
       </div>
     </div>
 
-    <div class="flex flex-col lg:flex-row gap-3">
-      <UButton class="w-full w-full lg:w-5/7 justify-center hover:scale-105" type="submit" size="lg">
+    <div class="flex flex-col gap-3 lg:flex-row">
+      <UButton
+        class="w-full justify-center hover:scale-105 lg:w-5/7"
+        type="submit"
+        size="lg"
+      >
         {{ $t("advancedsearch.btn_search").toUpperCase() }}
       </UButton>
 
       <UButton
-        class="w-full lg:flex-1 justify-center hover:scale-105"
+        class="w-full justify-center hover:scale-105 lg:flex-1"
         variant="outline"
         size="lg"
         color="neutral"
