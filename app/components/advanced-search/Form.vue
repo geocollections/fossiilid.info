@@ -45,7 +45,6 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
         <UInput
           v-model="state.species"
           class="w-full"
-          clear
           size="xl"
           :placeholder="$t('advancedsearch.species')"
         >
@@ -55,19 +54,14 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
               variant="link"
               size="sm"
               icon="i-lucide-x"
-              aria-label="Clear input"
-              @click="
-                () => {
-                  state.species = '';
-                }
-              "
+              :aria-label="$t('aria.clear')"
+              @click="state.species = ''"
             />
           </template>
         </UInput>
 
         <UInput
           v-model="state.author"
-          clear
           class="w-full"
           size="xl"
           :placeholder="$t('advancedsearch.author')"
@@ -78,12 +72,8 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
               variant="link"
               size="sm"
               icon="i-lucide-x"
-              aria-label="Clear input"
-              @click="
-                () => {
-                  state.author = '';
-                }
-              "
+              :aria-label="$t('aria.clear')"
+              @click="state.author = ''"
             />
           </template>
         </UInput>
@@ -117,7 +107,6 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
           <UInput
             v-model="state.locality"
             class="w-full"
-            clear
             size="xl"
             :placeholder="$t('advancedsearch.locality')"
           >
@@ -127,12 +116,8 @@ const { searchHigherTaxon, searchStratigraphy } = useAdvancedSearchFilters(
                 variant="link"
                 size="sm"
                 icon="i-lucide-x"
-                aria-label="Clear input"
-                @click="
-                  () => {
-                    state.locality = '';
-                  }
-                "
+                :aria-label="$t('aria.clear')"
+                @click="state.locality = ''"
               />
             </template>
           </UInput>
