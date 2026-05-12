@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import type { Taxon } from "~/pages/[id].vue";
+import type { Reference, Taxon } from "~/pages/[id].vue";
+
 import isEmpty from "lodash/isEmpty";
 
 const props = defineProps<{
   taxon: Taxon;
 }>();
 
-const { locale } = useI18n();
+const { t, locale } = useI18n();
 const img = useImage();
+
+const runtimeConfig = useRuntimeConfig();
 
 interface TaxonTypeSpecimen {
   id: number;
@@ -42,6 +45,7 @@ interface TaxonTypeSpecimen {
   };
   locality_free?: string;
   locality_free_en?: string;
+  reference: Reference;
 }
 
 const { data: typeSpecimensRes } = await useNewApiFetch<{
@@ -105,7 +109,7 @@ function isAtLeastOneDefinedAndNotEmpty(arr: any) {
           </span>
           <a
             v-if="typeSpecimen.specimen"
-            :href="`https://geocollections.info/specimen/${typeSpecimen.specimen}`"
+            :href="`${runtimeConfig.public.geocollections}/specimen/${typeSpecimen.specimen}`"
           >
             {{ typeSpecimen.specimen_number }}
           </a>
@@ -137,7 +141,7 @@ function isAtLeastOneDefinedAndNotEmpty(arr: any) {
           </span>
           <template v-if="typeSpecimen.locality">
             <a
-              :href="`https://geocollections.info/locality/${typeSpecimen.locality?.id}`"
+              :href="`${runtimeConfig.public.geocollections}/locality/${typeSpecimen.locality?.id}`"
             >
               {{
                 $translate({
@@ -170,7 +174,7 @@ function isAtLeastOneDefinedAndNotEmpty(arr: any) {
           </span>
           <a
             v-if="typeSpecimen.stratigraphy"
-            :href="`https://geocollections.info/stratigraphy/${typeSpecimen.stratigraphy?.id}`"
+            :href="`${runtimeConfig.public.geocollections}/stratigraphy/${typeSpecimen.stratigraphy?.id}`"
           >{{
             $translate({
               et: typeSpecimen.stratigraphy.name,
@@ -204,12 +208,18 @@ function isAtLeastOneDefinedAndNotEmpty(arr: any) {
           </span>
           <div v-if="typeSpecimen.reference" class="mt-2">
             <span class="italic">Reference: </span>
-            <ReferenceItem :reference="typeSpecimen.reference" />
+            <a
+              :href="`${runtimeConfig.public.geoliterature}/reference/${typeSpecimen.reference.id}`"
+              :aria-label="t('reference.viewFull')"
+            >
+              {{ typeSpecimen.reference.author }}
+              <time :datetime="typeSpecimen.reference.year">{{ typeSpecimen.reference.year }}</time>.
+            </a>
           </div>
         </div>
         <span v-if="typeSpecimen.attachment" class="pl-3">
           <a
-            :href="`https://geocollections.info/file/${typeSpecimen.attachment.id}`"
+            :href="`${runtimeConfig.public.geocollections}/file/${typeSpecimen.attachment.id}`"
           >
             <img
               class="max-h-[200px] rounded"
