@@ -20,7 +20,7 @@ const distributionConop = computed(() => data.value ?? []);
     </template>
     <div v-if="distributionConop.length > 0">
       <div v-for="(conop, idx) in distributionConop" :key="idx">
-        <UDivider v-if="idx !== 0" class="my-1" />
+        <USeparator v-if="idx !== 0" class="my-1" />
         <a :href="`https://geocollections.info/locality/${conop.locality_id}`">
           {{ conop.locality_et }}
         </a>
