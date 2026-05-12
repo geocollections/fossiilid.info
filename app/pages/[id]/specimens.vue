@@ -6,7 +6,7 @@ const props = defineProps<{
   taxonPage: TaxonPage;
 }>();
 
-const geocollectionUrl = "https://geocollections.info" as const;
+const runtimeConfig = useRuntimeConfig();
 
 const page = ref(1);
 const paginateBy = ref(10);
@@ -84,7 +84,7 @@ function colorFromString(str: string) {
   />
   <div class="space-y-2 my-2 lg:hidden">
     <UCard v-for="specimen in specimenRes?.response.docs" :key="specimen.id" class="p-2 relative">
-      <a class="absolute text-sm right-4 top-1" :href="`${geocollectionUrl}/specimen/${specimen.id}`"> {{ specimen.acronym }} {{ specimen.specimen_number }} </a>
+      <a class="absolute text-sm right-4 top-1" :href="`${runtimeConfig.public.geocollections}/specimen/${specimen.id}`"> {{ specimen.acronym }} {{ specimen.specimen_number }} </a>
       <div class="flex gap-4 text-xs">
         <UCard class="w-10 h-10 flex items-center justify-center" :style="{ backgroundColor: colorFromString(specimen.taxon) }">
           {{ specimen.taxon.substring(0, 2) }}
