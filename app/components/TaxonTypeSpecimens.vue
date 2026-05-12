@@ -10,6 +10,8 @@ const props = defineProps<{
 const { t, locale } = useI18n();
 const img = useImage();
 
+const runtimeConfig = useRuntimeConfig();
+
 interface TaxonTypeSpecimen {
   id: number;
   type?: {
@@ -107,7 +109,7 @@ function isAtLeastOneDefinedAndNotEmpty(arr: any) {
           </span>
           <a
             v-if="typeSpecimen.specimen"
-            :href="`https://geocollections.info/specimen/${typeSpecimen.specimen}`"
+            :href="`${runtimeConfig.public.geocollections}/specimen/${typeSpecimen.specimen}`"
           >
             {{ typeSpecimen.specimen_number }}
           </a>
@@ -139,7 +141,7 @@ function isAtLeastOneDefinedAndNotEmpty(arr: any) {
           </span>
           <template v-if="typeSpecimen.locality">
             <a
-              :href="`https://geocollections.info/locality/${typeSpecimen.locality?.id}`"
+              :href="`${runtimeConfig.public.geocollections}/locality/${typeSpecimen.locality?.id}`"
             >
               {{
                 $translate({
@@ -172,7 +174,7 @@ function isAtLeastOneDefinedAndNotEmpty(arr: any) {
           </span>
           <a
             v-if="typeSpecimen.stratigraphy"
-            :href="`https://geocollections.info/stratigraphy/${typeSpecimen.stratigraphy?.id}`"
+            :href="`${runtimeConfig.public.geocollections}/stratigraphy/${typeSpecimen.stratigraphy?.id}`"
           >{{
             $translate({
               et: typeSpecimen.stratigraphy.name,
@@ -207,7 +209,7 @@ function isAtLeastOneDefinedAndNotEmpty(arr: any) {
           <div v-if="typeSpecimen.reference" class="mt-2">
             <span class="italic">Reference: </span>
             <a
-              :href="`https://kirjandus.geoloogia.info/reference/${typeSpecimen.reference.id}`"
+              :href="`${runtimeConfig.public.geoliterature}/reference/${typeSpecimen.reference.id}`"
               :aria-label="t('reference.viewFull')"
             >
               {{ typeSpecimen.reference.author }}
@@ -217,7 +219,7 @@ function isAtLeastOneDefinedAndNotEmpty(arr: any) {
         </div>
         <span v-if="typeSpecimen.attachment" class="pl-3">
           <a
-            :href="`https://geocollections.info/file/${typeSpecimen.attachment.id}`"
+            :href="`${runtimeConfig.public.geocollections}/file/${typeSpecimen.attachment.id}`"
           >
             <img
               class="max-h-[200px] rounded"
