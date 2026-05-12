@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const { t } = useI18n();
+
 const relatedWebResources = [
   {
     href: "https://elurikkus.ee",
@@ -25,15 +27,15 @@ const relatedWebResources = [
 const foundingInsitutions = computed(() => [
   {
     href: "https://taltech.ee/geoloogia-instituut",
-    label: $t("footer.gi"),
+    label: t("footer.gi"),
   },
   {
     href: "https://natmuseum.ut.ee",
-    label: $t("footer.ut"),
+    label: t("footer.ut"),
   },
   {
     href: "https://loodusmuuseum.ee",
-    label: $t("footer.elm"),
+    label: t("footer.elm"),
   },
 ]);
 
@@ -72,7 +74,7 @@ const relatedOrganizations = [
                   <strong
                     class="relative after:absolute after:-bottom-1 after:left-0 after:mt-4 after:h-0.5 after:w-6 after:bg-primary after:content-['']"
                   >
-                    {{ $t("footer.related").toUpperCase() }}
+                    {{ t("footer.related") }}
                   </strong>
                 </span>
 
@@ -98,7 +100,7 @@ const relatedOrganizations = [
                   <strong
                     class="relative after:absolute after:-bottom-1 after:left-0 after:mt-4 after:h-0.5 after:w-6 after:bg-primary after:content-['']"
                   >
-                    {{ $t("footer.title").toUpperCase() }}
+                    {{ t("footer.title") }}
                   </strong>
                 </span>
 
@@ -111,7 +113,7 @@ const relatedOrganizations = [
                 </a>
 
                 <p class="max-w-70 text-xs wrap-break-word whitespace-break-spaces">
-                  {{ $t("footer.licence") }}
+                  {{ t("footer.licence") }}
                 </p>
               </div>
             </td>
@@ -123,7 +125,7 @@ const relatedOrganizations = [
                   <strong
                     class="relative after:absolute after:-bottom-1 after:left-0 after:mt-4 after:h-0.5 after:w-6 after:bg-primary after:content-['']"
                   >
-                    {{ $t("footer.founders").toUpperCase() }}
+                    {{ t("footer.founders") }}
                   </strong>
                 </span>
 
@@ -147,7 +149,7 @@ const relatedOrganizations = [
 
       <div class="my-4 flex flex-col items-center">
         <h2 class="my-2 font-bold">
-          {{ $t("footer.partners").toUpperCase() }}
+          {{ t("footer.partners") }}
         </h2>
         <div
           class="flex w-full justify-around space-x-4 py-4 dark:border-gray-400 dark:bg-gray-500 md:w-2/3"

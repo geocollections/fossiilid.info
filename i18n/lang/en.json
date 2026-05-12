@@ -134,21 +134,21 @@
     "geocollections": "Geocollections portal"
   },
   "footer": {
-    "title": "License",
-    "partners": "Partner organizations",
+    "title": "LICENSE",
+    "partners": "PARTNER ORGANIZATIONS",
     "licence": "Except where otherwise noted, content on this site is licensed under CC BY Licence.",
     "collections": "Geological collections in",
     "estonia": "Estonia",
     "sweden": "Sweden",
     "finland": "Finland",
-    "related": "Related web resources",
+    "related": "RELATED WEB RESOURCES",
     "gi": "Department of Geology, TalTech",
     "emu": "Estonian University of Life Sciences",
     "ut": "Natural History Museum, University of Tartu",
     "fmnh": "Finnish Museum of Natural History",
     "nrm": "Swedish Museum of Natural History",
     "elm": "Estonian Museum of Natural History",
-    "founders": "Founding institutions"
+    "founders": "FOUNDING INSTITUTIONS"
   },
 
   "search": {
