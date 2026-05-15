@@ -55,6 +55,10 @@ function reset() {
   drawnItems.value?.clearLayers();
   Object.assign(state, createInitialState());
 }
+
+onMounted(() => {
+  search();
+});
 </script>
 
 <template>
