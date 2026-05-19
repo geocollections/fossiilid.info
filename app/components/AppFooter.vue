@@ -70,12 +70,8 @@ const relatedOrganizations = [
             <!-- Related -->
             <td class="w-full align-top text-center md:w-1/3">
               <div class="flex w-full flex-col space-y-1 md:items-start">
-                <span class="my-2">
-                  <strong
-                    class="relative after:absolute after:-bottom-1 after:left-0 after:mt-4 after:h-0.5 after:w-6 after:bg-primary after:content-['']"
-                  >
-                    {{ t("footer.related") }}
-                  </strong>
+                <span class="font-bold my-2">
+                  {{ t("footer.related") }}
                 </span>
 
                 <span
@@ -96,12 +92,8 @@ const relatedOrganizations = [
             <!-- License -->
             <td class="w-full align-top text-center md:w-1/3">
               <div class="flex flex-col space-y-5 md:items-center">
-                <span class="my-2">
-                  <strong
-                    class="relative after:absolute after:-bottom-1 after:left-0 after:mt-4 after:h-0.5 after:w-6 after:bg-primary after:content-['']"
-                  >
-                    {{ t("footer.title") }}
-                  </strong>
+                <span class="font-bold my-2">
+                  {{ t("footer.title") }}
                 </span>
 
                 <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">
@@ -121,12 +113,9 @@ const relatedOrganizations = [
             <!-- Founders -->
             <td class="w-full align-top text-center md:w-1/3">
               <div class="flex flex-col space-y-1 md:items-end">
-                <span class="my-2">
-                  <strong
-                    class="relative after:absolute after:-bottom-1 after:left-0 after:mt-4 after:h-0.5 after:w-6 after:bg-primary after:content-['']"
-                  >
-                    {{ t("footer.founders") }}
-                  </strong>
+                <span class="font-bold my-2">
+
+                  {{ t("footer.founders") }}
                 </span>
 
                 <span
