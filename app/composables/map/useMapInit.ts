@@ -10,6 +10,7 @@ import { FullScreen } from "leaflet.fullscreen";
 
 export function useMapInit(selectedArea: Ref<Circle | Rectangle | Polygon | undefined>, state: AdvancedSearchState) {
   const { $L } = useNuxtApp();
+  const store = useRootStore();
   const drawnItems = ref<FeatureGroup>();
   const { buildPopupContent, showRecordsInSelectedArea, generatePopup }
     = useMapPopup(drawnItems, state, selectedArea);
@@ -80,8 +81,7 @@ export function useMapInit(selectedArea: Ref<Circle | Rectangle | Polygon | unde
           })
           .catch(() => {
 
-          })
-        ;
+          });
       });
       layer.openPopup();
       const numberOfDrawnLayers = drawnItems.value?.getLayers().length ?? 0;
@@ -100,6 +100,16 @@ export function useMapInit(selectedArea: Ref<Circle | Rectangle | Polygon | unde
         enableUserInput: false,
       })
       .addTo(instance);
+
+    watch(() => store.mode, () => {
+      if (store.mode) {
+        if (store.mode === "in_global")
+          instance.setView([58.5, 20.5], 1);
+        else if (store.mode === "in_estonia")
+          instance.setView([58.5, 25.5], 6);
+        else instance.setView([60.5, 19], 4);
+      }
+    });
 
     return instance;
   }

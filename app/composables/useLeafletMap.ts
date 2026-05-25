@@ -99,7 +99,7 @@ export function useLeafletMap(map: Ref<Map | undefined>) {
         map.value.setView([58.5, 20.5], 1);
       else if (store.mode === "in_estonia")
         map.value.setView([58.5, 25.5], 6);
-      else map.value.setView([58.5, 25.5], 5);
+      else map.value.setView([60.5, 19], 4);
     }
   }
   function getCoords(string: string): LatLngExpression {
