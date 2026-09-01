@@ -84,12 +84,12 @@ async function loadMap() {
   );
   setView();
   state.tileLayer = $L.tileLayer(
-    "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+    "https://services.arcgisonline.com/arcgis/rest/services/canvas/world_light_gray_base/mapserver/tile/{z}/{y}/{x}",
     {
       minZoom: 1,
       maxZoom: 18,
       attribution:
-        "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors &copy; <a href=\"https://carto.com/attributions\">CARTO</a>",
+        'Esri, HERE, Garmin, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, and the GIS user community',
     },
   );
   state.tileLayer.addTo(map.value);
