@@ -17,9 +17,10 @@ export function useMapInit(selectedArea: Ref<Circle | Rectangle | Polygon | unde
 
   function getBaseLayers() {
     return $L.tileLayer(
-      "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
+      "https://services.arcgisonline.com/arcgis/rest/services/canvas/world_light_gray_base/mapserver/tile/{z}/{y}/{x}",
       {
-        attribution: "...",
+        attribution:
+          "Esri, HERE, Garmin, &copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors, and the GIS user community",
         subdomains: "abcd",
       },
     );
