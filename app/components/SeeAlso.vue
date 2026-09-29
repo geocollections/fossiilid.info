@@ -2,6 +2,9 @@
 import type { Taxon, TaxonPage } from "~/pages/[id].vue";
 
 const props = defineProps<{ taxon: Taxon; taxonPage: TaxonPage | undefined }>();
+
+const { t } = useI18n();
+
 const { locale } = useI18n();
 const wikipediaUrl = computed(() => {
   return `https://${locale.value}.wikipedia.org/wiki/${props.taxonPage?.link_wikipedia}`;
@@ -14,7 +17,7 @@ const paleobiologyUrl = computed(() => {
 <template>
   <UCard>
     <template #header>
-      See also
+      {{ t('tabs.see_also') }}
     </template>
     <ul>
       <li v-if="taxonPage?.link_wikipedia">
@@ -54,7 +57,7 @@ const paleobiologyUrl = computed(() => {
         </a>
       </li>
       <li v-if="taxon.plutof_id">
-        <a :href="`https://elurikkus.ee/bie-hub/species/${taxon.plutof_id}`">
+        <a :href="`https://elurikkus.ee/app/taxonomy/taxon/${taxon.plutof_id}`">
           {{ $t("header.f_link_plutof") }}
           <UIcon
             name="i-heroicons-arrow-up-right-20-solid"
