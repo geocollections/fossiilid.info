@@ -73,7 +73,7 @@ const img = useImage();
 
 const taxonId = computed(() => String(route.params.id));
 
-const { data } = await useAsyncData(
+const { data, error } = await useAsyncData(
   () => `taxon-${taxonId.value}`,
   async () => {
     const taxon = await $apiFetchNew<Taxon>(`/taxa/${taxonId.value}/`, {
@@ -197,6 +197,14 @@ const { data } = await useAsyncData(
     watch: [taxonId, locale],
   },
 );
+
+if (error.value !== undefined) {
+  showError({
+    statusCode: 404,
+    statusMessage: "Page not found",
+    fatal: true,
+  });
+}
 
 const {
   taxon,
